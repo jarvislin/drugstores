@@ -59,14 +59,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
         map.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
-            override fun getInfoContents(p0: Marker?): View {
-                val view = TextView(this@MapsActivity)
-                view.text = "getInfoContents"
-                return view
-            }
-
-            override fun getInfoWindow(p0: Marker?): View {
-                val store = stores.first { it.id == p0!!.snippet }
+            override fun getInfoContents(marker: Marker): View {
+                val store = stores.first { it.id == marker.snippet }
                 val view =
                     LayoutInflater.from(this@MapsActivity).inflate(R.layout.window, null, false)
                 view.findViewById<TextView>(R.id.textName).text = store.name
@@ -77,6 +71,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     view.findViewById<TextView>(R.id.textNote).visibility = VISIBLE
                 }
                 return view
+            }
+
+            override fun getInfoWindow(p0: Marker): View? {
+                return null
             }
         })
     }
