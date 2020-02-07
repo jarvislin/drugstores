@@ -28,19 +28,22 @@ import java.util.concurrent.TimeUnit
 class MapsActivity : BaseActivity(), OnMapReadyCallback {
     override val viewModel: MapViewModel by viewModel()
     private val cacheManager: MarkerCacheManager by inject()
-
-    companion object {
-        private const val DEFAULT_LAT = 25.0393868
-        private const val DEFAULT_LNG = 121.5087163
-        private const val DELAY_MILLISECONDS = 100L
-    }
-
     private lateinit var map: GoogleMap
     private val positionLatitude
         get() = map.cameraPosition.target.latitude
 
     private val positionLongitude
         get() = map.cameraPosition.target.longitude
+
+    private val infoWindowView by lazy {
+        LayoutInflater.from(this@MapsActivity).inflate(R.layout.window, null, false)
+    }
+
+    companion object {
+        private const val DEFAULT_LAT = 25.0393868
+        private const val DEFAULT_LNG = 121.5087163
+        private const val DELAY_MILLISECONDS = 100L
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,23 +77,24 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
         map.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
             override fun getInfoContents(marker: Marker): View? {
-                val store = viewModel.stores.value!!.first { it.id == marker.snippet }
-                val view =
-                    LayoutInflater.from(this@MapsActivity).inflate(R.layout.window, null, false)
-                view.findViewById<TextView>(R.id.textName).text = store.name
-                view.findViewById<TextView>(R.id.textPhone).text = store.phone
-                view.findViewById<TextView>(R.id.textAddress).text = store.address
-                if (store.note.isNotEmpty()) {
-                    view.findViewById<TextView>(R.id.textNote).text = store.note
-                    view.findViewById<TextView>(R.id.textNote).visibility = VISIBLE
-                }
-                return view
+                bindView(infoWindowView, cacheManager.getDrugstore(marker))
+                return infoWindowView
             }
 
             override fun getInfoWindow(p0: Marker): View? {
                 return null
             }
         })
+    }
+
+    private fun bindView(view: View, store: Drugstore) {
+        view.findViewById<TextView>(R.id.textName).text = store.name
+        view.findViewById<TextView>(R.id.textPhone).text = store.phone
+        view.findViewById<TextView>(R.id.textAddress).text = store.address
+        if (store.note.isNotEmpty()) {
+            view.findViewById<TextView>(R.id.textNote).text = store.note
+            view.findViewById<TextView>(R.id.textNote).visibility = VISIBLE
+        }
     }
 
     private fun addMarkers(drugstores: List<Drugstore>) {
