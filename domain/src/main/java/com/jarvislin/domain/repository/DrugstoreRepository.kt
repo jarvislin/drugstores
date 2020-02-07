@@ -12,4 +12,6 @@ interface DrugstoreRepository {
     fun insertDrugstores(stores: List<Drugstore>): Completable
     fun initDrugstores(): Single<List<Drugstore>>
     fun fetchNearStores(latitude: Double, longitude: Double): Single<List<Drugstore>>
+    fun saveLastLocation(latitude: Double, longitude: Double)
+    fun getLastLocation(): Pair<Double, Double>
 }

@@ -6,14 +6,11 @@ import java.util.*
 
 class LocalData(private val context: Context) {
     companion object {
-        private const val KEY_FAVORITE_ANIMALS = "key_favorite_animals"
+        private const val KEY_LAST_LOCATION = "key_last_location"
     }
 
-    var favoriteAnimals: String by preferences(KEY_FAVORITE_ANIMALS, "[]")
+    var lastLocation: String by preferences(KEY_LAST_LOCATION, "25.0393868,121.5087163")
 
-//    fun getAnimals(): Vector<Animal> {
-//        return favoriteAnimals.jsonToList()
-//    }
 
     private fun <T : Any> preferences(name: String, defaultValue: T) =
         DelegatesExt.preferences(name, defaultValue, context)

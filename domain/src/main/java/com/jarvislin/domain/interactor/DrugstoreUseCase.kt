@@ -21,4 +21,12 @@ class DrugstoreUseCase(private val drugstoreRepository: DrugstoreRepository) {
     fun fetchNearDrugstoreInfo(latitude: Double, longitude: Double): Single<List<Drugstore>> {
         return drugstoreRepository.fetchNearStores(latitude, longitude)
     }
+
+    fun saveLocation(latitude: Double, longitude: Double) {
+        drugstoreRepository.saveLastLocation(latitude, longitude)
+    }
+
+    fun getLastLocation(): Pair<Double, Double> {
+        return drugstoreRepository.getLastLocation()
+    }
 }

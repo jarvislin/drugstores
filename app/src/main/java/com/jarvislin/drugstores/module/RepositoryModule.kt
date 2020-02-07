@@ -5,5 +5,5 @@ import com.jarvislin.drugstores.repository.DrugstoreRepositoryImpl
 import org.koin.dsl.module
 
 val repositoryModule = module {
-    single { DrugstoreRepositoryImpl(get()) as DrugstoreRepository }
+    single { DrugstoreRepositoryImpl(get(), get()) as DrugstoreRepository }
 }

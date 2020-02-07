@@ -6,6 +6,7 @@ import com.jarvislin.domain.entity.OpenData
 import com.jarvislin.domain.repository.DrugstoreRepository
 import com.jarvislin.drugstores.MarkerCacheManager.Companion.MAX_MARKER_AMOUNT
 import com.jarvislin.drugstores.base.App
+import com.jarvislin.drugstores.data.LocalData
 import com.jarvislin.drugstores.data.db.DrugstoreDao
 import com.jarvislin.drugstores.extension.toJson
 import com.jarvislin.drugstores.extension.toList
@@ -19,7 +20,10 @@ import timber.log.Timber
 import java.nio.charset.Charset
 
 
-class DrugstoreRepositoryImpl(private val drugstoreDao: DrugstoreDao) : DrugstoreRepository {
+class DrugstoreRepositoryImpl(
+    private val drugstoreDao: DrugstoreDao,
+    private val localData: LocalData
+) : DrugstoreRepository {
     private val client: OkHttpClient by lazy { OkHttpClient() }
     override fun fetchOpenData(): Single<List<OpenData>> {
         return Single.create<List<OpenData>> { emitter ->
@@ -79,4 +83,12 @@ class DrugstoreRepositoryImpl(private val drugstoreDao: DrugstoreDao) : Drugstor
             .subscribeOn(Schedulers.io())
     }
 
+    override fun saveLastLocation(latitude: Double, longitude: Double) {
+        localData.lastLocation = "$latitude,$longitude"
+    }
+
+    override fun getLastLocation(): Pair<Double, Double> {
+        val location = localData.lastLocation.split(",").map { it.toDouble() }
+        return Pair(location[0], location[1])
+    }
 }
