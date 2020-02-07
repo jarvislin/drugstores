@@ -4,7 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import com.jarvislin.domain.entity.Drugstore
 import com.jarvislin.domain.interactor.DrugstoreUseCase
 import com.jarvislin.drugstores.extension.bind
-import com.jarvislin.petme.base.BaseViewModel
+import com.jarvislin.drugstores.base.BaseViewModel
 import org.koin.core.inject
 import timber.log.Timber
 
@@ -34,8 +34,8 @@ class MapViewModel : BaseViewModel() {
             .bind(this)
     }
 
-    fun fetchNearStores(latitude: Double, longitude: Double) {
-        useCase.fetchNearStores(latitude, longitude)
+    fun fetchNearDrugstoreInfo(latitude: Double, longitude: Double) {
+        useCase.fetchNearDrugstoreInfo(latitude, longitude)
             .subscribe({ stores.postValue(it) }, { Timber.e(it) })
             .bind(this)
     }

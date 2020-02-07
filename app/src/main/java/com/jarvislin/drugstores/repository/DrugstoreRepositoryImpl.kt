@@ -4,6 +4,7 @@ import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.jarvislin.domain.entity.Drugstore
 import com.jarvislin.domain.entity.OpenData
 import com.jarvislin.domain.repository.DrugstoreRepository
+import com.jarvislin.drugstores.MarkerCacheManager.Companion.MAX_MARKER_AMOUNT
 import com.jarvislin.drugstores.base.App
 import com.jarvislin.drugstores.data.db.DrugstoreDao
 import com.jarvislin.drugstores.extension.toJson
@@ -74,7 +75,7 @@ class DrugstoreRepositoryImpl(private val drugstoreDao: DrugstoreDao) : Drugstor
     }
 
     override fun fetchNearStores(latitude: Double, longitude: Double): Single<List<Drugstore>> {
-        return drugstoreDao.selectNearStores(latitude, longitude)
+        return drugstoreDao.selectNearStores(latitude, longitude, MAX_MARKER_AMOUNT)
             .subscribeOn(Schedulers.io())
     }
 

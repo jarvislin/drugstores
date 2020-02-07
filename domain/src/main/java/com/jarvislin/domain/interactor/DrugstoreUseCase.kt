@@ -18,7 +18,7 @@ class DrugstoreUseCase(private val drugstoreRepository: DrugstoreRepository) {
             .flatMapCompletable { drugstoreRepository.insertDrugstores(it) }
     }
 
-    fun fetchNearStores(latitude: Double, longitude: Double): Single<List<Drugstore>> {
+    fun fetchNearDrugstoreInfo(latitude: Double, longitude: Double): Single<List<Drugstore>> {
         return drugstoreRepository.fetchNearStores(latitude, longitude)
     }
 }

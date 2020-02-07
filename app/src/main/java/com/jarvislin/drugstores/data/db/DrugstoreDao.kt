@@ -27,6 +27,6 @@ interface DrugstoreDao {
     @Query("DELETE FROM OpenData")
     fun deleteOpenData(): Single<Int>
 
-    @Query("SELECT * FROM Drugstores ORDER BY ABS(:latitude - lat) + ABS(:longitude - lng) ASC LIMIT 200")
-    fun selectNearStores(latitude: Double, longitude: Double): Single<List<Drugstore>>
+    @Query("SELECT * FROM Drugstores ORDER BY ABS(:latitude - lat) + ABS(:longitude - lng) ASC LIMIT :limit")
+    fun selectNearStores(latitude: Double, longitude: Double, limit: Int): Single<List<Drugstore>>
 }
