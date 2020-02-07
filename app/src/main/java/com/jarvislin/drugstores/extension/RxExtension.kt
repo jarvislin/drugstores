@@ -1,9 +1,9 @@
 package com.jarvislin.drugstores.extension
 
 import com.jarvislin.drugstores.base.App
-import com.jarvislin.petme.base.BaseActivity
-import com.jarvislin.petme.base.BaseFragment
-import com.jarvislin.petme.base.BaseViewModel
+import com.jarvislin.drugstores.base.BaseActivity
+import com.jarvislin.drugstores.base.BaseFragment
+import com.jarvislin.drugstores.base.BaseViewModel
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import java.util.concurrent.TimeUnit

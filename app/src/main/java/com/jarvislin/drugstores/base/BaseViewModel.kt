@@ -1,4 +1,4 @@
-package com.jarvislin.petme.base
+package com.jarvislin.drugstores.base
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,7 +13,6 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     protected val compositeDisposable = CompositeDisposable()
     val showLoading = MutableLiveData<Boolean>()
     val toastText = MutableLiveData<String>()
-    val logout = MutableLiveData<Boolean>()
     fun addDisposable(disposable: Disposable) {
         compositeDisposable.add(disposable)
     }

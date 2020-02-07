@@ -1,4 +1,4 @@
-package com.jarvislin.petme.base
+package com.jarvislin.drugstores.base
 
 import android.app.AlertDialog
 import android.app.Dialog
