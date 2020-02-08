@@ -1,10 +1,8 @@
 package com.jarvislin.drugstores.extension
 
-import android.content.Context
-import android.graphics.BlendMode
-import android.graphics.BlendModeColorFilter
-import android.graphics.PorterDuff
+import android.graphics.*
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.VectorDrawable
 import android.os.Build
 import android.view.GestureDetector
 import android.view.MotionEvent
@@ -68,9 +66,20 @@ fun Drawable.tint(@ColorInt color: Int) {
 fun Int.toBackground(): Drawable? {
     return ContextCompat.getDrawable(
         App.instance(), when {
-            this < 10 -> R.drawable.background_empty
-            this in 11..40 -> R.drawable.background_warning
+            this == 0 -> R.drawable.background_empty
+            this in 1..20 -> R.drawable.background_warning
             else -> R.drawable.background_sufficient
         }
     )
+}
+
+fun Drawable.getBitmap(): Bitmap {
+    val bitmap = Bitmap.createBitmap(
+        this.intrinsicWidth,
+        this.intrinsicHeight, Bitmap.Config.ARGB_8888
+    )
+    val canvas = Canvas(bitmap)
+    this.setBounds(0, 0, canvas.width, canvas.height)
+    this.draw(canvas)
+    return bitmap
 }

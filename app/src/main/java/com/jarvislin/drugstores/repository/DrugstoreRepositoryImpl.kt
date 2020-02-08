@@ -115,7 +115,7 @@ class DrugstoreRepositoryImpl(
 
     override fun downloadOpenData(): Flowable<Progress> {
         return Downloader().download()
-            .toFlowable(BackpressureStrategy.BUFFER)
+            .toFlowable(BackpressureStrategy.LATEST)
             .subscribeOn(Schedulers.io())
     }
 }

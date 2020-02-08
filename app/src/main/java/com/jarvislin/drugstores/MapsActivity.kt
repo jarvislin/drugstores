@@ -8,8 +8,6 @@ import android.os.Bundle
 import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.GONE
-import android.view.View.VISIBLE
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -19,22 +17,20 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.jarvislin.domain.entity.DrugstoreInfo
 import com.jarvislin.domain.entity.Progress
 import com.jarvislin.drugstores.base.BaseActivity
-import com.jarvislin.drugstores.extension.bind
-import com.jarvislin.drugstores.extension.tint
-import com.jarvislin.drugstores.extension.toBackground
+import com.jarvislin.drugstores.extension.*
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_maps.*
-import org.jetbrains.anko.toast
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
@@ -77,11 +73,9 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
             if (progress.bytesDownloaded == 0L) {
                 dots.dispose()
                 textProgressHint.text = ""
-                progressBar.visibility = VISIBLE
             }
             progressBar.progress = (100 * progress.bytesDownloaded / progress.contentLength).toInt()
             if (progress is Progress.Done) {
-                progressBar.visibility = GONE
                 viewModel.handleLatestOpenData(progress.file)
                 map.clear()
                 layoutDownloadHint.animate().alpha(0f).start()
@@ -100,17 +94,18 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     }
 
     private fun startDownload() {
+        progressBar.progress = 0
         layoutDownloadHint.animate().alpha(1f).start()
         dots = Flowable.interval(300, TimeUnit.MILLISECONDS)
             .subscribeOn(Schedulers.computation())
             .take(100)
             .map {
-                when ((it % 6).toInt()) {
-                    1 -> "."
-                    2 -> ".."
-                    3 -> "..."
-                    4 -> ".."
-                    5 -> "."
+                when (it % 6) {
+                    1L -> "."
+                    2L -> ".."
+                    3L -> "..."
+                    4L -> ".."
+                    5L -> "."
                     else -> ""
                 }
             }
@@ -120,8 +115,6 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
             }, { Timber.e(it) })
             .addTo(compositeDisposable)
 
-
-        progressBar.visibility = GONE
         viewModel.fetchOpenData()
     }
 
@@ -190,22 +183,40 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     private fun bindView(view: View, info: DrugstoreInfo) {
         view.findViewById<TextView>(R.id.textName).text = info.drugstore.name
         view.findViewById<TextView>(R.id.textUpdate).text = info.openData.getUpdateText()
-        view.findViewById<TextView>(R.id.textAdultAmount).text = "成人：" + info.openData.adultMaskAmount.toString()
-        view.findViewById<TextView>(R.id.textChildAmount).text = "兒童：" + info.openData.childMaskAmount.toString()
-        view.findViewById<View>(R.id.layoutAdult).background =info.openData.adultMaskAmount.toBackground()
-        view.findViewById<View>(R.id.layoutChild).background =info.openData.childMaskAmount.toBackground()
+        view.findViewById<TextView>(R.id.textAdultAmount).text =
+            "成人：" + info.openData.adultMaskAmount.toString()
+        view.findViewById<TextView>(R.id.textChildAmount).text =
+            "兒童：" + info.openData.childMaskAmount.toString()
+        view.findViewById<View>(R.id.layoutAdult).background =
+            info.openData.adultMaskAmount.toBackground()
+        view.findViewById<View>(R.id.layoutChild).background =
+            info.openData.childMaskAmount.toBackground()
     }
+
 
     private fun addMarkers(drugstores: List<DrugstoreInfo>) {
         Flowable.fromIterable(drugstores)
             .subscribeOn(Schedulers.computation())
             .filter { cacheManager.isCached(it).not() }
+            .map {
+                val markerInfo = MarkerInfoManager.getMarkerInfo(it.openData.adultMaskAmount)
+
+                val option = MarkerOptions()
+                    .position(LatLng(it.drugstore.lat, it.drugstore.lng))
+                    .snippet(it.drugstore.id)
+                    .zIndex(markerInfo.zIndex)
+
+
+                ContextCompat.getDrawable(this, markerInfo.drawableId)?.getBitmap()
+                    .let { option.icon(BitmapDescriptorFactory.fromBitmap(it)) }
+
+                Pair(it, option)
+            }
             .delay(DELAY_MILLISECONDS, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ info ->
-                LatLng(info.drugstore.lat, info.drugstore.lng)
-                    .let { map.addMarker(MarkerOptions().position(it).snippet(info.drugstore.id)) }
-                    .also { cacheManager.add(info, it) }
+            .subscribe({ pair ->
+                pair.let { map.addMarker(it.second) }
+                    .also { cacheManager.add(pair.first, it) }
             }, { Timber.e(it) })
             .bind(this)
     }
@@ -272,4 +283,21 @@ fun Context.hasPermission(vararg permission: String): Boolean {
             it
         ) == PackageManager.PERMISSION_GRANTED
     }
+}
+
+object MarkerInfoManager {
+    fun getMarkerInfo(maskAmount: Int): MarkerInfo {
+        return when (maskAmount) {
+            in 0..0 -> MarkerInfo.Empty
+            in 1..20 -> MarkerInfo.Warning
+            else -> MarkerInfo.Sufficient
+        }
+    }
+}
+
+sealed class MarkerInfo(val drawableId: Int, val zIndex: Float) {
+    object Empty : MarkerInfo(R.drawable.ic_location_empty, 1f)
+    object Warning : MarkerInfo(R.drawable.ic_location_warning, 200f)
+    object Sufficient : MarkerInfo(R.drawable.ic_location_sufficient, 3000f)
+    object Favorite : MarkerInfo(R.drawable.ic_location_favorite, 40000f)
 }

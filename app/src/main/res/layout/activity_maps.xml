@@ -35,7 +35,7 @@
         android:minHeight="24dp"
         android:paddingStart="16dp"
         android:paddingTop="8dp"
-        android:paddingEnd="16dp"
+        android:paddingEnd="8dp"
         android:paddingBottom="8dp">
 
         <TextView
@@ -52,12 +52,13 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_gravity="center"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
             android:background="@drawable/circle_shape"
             android:indeterminate="false"
             android:max="100"
             android:progress="0"
             android:progressDrawable="@drawable/circular_progress_bar"
-            android:visibility="gone"
             tools:visibility="visible" />
     </LinearLayout>
 </FrameLayout>
