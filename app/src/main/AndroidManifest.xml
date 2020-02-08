@@ -22,7 +22,6 @@
 
         <activity
             android:name=".page.map.MapsActivity"
-            android:label="@string/title_activity_maps"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Translucent">
             <intent-filter>
@@ -31,6 +30,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".page.detail.DetailActivity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

@@ -29,6 +29,7 @@ import com.jarvislin.drugstores.extension.bind
 import com.jarvislin.drugstores.extension.getBitmap
 import com.jarvislin.drugstores.extension.tint
 import com.jarvislin.drugstores.extension.toBackground
+import com.jarvislin.drugstores.page.detail.DetailActivity
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -157,7 +158,12 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
         map.uiSettings.isMapToolbarEnabled = false
 
-        map.setOnInfoWindowClickListener { /** todo **/ }
+        map.setOnInfoWindowClickListener {
+            DetailActivity.start(
+                this,
+                cacheManager.getDrugstoreInfo(it)
+            )
+        }
         map.setOnCameraIdleListener {
             viewModel.fetchNearDrugstoreInfo(positionLatitude, positionLongitude)
         }
@@ -251,19 +257,13 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
 
     private fun moveTo(latLng: LatLng) {
-        CameraUpdateFactory.newLatLngZoom(
-            latLng,
-            DEFAULT_ZOOM_LEVEL
-        ).let {
+        CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM_LEVEL).let {
             map.moveCamera(it)
         }
     }
 
     private fun animateTo(latLng: LatLng, callback: () -> Unit = {}) {
-        CameraUpdateFactory.newLatLngZoom(
-            latLng,
-            DEFAULT_ZOOM_LEVEL
-        ).let {
+        CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM_LEVEL).let {
             map.animateCamera(it, object : GoogleMap.CancelableCallback {
                 override fun onFinish() {
                     callback.invoke()

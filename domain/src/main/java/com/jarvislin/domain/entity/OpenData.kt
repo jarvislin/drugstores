@@ -3,6 +3,7 @@ package com.jarvislin.domain.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.io.Serializable
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -17,7 +18,7 @@ data class OpenData(
     val childMaskAmount: Int,
     @ColumnInfo(name = "update_at")
     val updateAt: String
-) {
+) : Serializable {
     fun getUpdateText(): String {
         val format = SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.getDefault())
         return try {

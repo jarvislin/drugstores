@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 @Entity(tableName = "Drugstores")
 data class Drugstore(
@@ -29,4 +30,4 @@ data class Drugstore(
     @ColumnInfo(name = "note")
     @SerializedName("note")
     val note: String
-)
+) : Serializable
