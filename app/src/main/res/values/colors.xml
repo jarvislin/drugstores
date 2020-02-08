@@ -9,4 +9,10 @@
     <color name="icons">#FFFFFF</color>
     <color name="secondaryIcons">@color/secondaryText</color>
     <color name="divider">#BDBDBD</color>
+    <color name="white">@android:color/white</color>
+
+    <!--  mask  -->
+    <color name="warning">#E67F22</color>
+    <color name="sufficient">#107879</color>
+    <color name="empty">#D2D3D5</color>
 </resources>

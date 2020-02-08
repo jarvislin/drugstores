@@ -81,10 +81,11 @@ class MapViewModel : BaseViewModel() {
     fun countDown() {
         Flowable.interval(1, 1, TimeUnit.SECONDS)
             .subscribeOn(Schedulers.computation())
-            .take(40)
+            .take(300)
             .doOnComplete {
                 Timber.i("count down complete")
-                autoUpdate.postValue(true) }
+                autoUpdate.postValue(true)
+            }
             .subscribe({ }, { Timber.e(it) })
             .bind(this)
     }

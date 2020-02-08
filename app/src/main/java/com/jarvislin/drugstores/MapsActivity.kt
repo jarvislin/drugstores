@@ -27,6 +27,7 @@ import com.jarvislin.domain.entity.Progress
 import com.jarvislin.drugstores.base.BaseActivity
 import com.jarvislin.drugstores.extension.bind
 import com.jarvislin.drugstores.extension.tint
+import com.jarvislin.drugstores.extension.toBackground
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -41,7 +42,6 @@ import java.util.concurrent.TimeUnit
 
 
 class MapsActivity : BaseActivity(), OnMapReadyCallback {
-
 
     override val viewModel: MapViewModel by viewModel()
     private val cacheManager: MarkerCacheManager by inject()
@@ -103,6 +103,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         layoutDownloadHint.animate().alpha(1f).start()
         dots = Flowable.interval(300, TimeUnit.MILLISECONDS)
             .subscribeOn(Schedulers.computation())
+            .take(100)
             .map {
                 when ((it % 6).toInt()) {
                     1 -> "."
@@ -188,8 +189,11 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
     private fun bindView(view: View, info: DrugstoreInfo) {
         view.findViewById<TextView>(R.id.textName).text = info.drugstore.name
-        view.findViewById<TextView>(R.id.textPhone).text = info.drugstore.phone
-        view.findViewById<TextView>(R.id.textAddress).text = info.drugstore.address
+        view.findViewById<TextView>(R.id.textUpdate).text = info.openData.getUpdateText()
+        view.findViewById<TextView>(R.id.textAdultAmount).text = "成人：" + info.openData.adultMaskAmount.toString()
+        view.findViewById<TextView>(R.id.textChildAmount).text = "兒童：" + info.openData.childMaskAmount.toString()
+        view.findViewById<View>(R.id.layoutAdult).background =info.openData.adultMaskAmount.toBackground()
+        view.findViewById<View>(R.id.layoutChild).background =info.openData.childMaskAmount.toBackground()
     }
 
     private fun addMarkers(drugstores: List<DrugstoreInfo>) {

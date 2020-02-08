@@ -1,5 +1,6 @@
 package com.jarvislin.drugstores.extension
 
+import android.content.Context
 import android.graphics.BlendMode
 import android.graphics.BlendModeColorFilter
 import android.graphics.PorterDuff
@@ -11,6 +12,9 @@ import android.view.View
 import android.view.View.*
 import android.view.ViewGroup
 import androidx.annotation.ColorInt
+import androidx.core.content.ContextCompat
+import com.jarvislin.drugstores.R
+import com.jarvislin.drugstores.base.App
 
 
 fun View.transparentEffect(effectAlpha: Float = 0.5f) {
@@ -59,4 +63,14 @@ fun Drawable.tint(@ColorInt color: Int) {
     } else {
         mutate().setColorFilter(color, PorterDuff.Mode.SRC_IN)
     }
+}
+
+fun Int.toBackground(): Drawable? {
+    return ContextCompat.getDrawable(
+        App.instance(), when {
+            this < 10 -> R.drawable.background_empty
+            this in 11..40 -> R.drawable.background_warning
+            else -> R.drawable.background_sufficient
+        }
+    )
 }
