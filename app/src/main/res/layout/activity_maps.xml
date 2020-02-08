@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true">
 
     <fragment
         android:id="@+id/map"
@@ -20,4 +21,43 @@
         android:layout_margin="16dp"
         app:backgroundTint="@android:color/white"
         app:srcCompat="@drawable/ic_my_location" />
+
+    <LinearLayout
+        android:id="@+id/layoutDownloadHint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="16dp"
+        android:animateLayoutChanges="true"
+        android:background="@drawable/background_hint"
+        android:elevation="8dp"
+        android:gravity="center"
+        android:minHeight="24dp"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp">
+
+        <TextView
+            android:id="@+id/textProgressHint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/secondaryText"
+            android:textSize="14sp"
+            tools:text="下載中" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:background="@drawable/circle_shape"
+            android:indeterminate="false"
+            android:max="100"
+            android:progress="0"
+            android:progressDrawable="@drawable/circular_progress_bar"
+            android:visibility="gone"
+            tools:visibility="visible" />
+    </LinearLayout>
 </FrameLayout>

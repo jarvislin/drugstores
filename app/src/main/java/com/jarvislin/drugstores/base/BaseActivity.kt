@@ -16,7 +16,7 @@ abstract class BaseActivity : AppCompatActivity() {
     protected abstract val viewModel: BaseViewModel?
     protected var isActive = false
 
-    private val compositeDisposable = CompositeDisposable()
+    protected val compositeDisposable = CompositeDisposable()
     private lateinit var loadingDialog: Dialog
 
 

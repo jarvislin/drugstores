@@ -19,7 +19,7 @@ interface DrugstoreDao {
     fun insertDrugstores(shelters: List<Drugstore>): Completable
 
     @Insert(onConflict = IGNORE)
-    fun insertOpenData(openData: List<OpenData>)
+    fun insertOpenData(openData: List<OpenData>): Completable
 
     @Query("DELETE FROM Drugstores")
     fun deleteDrugstores(): Single<Int>
@@ -29,4 +29,11 @@ interface DrugstoreDao {
 
     @Query("SELECT * FROM Drugstores ORDER BY ABS(:latitude - lat) + ABS(:longitude - lng) ASC LIMIT :limit")
     fun selectNearStores(latitude: Double, longitude: Double, limit: Int): Single<List<Drugstore>>
+
+    @Query("SELECT Drugstores.*, OpenData.* FROM Drugstores INNER JOIN OpenData ON Drugstores.id = OpenData.drugstore_id  ORDER BY ABS(:latitude - Drugstores.lat) + ABS(:longitude - Drugstores.lng) ASC LIMIT :limit")
+    fun findNearDrugstoreInfo(
+        latitude: Double,
+        longitude: Double,
+        limit: Int
+    ): Single<List<DrugstoreInfo>>
 }

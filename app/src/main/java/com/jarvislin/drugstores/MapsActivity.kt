@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
@@ -21,14 +22,18 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import com.jarvislin.domain.entity.Drugstore
+import com.jarvislin.domain.entity.DrugstoreInfo
+import com.jarvislin.domain.entity.Progress
 import com.jarvislin.drugstores.base.BaseActivity
 import com.jarvislin.drugstores.extension.bind
 import com.jarvislin.drugstores.extension.tint
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_maps.*
+import org.jetbrains.anko.toast
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
@@ -48,6 +53,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     private val positionLongitude get() = map.cameraPosition.target.longitude
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var dots: Disposable
     private var myLocation: LatLng? = null
 
     companion object {
@@ -66,7 +72,55 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         fusedLocationClient.lastLocation.addOnSuccessListener { viewModel.saveLastLocation(it) }
         requestLocation()
 
-        viewModel.initData()
+        // download open data
+        viewModel.downloadProgress.observe(this, Observer { progress ->
+            if (progress.bytesDownloaded == 0L) {
+                dots.dispose()
+                textProgressHint.text = ""
+                progressBar.visibility = VISIBLE
+            }
+            progressBar.progress = (100 * progress.bytesDownloaded / progress.contentLength).toInt()
+            if (progress is Progress.Done) {
+                progressBar.visibility = GONE
+                viewModel.handleLatestOpenData(progress.file)
+                map.clear()
+                layoutDownloadHint.animate().alpha(0f).start()
+                viewModel.countDown()
+            }
+        })
+
+        viewModel.autoUpdate.observe(this, Observer {
+            startDownload()
+        })
+
+        startDownload()
+
+        // init asset data
+        viewModel.initDrugstores()
+    }
+
+    private fun startDownload() {
+        layoutDownloadHint.animate().alpha(1f).start()
+        dots = Flowable.interval(300, TimeUnit.MILLISECONDS)
+            .subscribeOn(Schedulers.computation())
+            .map {
+                when ((it % 6).toInt()) {
+                    1 -> "."
+                    2 -> ".."
+                    3 -> "..."
+                    4 -> ".."
+                    5 -> "."
+                    else -> ""
+                }
+            }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                textProgressHint.text = "準備連線" + it
+            }, { Timber.e(it) })
+            .addTo(compositeDisposable)
+
+
+        progressBar.visibility = GONE
         viewModel.fetchOpenData()
     }
 
@@ -96,10 +150,10 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
         moveTo(myLocation ?: viewModel.getLastLocation())
 
-        viewModel.isInitialized.observe(this, Observer { done ->
+        viewModel.allDataPrepared.observe(this, Observer { done ->
             if (done) {
                 viewModel.fetchNearDrugstoreInfo(positionLatitude, positionLongitude)
-                viewModel.stores.observe(this, Observer { addMarkers(it) })
+                viewModel.drugstoreInfo.observe(this, Observer { addMarkers(it) })
             }
         })
 
@@ -114,7 +168,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
         map.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
             override fun getInfoContents(marker: Marker): View? {
-                bindView(infoWindowView, cacheManager.getDrugstore(marker))
+                bindView(infoWindowView, cacheManager.getDrugstoreInfo(marker))
                 return infoWindowView
             }
 
@@ -132,26 +186,22 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         fab.setImageDrawable(drawable)
     }
 
-    private fun bindView(view: View, store: Drugstore) {
-        view.findViewById<TextView>(R.id.textName).text = store.name
-        view.findViewById<TextView>(R.id.textPhone).text = store.phone
-        view.findViewById<TextView>(R.id.textAddress).text = store.address
-        if (store.note.isNotEmpty()) {
-            view.findViewById<TextView>(R.id.textNote).text = store.note
-            view.findViewById<TextView>(R.id.textNote).visibility = VISIBLE
-        }
+    private fun bindView(view: View, info: DrugstoreInfo) {
+        view.findViewById<TextView>(R.id.textName).text = info.drugstore.name
+        view.findViewById<TextView>(R.id.textPhone).text = info.drugstore.phone
+        view.findViewById<TextView>(R.id.textAddress).text = info.drugstore.address
     }
 
-    private fun addMarkers(drugstores: List<Drugstore>) {
+    private fun addMarkers(drugstores: List<DrugstoreInfo>) {
         Flowable.fromIterable(drugstores)
             .subscribeOn(Schedulers.computation())
             .filter { cacheManager.isCached(it).not() }
             .delay(DELAY_MILLISECONDS, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ drugstore ->
-                LatLng(drugstore.lat, drugstore.lng)
-                    .let { map.addMarker(MarkerOptions().position(it).snippet(drugstore.id)) }
-                    .also { cacheManager.add(drugstore, it) }
+            .subscribe({ info ->
+                LatLng(info.drugstore.lat, info.drugstore.lng)
+                    .let { map.addMarker(MarkerOptions().position(it).snippet(info.drugstore.id)) }
+                    .also { cacheManager.add(info, it) }
             }, { Timber.e(it) })
             .bind(this)
     }

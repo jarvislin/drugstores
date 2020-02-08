@@ -1,25 +1,26 @@
 package com.jarvislin.domain.interactor
 
-import com.jarvislin.domain.entity.Drugstore
+import com.jarvislin.domain.entity.DrugstoreInfo
+import com.jarvislin.domain.entity.Progress
 import com.jarvislin.domain.repository.DrugstoreRepository
 import io.reactivex.Completable
+import io.reactivex.Flowable
 import io.reactivex.Single
+import java.io.File
 
 class DrugstoreUseCase(private val drugstoreRepository: DrugstoreRepository) {
 
-    fun fetchOpenData(): Completable {
-        return drugstoreRepository.deleteOpenData()
-            .flatMap { drugstoreRepository.fetchOpenData() }
-            .flatMapCompletable { drugstoreRepository.saveOpenData(it) }
+    fun fetchOpenData(): Flowable<Progress> {
+        return drugstoreRepository.downloadOpenData()
     }
 
     fun initDrugstores(): Completable {
         return drugstoreRepository.initDrugstores()
-            .flatMapCompletable { drugstoreRepository.insertDrugstores(it) }
+            .flatMapCompletable { drugstoreRepository.saveDrugstores(it) }
     }
 
-    fun fetchNearDrugstoreInfo(latitude: Double, longitude: Double): Single<List<Drugstore>> {
-        return drugstoreRepository.fetchNearStores(latitude, longitude)
+    fun findNearDrugstoreInfo(latitude: Double, longitude: Double): Single<List<DrugstoreInfo>> {
+        return drugstoreRepository.findNearDrugstoreInfo(latitude, longitude)
     }
 
     fun saveLocation(latitude: Double, longitude: Double) {
@@ -28,5 +29,11 @@ class DrugstoreUseCase(private val drugstoreRepository: DrugstoreRepository) {
 
     fun getLastLocation(): Pair<Double, Double> {
         return drugstoreRepository.getLastLocation()
+    }
+
+    fun handleLatestOpenData(file: File): Completable {
+        return drugstoreRepository.deleteOpenData()
+            .flatMap { drugstoreRepository.transformOpenData(file) }
+            .flatMapCompletable { drugstoreRepository.saveOpenData(it) }
     }
 }

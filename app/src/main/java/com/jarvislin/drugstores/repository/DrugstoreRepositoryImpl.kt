@@ -2,21 +2,23 @@ package com.jarvislin.drugstores.repository
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.jarvislin.domain.entity.Drugstore
+import com.jarvislin.domain.entity.DrugstoreInfo
 import com.jarvislin.domain.entity.OpenData
+import com.jarvislin.domain.entity.Progress
 import com.jarvislin.domain.repository.DrugstoreRepository
 import com.jarvislin.drugstores.MarkerCacheManager.Companion.MAX_MARKER_AMOUNT
 import com.jarvislin.drugstores.base.App
 import com.jarvislin.drugstores.data.LocalData
 import com.jarvislin.drugstores.data.db.DrugstoreDao
+import com.jarvislin.drugstores.data.remote.Downloader
 import com.jarvislin.drugstores.extension.toJson
 import com.jarvislin.drugstores.extension.toList
-import io.reactivex.Completable
-import io.reactivex.Scheduler
-import io.reactivex.Single
+import io.reactivex.*
 import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import timber.log.Timber
+import java.io.File
 import java.nio.charset.Charset
 
 
@@ -48,9 +50,25 @@ class DrugstoreRepositoryImpl(
         }.subscribeOn(Schedulers.io())
     }
 
+    override fun transformOpenData(file: File): Single<List<OpenData>> {
+        return Single.create<List<OpenData>> { emitter ->
+            try {
+                csvReader().readAllWithHeader(file).map {
+                    OpenData(
+                        id = it["醫事機構代碼"] ?: error("wrong key"),
+                        adultMaskAmount = it["成人口罩總剩餘數"]?.toInt() ?: error("wrong key"),
+                        childMaskAmount = it["兒童口罩剩餘數"]?.toInt() ?: error("wrong key"),
+                        updateAt = it["來源資料時間"] ?: error("wrong key")
+                    )
+                }.let { emitter.onSuccess(it) }
+            } catch (ex: Exception) {
+                emitter.onError(ex)
+            }
+        }.subscribeOn(Schedulers.io())
+    }
+
     override fun saveOpenData(data: List<OpenData>): Completable {
-        Timber.e(data.toJson())
-        return Completable.complete()
+        return drugstoreDao.insertOpenData(data)
     }
 
     override fun deleteOpenData(): Single<Int> {
@@ -58,7 +76,7 @@ class DrugstoreRepositoryImpl(
             .subscribeOn(Schedulers.io())
     }
 
-    override fun insertDrugstores(stores: List<Drugstore>): Completable {
+    override fun saveDrugstores(stores: List<Drugstore>): Completable {
         return drugstoreDao.insertDrugstores(stores)
             .subscribeOn(Schedulers.io())
     }
@@ -78,8 +96,11 @@ class DrugstoreRepositoryImpl(
         }.subscribeOn(Schedulers.io())
     }
 
-    override fun fetchNearStores(latitude: Double, longitude: Double): Single<List<Drugstore>> {
-        return drugstoreDao.selectNearStores(latitude, longitude, MAX_MARKER_AMOUNT)
+    override fun findNearDrugstoreInfo(
+        latitude: Double,
+        longitude: Double
+    ): Single<List<DrugstoreInfo>> {
+        return drugstoreDao.findNearDrugstoreInfo(latitude, longitude, MAX_MARKER_AMOUNT)
             .subscribeOn(Schedulers.io())
     }
 
@@ -90,5 +111,11 @@ class DrugstoreRepositoryImpl(
     override fun getLastLocation(): Pair<Double, Double> {
         val location = localData.lastLocation.split(",").map { it.toDouble() }
         return Pair(location[0], location[1])
+    }
+
+    override fun downloadOpenData(): Flowable<Progress> {
+        return Downloader().download()
+            .toFlowable(BackpressureStrategy.BUFFER)
+            .subscribeOn(Schedulers.io())
     }
 }
