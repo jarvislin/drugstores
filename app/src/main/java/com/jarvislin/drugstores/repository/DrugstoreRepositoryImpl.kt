@@ -6,18 +6,16 @@ import com.jarvislin.domain.entity.DrugstoreInfo
 import com.jarvislin.domain.entity.OpenData
 import com.jarvislin.domain.entity.Progress
 import com.jarvislin.domain.repository.DrugstoreRepository
-import com.jarvislin.drugstores.MarkerCacheManager.Companion.MAX_MARKER_AMOUNT
+import com.jarvislin.drugstores.page.map.MarkerCacheManager.Companion.MAX_MARKER_AMOUNT
 import com.jarvislin.drugstores.base.App
 import com.jarvislin.drugstores.data.LocalData
 import com.jarvislin.drugstores.data.db.DrugstoreDao
 import com.jarvislin.drugstores.data.remote.Downloader
-import com.jarvislin.drugstores.extension.toJson
 import com.jarvislin.drugstores.extension.toList
 import io.reactivex.*
 import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import timber.log.Timber
 import java.io.File
 import java.nio.charset.Charset
 

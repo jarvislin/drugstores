@@ -1,4 +1,4 @@
-package com.jarvislin.drugstores
+package com.jarvislin.drugstores.page.map
 
 import android.location.Location
 import androidx.lifecycle.MediatorLiveData
@@ -10,9 +10,6 @@ import com.jarvislin.domain.interactor.DrugstoreUseCase
 import com.jarvislin.drugstores.extension.bind
 import com.jarvislin.drugstores.base.BaseViewModel
 import io.reactivex.Flowable
-import io.reactivex.Scheduler
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
 import org.koin.core.inject
 import timber.log.Timber

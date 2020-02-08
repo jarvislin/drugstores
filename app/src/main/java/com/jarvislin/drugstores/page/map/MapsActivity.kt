@@ -1,4 +1,4 @@
-package com.jarvislin.drugstores
+package com.jarvislin.drugstores.page.map
 
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
@@ -23,8 +23,12 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.jarvislin.domain.entity.DrugstoreInfo
 import com.jarvislin.domain.entity.Progress
+import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.base.BaseActivity
-import com.jarvislin.drugstores.extension.*
+import com.jarvislin.drugstores.extension.bind
+import com.jarvislin.drugstores.extension.getBitmap
+import com.jarvislin.drugstores.extension.tint
+import com.jarvislin.drugstores.extension.toBackground
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -175,7 +179,10 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     }
 
     private fun updateFabColor(colorId: Int) {
-        val drawable = ContextCompat.getDrawable(this, R.drawable.ic_my_location)
+        val drawable = ContextCompat.getDrawable(
+            this,
+            R.drawable.ic_my_location
+        )
         drawable?.tint(ContextCompat.getColor(this, colorId))
         fab.setImageDrawable(drawable)
     }
@@ -199,13 +206,15 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
             .subscribeOn(Schedulers.computation())
             .filter { cacheManager.isCached(it).not() }
             .map {
-                val markerInfo = MarkerInfoManager.getMarkerInfo(it.openData.adultMaskAmount)
+                val markerInfo =
+                    MarkerInfoManager.getMarkerInfo(
+                        it.openData.adultMaskAmount
+                    )
 
                 val option = MarkerOptions()
                     .position(LatLng(it.drugstore.lat, it.drugstore.lng))
                     .snippet(it.drugstore.id)
                     .zIndex(markerInfo.zIndex)
-
 
                 ContextCompat.getDrawable(this, markerInfo.drawableId)?.getBitmap()
                     .let { option.icon(BitmapDescriptorFactory.fromBitmap(it)) }
@@ -234,20 +243,27 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
                     ACCESS_COARSE_LOCATION,
                     ACCESS_FINE_LOCATION
                 )
-                , REQUEST_LOCATION
+                ,
+                REQUEST_LOCATION
             )
         }
     }
 
 
     private fun moveTo(latLng: LatLng) {
-        CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM_LEVEL).let {
+        CameraUpdateFactory.newLatLngZoom(
+            latLng,
+            DEFAULT_ZOOM_LEVEL
+        ).let {
             map.moveCamera(it)
         }
     }
 
     private fun animateTo(latLng: LatLng, callback: () -> Unit = {}) {
-        CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM_LEVEL).let {
+        CameraUpdateFactory.newLatLngZoom(
+            latLng,
+            DEFAULT_ZOOM_LEVEL
+        ).let {
             map.animateCamera(it, object : GoogleMap.CancelableCallback {
                 override fun onFinish() {
                     callback.invoke()
@@ -283,21 +299,4 @@ fun Context.hasPermission(vararg permission: String): Boolean {
             it
         ) == PackageManager.PERMISSION_GRANTED
     }
-}
-
-object MarkerInfoManager {
-    fun getMarkerInfo(maskAmount: Int): MarkerInfo {
-        return when (maskAmount) {
-            in 0..0 -> MarkerInfo.Empty
-            in 1..20 -> MarkerInfo.Warning
-            else -> MarkerInfo.Sufficient
-        }
-    }
-}
-
-sealed class MarkerInfo(val drawableId: Int, val zIndex: Float) {
-    object Empty : MarkerInfo(R.drawable.ic_location_empty, 1f)
-    object Warning : MarkerInfo(R.drawable.ic_location_warning, 200f)
-    object Sufficient : MarkerInfo(R.drawable.ic_location_sufficient, 3000f)
-    object Favorite : MarkerInfo(R.drawable.ic_location_favorite, 40000f)
 }

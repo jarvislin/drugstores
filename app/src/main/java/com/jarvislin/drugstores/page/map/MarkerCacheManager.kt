@@ -1,8 +1,7 @@
-package com.jarvislin.drugstores
+package com.jarvislin.drugstores.page.map
 
 import androidx.collection.LruCache
 import com.google.android.gms.maps.model.Marker
-import com.jarvislin.domain.entity.Drugstore
 import com.jarvislin.domain.entity.DrugstoreInfo
 
 class MarkerCacheManager {
@@ -15,7 +14,8 @@ class MarkerCacheManager {
     private val storeSet = mutableSetOf<DrugstoreInfo>()
     private val cache = object : LruCache<DrugstoreInfo, Marker>(MAX_MARKER_AMOUNT) {
 
-        override fun sizeOf(key: DrugstoreInfo, value: Marker): Int = SIZE
+        override fun sizeOf(key: DrugstoreInfo, value: Marker): Int =
+            SIZE
 
         override fun entryRemoved(
             evicted: Boolean,
