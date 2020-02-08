@@ -56,6 +56,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var dots: Disposable
     private var myLocation: LatLng? = null
+    private var lastClickedMarker: Marker? = null
 
     companion object {
         private const val DELAY_MILLISECONDS = 100L
@@ -172,6 +173,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
         map.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
             override fun getInfoContents(marker: Marker): View? {
+                lastClickedMarker = marker
                 bindView(infoWindowView, cacheManager.getDrugstoreInfo(marker))
                 return infoWindowView
             }
@@ -289,6 +291,14 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     private fun enableMyLocation() {
         map.uiSettings.isMyLocationButtonEnabled = false
         map.isMyLocationEnabled = true
+    }
+
+    override fun onBackPressed() {
+        if (lastClickedMarker?.isInfoWindowShown == true) {
+            lastClickedMarker?.hideInfoWindow()
+        } else {
+            super.onBackPressed()
+        }
     }
 }
 
