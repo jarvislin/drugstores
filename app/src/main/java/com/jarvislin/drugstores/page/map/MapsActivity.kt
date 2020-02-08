@@ -3,6 +3,7 @@ package com.jarvislin.drugstores.page.map
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Looper
@@ -62,6 +63,11 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         private const val DELAY_MILLISECONDS = 100L
         private const val REQUEST_LOCATION = 5566
         private const val DEFAULT_ZOOM_LEVEL = 15f
+        fun start(context: Context) {
+            Intent(context, MapsActivity::class.java).apply {
+                context.startActivity(this)
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

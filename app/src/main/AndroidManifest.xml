@@ -21,9 +21,8 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".page.map.MapsActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.Translucent">
+            android:name=".page.splash.SplashActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -33,6 +32,11 @@
         <activity
             android:name=".page.detail.DetailActivity"
             android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".page.map.MapsActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Translucent" />
     </application>
 
 </manifest>
