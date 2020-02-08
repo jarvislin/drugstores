@@ -27,7 +27,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="42dp"
         android:animateLayoutChanges="true"
         android:background="@drawable/background_hint"
         android:elevation="8dp"
