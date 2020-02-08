@@ -2,14 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="220dp"
+    android:layout_width="@dimen/window_width"
     android:layout_height="wrap_content"
     android:gravity="center"
     android:orientation="vertical">
 
     <TextView
         android:id="@+id/textName"
-        android:layout_width="220dp"
+        android:layout_width="@dimen/window_width"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:fontFamily="sans-serif-medium"
@@ -20,7 +20,7 @@
 
     <TextView
         android:id="@+id/textUpdate"
-        android:layout_width="220dp"
+        android:layout_width="@dimen/window_width"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:fontFamily="sans-serif-light"
@@ -30,7 +30,7 @@
         tools:text="資料更新於 5 分鐘前" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="220dp"
+        android:layout_width="@dimen/window_width"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp">
 
@@ -79,7 +79,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.appcompat.widget.AppCompatButton
-        android:layout_width="220dp"
+        android:layout_width="@dimen/window_width"
         android:layout_height="40dp"
         android:layout_marginTop="6dp"
         android:background="@drawable/background_button"
