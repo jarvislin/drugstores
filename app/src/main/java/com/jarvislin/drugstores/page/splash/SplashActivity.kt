@@ -7,6 +7,7 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
+import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.page.map.MapsActivity
 
 
@@ -14,6 +15,8 @@ class SplashActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_splash)
+
         if (isGooglePlayServicesAvailable()) {
             checkInAppUpdate()
         }
