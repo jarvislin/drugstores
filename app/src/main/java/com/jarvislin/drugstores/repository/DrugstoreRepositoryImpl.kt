@@ -6,23 +6,25 @@ import com.jarvislin.domain.entity.DrugstoreInfo
 import com.jarvislin.domain.entity.OpenData
 import com.jarvislin.domain.entity.Progress
 import com.jarvislin.domain.repository.DrugstoreRepository
-import com.jarvislin.drugstores.page.map.MarkerCacheManager.Companion.MAX_MARKER_AMOUNT
 import com.jarvislin.drugstores.base.App
 import com.jarvislin.drugstores.data.LocalData
 import com.jarvislin.drugstores.data.db.DrugstoreDao
 import com.jarvislin.drugstores.data.remote.Downloader
 import com.jarvislin.drugstores.extension.toList
-import io.reactivex.*
+import com.jarvislin.drugstores.page.map.MarkerCacheManager.Companion.MAX_MARKER_AMOUNT
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Completable
+import io.reactivex.Flowable
+import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import java.io.File
 import java.nio.charset.Charset
 
 
 class DrugstoreRepositoryImpl(
     private val drugstoreDao: DrugstoreDao,
-    private val localData: LocalData
+    private val localData: LocalData,
+    private val downloader: Downloader
 ) : DrugstoreRepository {
     override fun transformOpenData(file: File): Single<List<OpenData>> {
         return Single.create<List<OpenData>> { emitter ->
@@ -88,7 +90,7 @@ class DrugstoreRepositoryImpl(
     }
 
     override fun downloadOpenData(): Flowable<Progress> {
-        return Downloader().download("https://raw.githubusercontent.com/kiang/pharmacies/master/raw/maskdata.csv")
+        return downloader.download("https://raw.githubusercontent.com/kiang/pharmacies/master/raw/maskdata.csv")
             .toFlowable(BackpressureStrategy.LATEST)
             .subscribeOn(Schedulers.io())
     }
