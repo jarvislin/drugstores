@@ -15,3 +15,6 @@
 UI from [Penny Yang](https://challenge.thef2e.com/user/3405?schedule=4432#works-4432).
 
 Icons made by [Freepik](https://www.flaticon.com/authors/freepik) from https://www.flaticon.com/
+
+## Reference
+https://github.com/kiang/pharmacies
