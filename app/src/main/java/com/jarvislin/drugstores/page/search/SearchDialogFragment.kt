@@ -133,9 +133,9 @@ class SearchDialogFragment : DialogFragment() {
     private fun showInfoDialog() {
         context?.let {
             AlertDialog.Builder(it)
-                .setTitle("身分證字號末碼")
-                .setMessage("雙號者（0、2、4、6、8）於每週二、四、六購買；單號者（1、3、5、7、9）可於每週一、三、五購買；週日則開放全民皆可購買。")
-                .setPositiveButton("關閉") { _, _ -> }
+                .setTitle(getString(R.string.id_note_title))
+                .setMessage(getString(R.string.id_note_message))
+                .setPositiveButton(getString(R.string.dismiss)) { _, _ -> }
                 .show()
         }
     }

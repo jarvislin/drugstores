@@ -87,16 +87,16 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
 
         private fun showPhoneDialog(drugstoreInfo: DrugstoreInfo) {
             AlertDialog.Builder(itemView.context)
-                .setTitle("請詳讀以下資訊")
-                .setMessage("為避免增加藥局作業量，建議必要時再撥打。撥打前也請確認此時為營業時間。")
-                .setNegativeButton("關閉") { _, _ -> }
-                .setPositiveButton("撥打") { _, _ ->
+                .setTitle(itemView.context.getString(R.string.dial_title))
+                .setMessage(itemView.context.getString(R.string.dial_message))
+                .setNegativeButton(itemView.context.getString(R.string.dial)) { _, _ -> }
+                .setPositiveButton(itemView.context.getString(R.string.dismiss)) { _, _ ->
                     Intent(Intent.ACTION_DIAL).apply {
                         try {
                             data = Uri.parse("tel:${drugstoreInfo.drugstore.phone}")
                             itemView.context.startActivity(this)
                         } catch (ex: Exception) {
-                            itemView.context.toast("無法開啟電話簿")
+                            itemView.context.toast(itemView.context.getString(R.string.dial_error))
                         }
                     }
                 }
