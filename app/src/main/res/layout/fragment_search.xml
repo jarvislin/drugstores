@@ -86,8 +86,20 @@
                 app:drawableEndCompat="@drawable/ic_info"
                 app:layout_constraintBottom_toBottomOf="@+id/textDateType"
                 app:layout_constraintStart_toEndOf="@+id/textDateType" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:text="口罩數量可能與現實狀況有所差異，請斟酌參考。"
+                android:textColor="@color/primaryText"
+                android:textSize="17sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textDateType" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
 

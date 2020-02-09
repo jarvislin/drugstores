@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
@@ -18,14 +18,12 @@ import com.jakewharton.rxbinding2.view.RxView
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.jarvislin.domain.entity.DrugstoreInfo
 import com.jarvislin.drugstores.R
-import com.jarvislin.drugstores.extension.bind
 import com.jarvislin.drugstores.extension.throttleClick
 import com.jarvislin.drugstores.page.map.MapViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import kotlinx.android.synthetic.main.fragment_search.*
-import kotlinx.android.synthetic.main.fragment_search.editSearch
 import org.jetbrains.anko.dip
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
@@ -126,6 +124,20 @@ class SearchDialogFragment : DialogFragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { dismissAllowingStateLoss() }
             .addTo(compositeDisposable)
+
+        RxView.clicks(textInfo).throttleClick()
+            .subscribe { showInfoDialog() }
+            .addTo(compositeDisposable)
+    }
+
+    private fun showInfoDialog() {
+        context?.let {
+            AlertDialog.Builder(it)
+                .setTitle("身分證字號末碼")
+                .setMessage("雙號者（0、2、4、6、8）於每週二、四、六購買；單號者（1、3、5、7、9）可於每週一、三、五購買；週日則開放全民皆可購買。")
+                .setPositiveButton("關閉") { _, _ -> }
+                .show()
+        }
     }
 
     override fun onDestroy() {
