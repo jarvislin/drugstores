@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
@@ -18,14 +18,12 @@ import com.jakewharton.rxbinding2.view.RxView
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.jarvislin.domain.entity.DrugstoreInfo
 import com.jarvislin.drugstores.R
-import com.jarvislin.drugstores.extension.bind
 import com.jarvislin.drugstores.extension.throttleClick
 import com.jarvislin.drugstores.page.map.MapViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import kotlinx.android.synthetic.main.fragment_search.*
-import kotlinx.android.synthetic.main.fragment_search.editSearch
 import org.jetbrains.anko.dip
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
@@ -126,6 +124,20 @@ class SearchDialogFragment : DialogFragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { dismissAllowingStateLoss() }
             .addTo(compositeDisposable)
+
+        RxView.clicks(textInfo).throttleClick()
+            .subscribe { showInfoDialog() }
+            .addTo(compositeDisposable)
+    }
+
+    private fun showInfoDialog() {
+        context?.let {
+            AlertDialog.Builder(it)
+                .setTitle(getString(R.string.id_note_title))
+                .setMessage(getString(R.string.id_note_message))
+                .setPositiveButton(getString(R.string.dismiss)) { _, _ -> }
+                .show()
+        }
     }
 
     override fun onDestroy() {

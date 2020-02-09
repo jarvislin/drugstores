@@ -16,6 +16,7 @@ import com.jarvislin.drugstores.base.BaseActivity
 import com.jarvislin.drugstores.extension.bind
 import com.jarvislin.drugstores.extension.throttleClick
 import com.jarvislin.drugstores.extension.toBackground
+import com.jarvislin.drugstores.page.detail.DetailActivity
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import org.jetbrains.anko.toast
@@ -55,6 +56,7 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
         private val textPhone: TextView = itemView.findViewById(R.id.textPhone)
         private val imagePhone: ImageView = itemView.findViewById(R.id.imagePhone)
         private val imageLocation: ImageView = itemView.findViewById(R.id.imageLocation)
+        private val layoutCard: View = itemView.findViewById(R.id.layoutCard)
 
         fun bind(drugstoreInfo: DrugstoreInfo) {
             layoutAdult.background = drugstoreInfo.openData.adultMaskAmount.toBackground()
@@ -76,28 +78,25 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
                 .throttleClick()
                 .subscribe { openMap(drugstoreInfo) }
                 .addTo(compositeDisposable)
-        }
 
-        private fun showInfoDialog() {
-            AlertDialog.Builder(itemView.context)
-                .setTitle("身分證字號末碼")
-                .setMessage("雙號者（0、2、4、6、8）於每週二、四、六購買；單號者（1、3、5、7、9）可於每週一、三、五購買；週日則開放全民皆可購買。")
-                .setPositiveButton("關閉") { _, _ -> }
-                .show()
+            RxView.clicks(layoutCard)
+                .throttleClick()
+                .subscribe { DetailActivity.start(itemView.context, drugstoreInfo) }
+                .addTo(compositeDisposable)
         }
 
         private fun showPhoneDialog(drugstoreInfo: DrugstoreInfo) {
             AlertDialog.Builder(itemView.context)
-                .setTitle("請詳讀以下資訊")
-                .setMessage("為避免增加藥局作業量，建議必要時再撥打。撥打前也請確認此時為營業時間。")
-                .setNegativeButton("關閉") { _, _ -> }
-                .setPositiveButton("撥打") { _, _ ->
+                .setTitle(itemView.context.getString(R.string.dial_title))
+                .setMessage(itemView.context.getString(R.string.dial_message))
+                .setNegativeButton(itemView.context.getString(R.string.dial)) { _, _ -> }
+                .setPositiveButton(itemView.context.getString(R.string.dismiss)) { _, _ ->
                     Intent(Intent.ACTION_DIAL).apply {
                         try {
                             data = Uri.parse("tel:${drugstoreInfo.drugstore.phone}")
                             itemView.context.startActivity(this)
                         } catch (ex: Exception) {
-                            itemView.context.toast("無法開啟電話簿")
+                            itemView.context.toast(itemView.context.getString(R.string.dial_error))
                         }
                     }
                 }
