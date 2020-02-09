@@ -58,7 +58,7 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
 
         textName.text = drugstoreInfo.drugstore.name
         textAddress.text = drugstoreInfo.drugstore.address
-        textPhone.text = "電話：" + drugstoreInfo.drugstore.phone
+        textPhone.text = "電話  " + drugstoreInfo.drugstore.phone
 
         val calendar = Calendar.getInstance(Locale.getDefault())
         var day = calendar.get(Calendar.DAY_OF_WEEK)
