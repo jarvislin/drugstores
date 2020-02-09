@@ -24,7 +24,7 @@ class App : Application() {
 
         fun instance() = instance!!
 
-        private const val APP_NAME = "Pet Adoption"
+        private const val APP_NAME = "Drugstores"
     }
 
     private val compositeDisposable = CompositeDisposable()
