@@ -86,18 +86,19 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
                 dots.dispose()
                 textProgressHint.text = ""
             }
+
             progressBar.progress = (100 * progress.bytesDownloaded / progress.contentLength).toInt()
+
             if (progress is Progress.Done) {
-                viewModel.handleLatestOpenData(progress.file)
-                map.clear()
-                layoutDownloadHint.animate().alpha(0f).start()
+                Timber.i("open data downloaded")
+                textProgressHint.text = "資料更新完成"
+                layoutDownloadHint.animate().setStartDelay(1_000).alpha(0f).start()
                 viewModel.countDown()
+                viewModel.handleLatestOpenData(progress.file)
             }
         })
 
-        viewModel.autoUpdate.observe(this, Observer {
-            startDownload()
-        })
+        viewModel.autoUpdate.observe(this, Observer { startDownload() })
 
         startDownload()
 
