@@ -10,6 +10,7 @@ import com.jarvislin.domain.interactor.DrugstoreUseCase
 import com.jarvislin.drugstores.extension.bind
 import com.jarvislin.drugstores.base.BaseViewModel
 import io.reactivex.Flowable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import org.koin.core.inject
 import timber.log.Timber
@@ -17,12 +18,15 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 
 class MapViewModel : BaseViewModel() {
+    private val useCase: DrugstoreUseCase by inject()
     private val initialized = MutableLiveData<Boolean>()
     private val downloaded = MutableLiveData<Boolean>()
     val drugstoreInfo = MutableLiveData<List<DrugstoreInfo>>()
     val downloadProgress = MutableLiveData<Progress>()
     val allDataPrepared = MediatorLiveData<Boolean>()
     val autoUpdate = MutableLiveData<Boolean>()
+    val searchedResult = MutableLiveData<List<DrugstoreInfo>>()
+    val statusBarHeight = MutableLiveData<Int>()
 
     init {
         initialized.value = false
@@ -40,16 +44,13 @@ class MapViewModel : BaseViewModel() {
 
     fun initDrugstores() {
         useCase.initDrugstores()
-            .subscribe({ initialized.postValue(true) }, {
-                Timber.e(
-                    it
-                )
-            })
+            .subscribe({ initialized.postValue(true) }, { Timber.e(it) })
             .bind(this)
     }
 
     fun fetchNearDrugstoreInfo(latitude: Double, longitude: Double) {
         if (allDataPrepared.value != true) {
+            // from on camera idled
             return
         }
         useCase.findNearDrugstoreInfo(latitude, longitude)
@@ -58,15 +59,11 @@ class MapViewModel : BaseViewModel() {
     }
 
     fun saveLastLocation(location: Location?) {
-        location?.let {
-            useCase.saveLocation(it.latitude, it.longitude)
-        }
+        location?.let { useCase.saveLocation(it.latitude, it.longitude) }
     }
 
     fun getLastLocation(): LatLng {
-        return useCase.getLastLocation().run {
-            LatLng(first, second)
-        }
+        return useCase.getLastLocation().run { LatLng(first, second) }
     }
 
     fun handleLatestOpenData(file: File) {
@@ -87,5 +84,14 @@ class MapViewModel : BaseViewModel() {
             .bind(this)
     }
 
-    private val useCase: DrugstoreUseCase by inject()
+    fun searchAddress(keyword: String) {
+        useCase.searchAddress(keyword)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ searchedResult.value = it }, { Timber.e(it) })
+            .bind(this)
+    }
+
+    fun saveStatusBarHeight(height: Int) {
+        statusBarHeight.postValue(height)
+    }
 }

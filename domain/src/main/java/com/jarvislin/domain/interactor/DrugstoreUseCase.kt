@@ -36,4 +36,8 @@ class DrugstoreUseCase(private val drugstoreRepository: DrugstoreRepository) {
             .flatMap { drugstoreRepository.transformOpenData(file) }
             .flatMapCompletable { drugstoreRepository.saveOpenData(it) }
     }
+
+    fun searchAddress(keyword: String): Single<List<DrugstoreInfo>> {
+        return drugstoreRepository.searchAddress(keyword)
+    }
 }

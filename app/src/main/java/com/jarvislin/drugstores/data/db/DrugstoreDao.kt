@@ -30,10 +30,13 @@ interface DrugstoreDao {
     @Query("SELECT * FROM Drugstores ORDER BY ABS(:latitude - lat) + ABS(:longitude - lng) ASC LIMIT :limit")
     fun selectNearStores(latitude: Double, longitude: Double, limit: Int): Single<List<Drugstore>>
 
-    @Query("SELECT Drugstores.*, OpenData.* FROM Drugstores INNER JOIN OpenData ON Drugstores.id = OpenData.drugstore_id  ORDER BY ABS(:latitude - Drugstores.lat) + ABS(:longitude - Drugstores.lng) ASC LIMIT :limit")
+    @Query("SELECT Drugstores.*, OpenData.* FROM Drugstores INNER JOIN OpenData ON Drugstores.id = OpenData.drugstore_id ORDER BY ABS(:latitude - Drugstores.lat) + ABS(:longitude - Drugstores.lng) ASC LIMIT :limit")
     fun findNearDrugstoreInfo(
         latitude: Double,
         longitude: Double,
         limit: Int
     ): Single<List<DrugstoreInfo>>
+
+    @Query("SELECT Drugstores.*, OpenData.* FROM Drugstores INNER JOIN OpenData ON Drugstores.id = OpenData.drugstore_id WHERE Drugstores.address LIKE '%' || :keyword || '%' LIMIT 300")
+    fun searchAddress(keyword: String): Single<List<DrugstoreInfo>>
 }

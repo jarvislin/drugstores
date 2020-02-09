@@ -10,7 +10,6 @@ import io.reactivex.Single
 import java.io.File
 
 interface DrugstoreRepository {
-    fun fetchOpenData(): Single<List<OpenData>>
     fun saveOpenData(data: List<OpenData>): Completable
     fun deleteOpenData(): Single<Int>
     fun saveDrugstores(stores: List<Drugstore>): Completable
@@ -20,4 +19,5 @@ interface DrugstoreRepository {
     fun getLastLocation(): Pair<Double, Double>
     fun downloadOpenData():Flowable<Progress>
     fun transformOpenData(file: File): Single<List<OpenData>>
+    fun searchAddress(keyword: String): Single<List<DrugstoreInfo>>
 }

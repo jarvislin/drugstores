@@ -5,11 +5,15 @@ import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Rect
 import android.os.Bundle
 import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
+import android.view.Window
 import android.widget.TextView
+import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
@@ -22,21 +26,23 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.jakewharton.rxbinding2.view.RxView
 import com.jarvislin.domain.entity.DrugstoreInfo
 import com.jarvislin.domain.entity.Progress
 import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.base.BaseActivity
-import com.jarvislin.drugstores.extension.bind
-import com.jarvislin.drugstores.extension.getBitmap
-import com.jarvislin.drugstores.extension.tint
-import com.jarvislin.drugstores.extension.toBackground
+import com.jarvislin.drugstores.extension.*
 import com.jarvislin.drugstores.page.detail.DetailActivity
+import com.jarvislin.drugstores.page.search.SearchDialogFragment
+import com.jarvislin.drugstores.page.search.SearchDialogFragment.Companion.KEY_INFO
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_maps.*
+import org.jetbrains.anko.dip
+import org.koin.android.ext.android.bind
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
@@ -73,6 +79,19 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
+
+        // init margin
+        val id = resources.getIdentifier("status_bar_height", "dimen", "android");
+        if (id > 0) {
+            val height = resources.getDimensionPixelSize(id)
+            (layoutSearch.layoutParams as ConstraintLayout.LayoutParams).let {
+                val param = it
+                param.setMargins(it.marginStart, height + dip(16), it.marginEnd, 0)
+                layoutSearch.layoutParams = param
+            }
+            viewModel.saveStatusBarHeight(height)
+        }
+
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -104,6 +123,18 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
         // init asset data
         viewModel.initDrugstores()
+
+        // handle search
+        RxView.clicks(layoutSearch)
+            .throttleClick()
+            .subscribe {
+                val dialogFragment = SearchDialogFragment()
+                dialogFragment.arguments = Bundle().apply {
+                    putSerializable(KEY_INFO, viewModel.drugstoreInfo.value?.let { ArrayList(it) }
+                        ?: ArrayList<DrugstoreInfo>())
+                }
+                dialogFragment.show(supportFragmentManager, "Search")
+            }.bind(this)
     }
 
     private fun startDownload() {

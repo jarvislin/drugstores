@@ -24,30 +24,6 @@ class DrugstoreRepositoryImpl(
     private val drugstoreDao: DrugstoreDao,
     private val localData: LocalData
 ) : DrugstoreRepository {
-    private val client: OkHttpClient by lazy { OkHttpClient() }
-    override fun fetchOpenData(): Single<List<OpenData>> {
-        return Single.create<List<OpenData>> { emitter ->
-            val request: Request = Request.Builder()
-                .url("https://data.nhi.gov.tw/Datasets/Download.ashx?rid=A21030000I-D50001-001&l=https://data.nhi.gov.tw/resource/mask/maskdata.csv")
-                .build()
-
-            client.newCall(request).execute().use { response ->
-                response.body()?.string()?.let {
-                    emitter.onSuccess(
-                        csvReader().readAllWithHeader(it).map {
-                            OpenData(
-                                id = it["醫事機構代碼"] ?: error("wrong key"),
-                                adultMaskAmount = it["成人口罩總剩餘數"]?.toInt() ?: error("wrong key"),
-                                childMaskAmount = it["兒童口罩剩餘數"]?.toInt() ?: error("wrong key"),
-                                updateAt = it["來源資料時間"] ?: error("wrong key")
-                            )
-                        }
-                    )
-                }
-            }
-        }.subscribeOn(Schedulers.io())
-    }
-
     override fun transformOpenData(file: File): Single<List<OpenData>> {
         return Single.create<List<OpenData>> { emitter ->
             try {
@@ -112,8 +88,13 @@ class DrugstoreRepositoryImpl(
     }
 
     override fun downloadOpenData(): Flowable<Progress> {
-        return Downloader().download()
+        return Downloader().download("https://raw.githubusercontent.com/kiang/pharmacies/master/raw/maskdata.csv")
             .toFlowable(BackpressureStrategy.LATEST)
+            .subscribeOn(Schedulers.io())
+    }
+
+    override fun searchAddress(keyword: String): Single<List<DrugstoreInfo>> {
+        return drugstoreDao.searchAddress(keyword)
             .subscribeOn(Schedulers.io())
     }
 }
