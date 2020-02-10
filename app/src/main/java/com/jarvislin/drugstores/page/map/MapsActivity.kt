@@ -84,6 +84,9 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         val id = resources.getIdentifier("status_bar_height", "dimen", "android");
         if (id > 0) {
             val height = resources.getDimensionPixelSize(id)
+            if (height == 0) {
+                return
+            }
             (layoutSearch.layoutParams as ConstraintLayout.LayoutParams).let {
                 val param = it
                 param.setMargins(it.marginStart, height + dip(16), it.marginEnd, 0)
@@ -109,6 +112,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
             progressBar.progress = (100 * progress.bytesDownloaded / progress.contentLength).toInt()
 
             if (progress is Progress.Done) {
+                dots.dispose()
                 Timber.i("open data downloaded")
                 textProgressHint.text = "資料更新完成"
                 layoutDownloadHint.animate().setStartDelay(1_000).alpha(0f).start()
