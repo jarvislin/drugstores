@@ -92,6 +92,9 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
             viewModel.saveStatusBarHeight(height)
         }
 
+        // progress bar
+        progressBarTransform.indeterminateDrawable.tint(ContextCompat.getColor(this, R.color.colorAccent))
+
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -101,9 +104,11 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
         // download open data
         viewModel.downloadProgress.observe(this, Observer { progress ->
-            progressBar.progress = (100 * progress.bytesDownloaded / progress.contentLength).toInt()
+            progressBarDownload.progress = (100 * progress.bytesDownloaded / progress.contentLength).toInt()
             if (progress is Progress.Done) {
                 dots.dispose()
+                progressBarDownload.hide()
+                progressBarTransform.show()
                 Timber.i("open data downloaded")
                 textProgressHint.text = "資料轉換中..."
                 viewModel.handleLatestOpenData(progress.file)
@@ -128,7 +133,9 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     }
 
     private fun startDownload() {
-        progressBar.progress = 0
+        progressBarDownload.progress = 0
+        progressBarDownload.show()
+        progressBarTransform.hide()
         layoutDownloadHint.animate().alpha(1f).start()
         dots = Flowable.interval(300, TimeUnit.MILLISECONDS)
             .subscribeOn(Schedulers.computation())

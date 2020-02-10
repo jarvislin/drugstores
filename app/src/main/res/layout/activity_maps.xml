@@ -85,7 +85,15 @@
             tools:text="下載中" />
 
         <ProgressBar
-            android:id="@+id/progressBar"
+            android:id="@+id/progressBarTransform"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:indeterminate="true" />
+
+        <ProgressBar
+            android:id="@+id/progressBarDownload"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="24dp"
             android:layout_height="24dp"
@@ -97,6 +105,7 @@
             android:max="100"
             android:progress="0"
             android:progressDrawable="@drawable/circular_progress_bar"
+            android:visibility="gone"
             tools:visibility="visible" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
