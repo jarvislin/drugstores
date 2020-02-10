@@ -20,6 +20,10 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
+#
+-keep class com.jarvislin.domain.entity.** { *; }
+-keep interface com.jarvislin.domain.entity.** { *; }
+
 #gson
 -keepattributes Signature
 -keepattributes *Annotation*
@@ -37,13 +41,6 @@
 -dontwarn okhttp3.**
 -dontwarn okio.**
 
-#Glide
--keep public class * implements com.bumptech.glide.module.GlideModule
--keep public class * extends com.bumptech.glide.module.AppGlideModule
--keep public enum com.bumptech.glide.load.ImageHeaderParser$** {
-  **[] $VALUES;
-  public *;
-}
 
 #Crashlytics
 -keepattributes SourceFile,LineNumberTable
