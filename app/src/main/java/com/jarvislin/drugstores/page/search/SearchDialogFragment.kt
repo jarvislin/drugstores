@@ -83,8 +83,8 @@ class SearchDialogFragment : DialogFragment() {
             day--
         }
         val text = when (day) {
-            1, 3, 5 -> "奇數"
-            2, 4, 6 -> "偶數"
+            1, 3, 5 -> "單號"
+            2, 4, 6 -> "雙號"
             else -> "無限制"
         }
         textDateType.text = text

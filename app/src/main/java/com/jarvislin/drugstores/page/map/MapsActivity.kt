@@ -5,14 +5,11 @@ import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Rect
 import android.os.Bundle
 import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
-import android.view.Window
 import android.widget.TextView
-import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -28,6 +25,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.jakewharton.rxbinding2.view.RxView
 import com.jarvislin.domain.entity.DrugstoreInfo
+import com.jarvislin.domain.entity.EntireInfo
 import com.jarvislin.domain.entity.Progress
 import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.base.BaseActivity
@@ -42,7 +40,6 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_maps.*
 import org.jetbrains.anko.dip
-import org.koin.android.ext.android.bind
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
@@ -104,19 +101,11 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
         // download open data
         viewModel.downloadProgress.observe(this, Observer { progress ->
-            if (progress.bytesDownloaded == 0L) {
-                dots.dispose()
-                textProgressHint.text = ""
-            }
-
             progressBar.progress = (100 * progress.bytesDownloaded / progress.contentLength).toInt()
-
             if (progress is Progress.Done) {
                 dots.dispose()
                 Timber.i("open data downloaded")
-                textProgressHint.text = "資料更新完成"
-                layoutDownloadHint.animate().setStartDelay(1_000).alpha(0f).start()
-                viewModel.countDown()
+                textProgressHint.text = "資料轉換中..."
                 viewModel.handleLatestOpenData(progress.file)
             }
         })
@@ -124,9 +113,6 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         viewModel.autoUpdate.observe(this, Observer { startDownload() })
 
         startDownload()
-
-        // init asset data
-        viewModel.initDrugstores()
 
         // handle search
         RxView.clicks(layoutSearch)
@@ -159,7 +145,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
             }
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                textProgressHint.text = "準備連線" + it
+                textProgressHint.text = "資料下載中" + it
             }, { Timber.e(it) })
             .addTo(compositeDisposable)
 
@@ -192,8 +178,10 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
         moveTo(myLocation ?: viewModel.getLastLocation())
 
-        viewModel.allDataPrepared.observe(this, Observer { done ->
+        viewModel.downloaded.observe(this, Observer { done ->
             if (done) {
+                layoutDownloadHint.animate().setStartDelay(1_000).alpha(0f).start()
+                viewModel.countDown()
                 viewModel.fetchNearDrugstoreInfo(positionLatitude, positionLongitude)
                 viewModel.drugstoreInfo.observe(this, Observer { addMarkers(it) })
             }
@@ -204,7 +192,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         map.setOnInfoWindowClickListener {
             DetailActivity.start(
                 this,
-                cacheManager.getDrugstoreInfo(it)
+                cacheManager.getEntireInfo(it)
             )
         }
         map.setOnCameraIdleListener {
@@ -216,7 +204,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         map.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
             override fun getInfoContents(marker: Marker): View? {
                 lastClickedMarker = marker
-                bindView(infoWindowView, cacheManager.getDrugstoreInfo(marker))
+                bindView(infoWindowView, cacheManager.getEntireInfo(marker))
                 return infoWindowView
             }
 
@@ -237,33 +225,31 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         fab.setImageDrawable(drawable)
     }
 
-    private fun bindView(view: View, info: DrugstoreInfo) {
-        view.findViewById<TextView>(R.id.textName).text = info.drugstore.name
-        view.findViewById<TextView>(R.id.textUpdate).text = info.openData.getUpdateText()
+    private fun bindView(view: View, info: EntireInfo) {
+        view.findViewById<TextView>(R.id.textName).text = info.getName()
+        view.findViewById<TextView>(R.id.textUpdate).text = info.getUpdateAt().toUpdateWording()
         view.findViewById<TextView>(R.id.textAdultAmount).text =
-            "成人：" + info.openData.adultMaskAmount.toString()
+            info.getAdultMaskAmount().toString()
         view.findViewById<TextView>(R.id.textChildAmount).text =
-            "兒童：" + info.openData.childMaskAmount.toString()
+            info.getChildMaskAmount().toString()
         view.findViewById<View>(R.id.layoutAdult).background =
-            info.openData.adultMaskAmount.toBackground()
+            info.getAdultMaskAmount().toBackground()
         view.findViewById<View>(R.id.layoutChild).background =
-            info.openData.childMaskAmount.toBackground()
+            info.getChildMaskAmount().toBackground()
     }
 
 
-    private fun addMarkers(drugstores: List<DrugstoreInfo>) {
+    private fun addMarkers(drugstores: List<EntireInfo>) {
         Flowable.fromIterable(drugstores)
             .subscribeOn(Schedulers.computation())
             .filter { cacheManager.isCached(it).not() }
             .map {
                 val markerInfo =
-                    MarkerInfoManager.getMarkerInfo(
-                        it.openData.adultMaskAmount
-                    )
+                    MarkerInfoManager.getMarkerInfo(it.getAdultMaskAmount())
 
                 val option = MarkerOptions()
-                    .position(LatLng(it.drugstore.lat, it.drugstore.lng))
-                    .snippet(it.drugstore.id)
+                    .position(LatLng(it.getLat(), it.getLng()))
+                    .snippet(it.getId())
                     .zIndex(markerInfo.zIndex)
 
                 ContextCompat.getDrawable(this, markerInfo.drawableId)?.getBitmap()

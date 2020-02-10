@@ -15,6 +15,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.jakewharton.rxbinding2.view.RxView
 import com.jarvislin.domain.entity.DrugstoreInfo
+import com.jarvislin.domain.entity.EntireInfo
 import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.base.BaseActivity
 import com.jarvislin.drugstores.base.BaseViewModel
@@ -30,15 +31,15 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
 
     companion object {
         private const val KEY_INFO = "key_info"
-        fun start(context: Context, drugstoreInfo: DrugstoreInfo) {
+        fun start(context: Context, info: EntireInfo) {
             Intent(context, DetailActivity::class.java).apply {
-                putExtra(KEY_INFO, drugstoreInfo)
+                putExtra(KEY_INFO, info)
                 context.startActivity(this)
             }
         }
     }
 
-    private val drugstoreInfo by lazy { intent.getSerializableExtra(KEY_INFO) as DrugstoreInfo }
+    private val info by lazy { intent.getSerializableExtra(KEY_INFO) as EntireInfo }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,15 +51,16 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        layoutAdult.background = drugstoreInfo.openData.adultMaskAmount.toBackground()
-        layoutChild.background = drugstoreInfo.openData.childMaskAmount.toBackground()
+        layoutAdult.background = info.getAdultMaskAmount().toBackground()
+        layoutChild.background = info.getChildMaskAmount().toBackground()
 
-        textAdultAmount.text = drugstoreInfo.openData.adultMaskAmount.toString()
-        textChildAmount.text = drugstoreInfo.openData.childMaskAmount.toString()
+        textAdultAmount.text = info.getAdultMaskAmount().toString()
+        textChildAmount.text = info.getChildMaskAmount().toString()
 
-        textName.text = drugstoreInfo.drugstore.name
-        textAddress.text = drugstoreInfo.drugstore.address
-        textPhone.text = "電話  " + drugstoreInfo.drugstore.phone
+        textName.text = info.getName()
+        textAddress.text = info.getAddress()
+        textPhone.text = "電話  " + info.getPhone()
+        textUpdate.text = info.getUpdateAt().toUpdateWording()
 
         val calendar = Calendar.getInstance(Locale.getDefault())
         var day = calendar.get(Calendar.DAY_OF_WEEK)
@@ -66,8 +68,8 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
             day--
         }
         val text = when (day) {
-            1, 3, 5 -> "奇數"
-            2, 4, 6 -> "偶數"
+            1, 3, 5 -> "單號"
+            2, 4, 6 -> "雙號"
             else -> "無限制"
         }
         textDateType.text = text
@@ -95,14 +97,14 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
         map.uiSettings.isMapToolbarEnabled = false
 
         // move camera
-        drugstoreInfo
-            .let { LatLng(it.drugstore.lat, it.drugstore.lng) }
+        info
+            .let { LatLng(it.getLat(), it.getLng()) }
             .also { CameraUpdateFactory.newLatLngZoom(it, 18f).run { map.moveCamera(this) } }
 
         // add marker
-        val markerInfo = MarkerInfoManager.getMarkerInfo(drugstoreInfo.openData.adultMaskAmount)
+        val markerInfo = MarkerInfoManager.getMarkerInfo(info.getAdultMaskAmount())
         val option = MarkerOptions()
-            .position(LatLng(drugstoreInfo.drugstore.lat, drugstoreInfo.drugstore.lng))
+            .position(LatLng(info.getLat(), info.getLng()))
 
         ContextCompat.getDrawable(this, markerInfo.drawableId)?.getBitmap()
             .let { option.icon(BitmapDescriptorFactory.fromBitmap(it)) }
@@ -126,7 +128,7 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
             .setPositiveButton(getString(R.string.dial)) { _, _ ->
                 Intent(Intent.ACTION_DIAL).apply {
                     try {
-                        data = Uri.parse("tel:${drugstoreInfo.drugstore.phone}")
+                        data = Uri.parse("tel:${info.getPhone()}")
                         startActivity(this)
                     } catch (ex: Exception) {
                         toast(getString(R.string.dial_error))
@@ -138,11 +140,7 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
 
     private fun openMap() {
         val gmmIntentUri =
-            Uri.parse(
-                "geo:${drugstoreInfo.drugstore.lat},${drugstoreInfo.drugstore.lng}?q=" + Uri.encode(
-                    "${drugstoreInfo.drugstore.name}"
-                )
-            )
+            Uri.parse("geo:${info.getLat()},${info.getLng()}?q=" + Uri.encode(info.getName()))
         val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
         mapIntent.setPackage("com.google.android.apps.maps")
         if (mapIntent.resolveActivity(packageManager) != null) {

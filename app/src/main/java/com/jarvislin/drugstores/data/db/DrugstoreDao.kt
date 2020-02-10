@@ -16,7 +16,7 @@ interface DrugstoreDao {
     fun getDrugstoreInfo(id: String): Single<List<DrugstoreInfo>>
 
     @Insert(onConflict = IGNORE)
-    fun insertDrugstores(shelters: List<Drugstore>): Completable
+    fun insertDrugstores(shelters: List<Drugstore>)
 
     @Insert(onConflict = IGNORE)
     fun insertOpenData(openData: List<OpenData>): Completable
