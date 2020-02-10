@@ -15,6 +15,7 @@ import com.jarvislin.domain.entity.EntireInfo
 import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.extension.throttleClick
 import com.jarvislin.drugstores.extension.toBackground
+import com.jarvislin.drugstores.extension.toUpdateWording
 import com.jarvislin.drugstores.page.detail.DetailActivity
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -50,6 +51,7 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
         private val textAdultAmount: TextView = itemView.findViewById(R.id.textAdultAmount)
         private val textChildAmount: TextView = itemView.findViewById(R.id.textChildAmount)
         private val textName: TextView = itemView.findViewById(R.id.textName)
+        private val textUpdate: TextView = itemView.findViewById(R.id.textUpdate)
         private val textAddress: TextView = itemView.findViewById(R.id.textAddress)
         private val textPhone: TextView = itemView.findViewById(R.id.textPhone)
         private val imagePhone: ImageView = itemView.findViewById(R.id.imagePhone)
@@ -66,6 +68,7 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
             textName.text = drugstoreInfo.getName()
             textAddress.text = drugstoreInfo.getAddress()
             textPhone.text = "電話  " + drugstoreInfo.getPhone()
+            textUpdate.text = drugstoreInfo.getUpdateAt().toUpdateWording()
 
             RxView.clicks(imagePhone)
                 .throttleClick()

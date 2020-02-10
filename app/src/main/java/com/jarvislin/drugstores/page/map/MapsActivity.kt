@@ -101,19 +101,11 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
         // download open data
         viewModel.downloadProgress.observe(this, Observer { progress ->
-            if (progress.bytesDownloaded == 0L) {
-                dots.dispose()
-                textProgressHint.text = ""
-            }
-
             progressBar.progress = (100 * progress.bytesDownloaded / progress.contentLength).toInt()
-
             if (progress is Progress.Done) {
-                dots.dispose() // do it twice because progress 0 may be dropped
+                dots.dispose()
                 Timber.i("open data downloaded")
-                textProgressHint.text = "資料更新完成"
-                layoutDownloadHint.animate().setStartDelay(1_000).alpha(0f).start()
-                viewModel.countDown()
+                textProgressHint.text = "資料轉換中..."
                 viewModel.handleLatestOpenData(progress.file)
             }
         })
@@ -153,7 +145,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
             }
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                textProgressHint.text = "準備連線" + it
+                textProgressHint.text = "資料下載中" + it
             }, { Timber.e(it) })
             .addTo(compositeDisposable)
 
@@ -188,6 +180,8 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
         viewModel.downloaded.observe(this, Observer { done ->
             if (done) {
+                layoutDownloadHint.animate().setStartDelay(1_000).alpha(0f).start()
+                viewModel.countDown()
                 viewModel.fetchNearDrugstoreInfo(positionLatitude, positionLongitude)
                 viewModel.drugstoreInfo.observe(this, Observer { addMarkers(it) })
             }
@@ -235,9 +229,9 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         view.findViewById<TextView>(R.id.textName).text = info.getName()
         view.findViewById<TextView>(R.id.textUpdate).text = info.getUpdateAt().toUpdateWording()
         view.findViewById<TextView>(R.id.textAdultAmount).text =
-            "成人：" + info.getAdultMaskAmount()
+            info.getAdultMaskAmount().toString()
         view.findViewById<TextView>(R.id.textChildAmount).text =
-            "兒童：" + info.getChildMaskAmount()
+            info.getChildMaskAmount().toString()
         view.findViewById<View>(R.id.layoutAdult).background =
             info.getAdultMaskAmount().toBackground()
         view.findViewById<View>(R.id.layoutChild).background =

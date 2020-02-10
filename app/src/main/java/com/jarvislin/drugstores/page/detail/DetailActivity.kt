@@ -60,6 +60,7 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
         textName.text = info.getName()
         textAddress.text = info.getAddress()
         textPhone.text = "電話  " + info.getPhone()
+        textUpdate.text = info.getUpdateAt().toUpdateWording()
 
         val calendar = Calendar.getInstance(Locale.getDefault())
         var day = calendar.get(Calendar.DAY_OF_WEEK)
@@ -67,8 +68,8 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
             day--
         }
         val text = when (day) {
-            1, 3, 5 -> "奇數"
-            2, 4, 6 -> "偶數"
+            1, 3, 5 -> "單號"
+            2, 4, 6 -> "雙號"
             else -> "無限制"
         }
         textDateType.text = text
