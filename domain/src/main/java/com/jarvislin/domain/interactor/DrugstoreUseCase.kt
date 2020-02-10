@@ -1,6 +1,6 @@
 package com.jarvislin.domain.interactor
 
-import com.jarvislin.domain.entity.DrugstoreInfo
+import com.jarvislin.domain.entity.EntireInfo
 import com.jarvislin.domain.entity.Progress
 import com.jarvislin.domain.repository.DrugstoreRepository
 import io.reactivex.Completable
@@ -14,12 +14,7 @@ class DrugstoreUseCase(private val drugstoreRepository: DrugstoreRepository) {
         return drugstoreRepository.downloadOpenData()
     }
 
-    fun initDrugstores(): Completable {
-        return drugstoreRepository.initDrugstores()
-            .flatMapCompletable { drugstoreRepository.saveDrugstores(it) }
-    }
-
-    fun findNearDrugstoreInfo(latitude: Double, longitude: Double): Single<List<DrugstoreInfo>> {
+    fun findNearDrugstoreInfo(latitude: Double, longitude: Double): Single<List<EntireInfo>> {
         return drugstoreRepository.findNearDrugstoreInfo(latitude, longitude)
     }
 
@@ -32,12 +27,15 @@ class DrugstoreUseCase(private val drugstoreRepository: DrugstoreRepository) {
     }
 
     fun handleLatestOpenData(file: File): Completable {
-        return drugstoreRepository.deleteOpenData()
-            .flatMap { drugstoreRepository.transformOpenData(file) }
+        return drugstoreRepository.deleteDrugstores()
+            .flatMap { drugstoreRepository.transformToDrugstores(file) }
+            .map { drugstoreRepository.saveDrugstores(it) }
+            .flatMap { drugstoreRepository.deleteOpenData() }
+            .flatMap { drugstoreRepository.transformToOpenData(file) }
             .flatMapCompletable { drugstoreRepository.saveOpenData(it) }
     }
 
-    fun searchAddress(keyword: String): Single<List<DrugstoreInfo>> {
+    fun searchAddress(keyword: String): Single<List<EntireInfo>> {
         return drugstoreRepository.searchAddress(keyword)
     }
 }
