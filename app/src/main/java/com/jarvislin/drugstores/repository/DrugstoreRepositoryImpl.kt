@@ -32,8 +32,8 @@ class DrugstoreRepositoryImpl(
                 csvReader().readAllWithHeader(file).map {
                     OpenData(
                         id = it["醫事機構代碼"] ?: error("wrong key"),
-                        adultMaskAmount = it["成人口罩剩餘數"]?.toInt() ?: error("wrong key"),
-                        childMaskAmount = it["兒童口罩剩餘數"]?.toInt() ?: error("wrong key"),
+                        adultMaskAmount = it["成人口罩剩餘數"]?.toInt() ?: it["成人口罩剩餘總數"]?.toInt() ?: error("wrong key"),
+                        childMaskAmount = it["兒童口罩剩餘數"]?.toInt() ?: it["兒童口罩剩餘總數"]?.toInt() ?: error("wrong key"),
                         updateAt = it["來源資料時間"] ?: error("wrong key")
                     )
                 }.let { emitter.onSuccess(it) }
