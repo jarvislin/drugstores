@@ -11,7 +11,6 @@ interface DrugstoreRepository {
     fun deleteDrugstores(): Single<Int>
     fun saveOpenData(data: List<OpenData>): Completable
     fun saveDrugstores(stores: List<Drugstore>)
-    fun initDrugstores(): Single<List<Drugstore>>
     fun findNearDrugstoreInfo(latitude: Double, longitude: Double): Single<List<EntireInfo>>
     fun saveLastLocation(latitude: Double, longitude: Double)
     fun getLastLocation(): Pair<Double, Double>

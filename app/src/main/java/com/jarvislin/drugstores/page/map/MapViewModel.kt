@@ -1,6 +1,7 @@
 package com.jarvislin.drugstores.page.map
 
 import android.location.Location
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.maps.model.LatLng
 import com.jarvislin.domain.entity.EntireInfo
@@ -20,17 +21,12 @@ import java.util.concurrent.TimeUnit
 
 class MapViewModel : BaseViewModel() {
     private val useCase: DrugstoreUseCase by inject()
-    val dataPrepared = MutableLiveData<Boolean>()
-    val drugstoreInfo = MutableLiveData<List<EntireInfo>>()
+    val dataPrepared = MutableLiveData<Boolean>(false)
+    val drugstoreInfo = MutableLiveData<List<EntireInfo>>(emptyList())
     val downloadProgress = MutableLiveData<Progress>()
     val autoUpdate = MutableLiveData<Boolean>()
     val searchedResult = MutableLiveData<List<EntireInfo>>()
     val statusBarHeight = MutableLiveData<Int>()
-
-    init {
-        dataPrepared.value = false
-        drugstoreInfo.value = emptyList()
-    }
 
     fun fetchOpenData() {
         useCase.fetchOpenData()
@@ -84,8 +80,7 @@ class MapViewModel : BaseViewModel() {
 
     fun searchAddress(keyword: String) {
         useCase.searchAddress(keyword)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ searchedResult.value = it }, { Timber.e(it) })
+            .subscribe({ searchedResult.postValue(it)}, { Timber.e(it) })
             .bind(this)
     }
 
