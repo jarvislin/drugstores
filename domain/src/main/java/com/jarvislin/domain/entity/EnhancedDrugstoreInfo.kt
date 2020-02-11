@@ -15,18 +15,29 @@ data class Feature(
     val property: Property,
     @SerializedName("geometry")
     val geometry: Geometry
-) : Serializable, EntireInfo {
-    override fun getId(): String = property.id
-    override fun getName(): String = property.name
-    override fun getLat(): Double = geometry.getLat()
-    override fun getLng(): Double = geometry.getLng()
-    override fun getUpdateAt(): String = property.updated
-    override fun getAdultMaskAmount(): Int = property.maskAdult
-    override fun getChildMaskAmount(): Int = property.maskChild
-    override fun getNote(): String = property.note
-    override fun getAvailable(): String = property.available
-    override fun getAddress(): String = property.address
-    override fun getPhone(): String = property.phone
+) : Serializable {
+    fun getId(): String = property.id
+    fun getName(): String = property.name
+    fun getLat(): Double = geometry.getLat().toDouble()
+    fun getLng(): Double = geometry.getLng().toDouble()
+    fun getUpdateAt(): String = property.updated
+    fun getAdultMaskAmount(): Int = property.maskAdult.toInt()
+    fun getChildMaskAmount(): Int = property.maskChild.toInt()
+    fun getNote(): String = property.note
+    fun getAvailable(): String = property.available
+    fun getAddress(): String = property.address
+    fun getPhone(): String = property.phone
+    fun isValid(): Boolean {
+        return try {
+            getLat()
+            getLng()
+            getAdultMaskAmount()
+            getChildMaskAmount()
+            true
+        } catch (ex: Exception) {
+            false
+        }
+    }
 }
 
 data class Property(
@@ -39,9 +50,9 @@ data class Property(
     @SerializedName("address")
     val address: String,
     @SerializedName("mask_adult")
-    val maskAdult: Int,
+    val maskAdult: String, // defensive
     @SerializedName("mask_child")
-    val maskChild: Int,
+    val maskChild: String, // defensive
     @SerializedName("updated")
     val updated: String,
     @SerializedName("available")
@@ -60,8 +71,10 @@ data class Property(
 
 data class Geometry(
     val type: String,
-    val coordinates: List<Double>
+    val coordinates: List<String>
 ) : Serializable {
-    fun getLat(): Double = coordinates[1]
-    fun getLng(): Double = coordinates[0]
+    // defensive
+    // because somebody put opening hours here XD
+    fun getLat(): String = coordinates[1]
+    fun getLng(): String = coordinates[0]
 }
