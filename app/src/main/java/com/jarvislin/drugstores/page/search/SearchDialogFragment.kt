@@ -18,6 +18,8 @@ import com.jakewharton.rxbinding2.view.RxView
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.jarvislin.domain.entity.DrugstoreInfo
 import com.jarvislin.drugstores.R
+import com.jarvislin.drugstores.extension.hide
+import com.jarvislin.drugstores.extension.show
 import com.jarvislin.drugstores.extension.throttleClick
 import com.jarvislin.drugstores.page.map.MapViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -37,6 +39,7 @@ class SearchDialogFragment : DialogFragment() {
     private val adapter: SearchAdapter by inject()
     private val viewModel: MapViewModel by sharedViewModel()
     private val compositeDisposable = CompositeDisposable()
+    private var doNotUpdate = false
 
     companion object {
         const val KEY_INFO = "key_info"
@@ -100,14 +103,14 @@ class SearchDialogFragment : DialogFragment() {
             recyclerView.addItemDecoration(itemDecorator)
         }
 
-        val info = arguments?.getSerializable(KEY_INFO) as? ArrayList<DrugstoreInfo>
-        info?.let { adapter.update(it) }
+
+        doNotUpdate = viewModel.searchedResult.value != null
 
         // handle keyword
         RxTextView.afterTextChangeEvents(editSearch)
-            .throttleLast(1_200, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
+                val info = arguments?.getSerializable(KEY_INFO) as? ArrayList<DrugstoreInfo>
                 val keyword = it.view().text.toString()
                 if (keyword.isNotEmpty()) {
                     viewModel.searchAddress(it.view().text.toString())
@@ -117,7 +120,15 @@ class SearchDialogFragment : DialogFragment() {
             }, { Timber.e(it) })
             .addTo(compositeDisposable)
 
-        activity?.let { viewModel.searchedResult.observe(it, Observer { adapter.update(it) }) }
+        activity?.let {
+            viewModel.searchedResult.observe(it, Observer {
+                if (doNotUpdate) {
+                    doNotUpdate = false
+                    return@Observer
+                }
+                adapter.update(it)
+            })
+        }
 
         RxView.clicks(imageBack)
             .throttleClick()

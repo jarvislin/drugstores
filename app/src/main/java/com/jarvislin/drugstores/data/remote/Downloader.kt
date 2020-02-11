@@ -1,6 +1,7 @@
 package com.jarvislin.drugstores.data.remote
 
 import com.jarvislin.domain.entity.Progress
+import com.jarvislin.drugstores.BuildConfig
 import com.jarvislin.drugstores.base.App
 import io.reactivex.Observable
 import io.reactivex.ObservableEmitter
@@ -9,17 +10,21 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody
+import okhttp3.logging.HttpLoggingInterceptor
 import okio.BufferedSink
 import okio.Okio
-import retrofit2.HttpException
 import java.io.File
-import java.io.IOException
 import java.util.concurrent.atomic.AtomicBoolean
 
 class Downloader(
-    private val okHttpClient: OkHttpClient = OkHttpClient(),
     private val progressPeriodBytes: Long = 10000,
-    private val internalBufferBytes: Long = 2048
+    private val internalBufferBytes: Long = 2048,
+    private val okHttpClient: OkHttpClient = OkHttpClient.Builder().addInterceptor(
+        HttpLoggingInterceptor().setLevel(
+            if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
+            else HttpLoggingInterceptor.Level.NONE
+        )
+    ).build()
 ) {
 
     fun download(url: String): Observable<Progress> {

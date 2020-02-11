@@ -64,6 +64,10 @@ fun String.toUpdateWording(): String {
             else -> "資料更新於 $diffSecond 秒前"
         }
     } catch (ex: Exception) {
-        "更新於：$this"
+        if (this.isEmpty()) {
+            "無更新時間"
+        } else {
+            "更新於：$this"
+        }
     }
 }

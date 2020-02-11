@@ -58,7 +58,6 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     private val positionLongitude get() = map.cameraPosition.target.longitude
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var dots: Disposable
     private var myLocation: LatLng? = null
     private var lastClickedMarker: Marker? = null
 
@@ -95,6 +94,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         // progress bar
         progressBarTransform.indeterminateDrawable.tint(ContextCompat.getColor(this, R.color.colorAccent))
 
+        // map
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
@@ -103,13 +103,13 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
         // download open data
         viewModel.downloadProgress.observe(this, Observer { progress ->
-            progressBarDownload.progress = (100 * progress.bytesDownloaded / progress.contentLength).toInt()
+            progressBarDownload.progress =
+                (100 * progress.bytesDownloaded / progress.contentLength).toInt()
             if (progress is Progress.Done) {
-                dots.dispose()
                 progressBarDownload.hide()
                 progressBarTransform.show()
                 Timber.i("open data downloaded")
-                textProgressHint.text = "資料轉換中..."
+                textProgressHint.text = "資料轉換中"
                 viewModel.handleLatestOpenData(progress.file)
             }
         })
@@ -136,24 +136,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         progressBarDownload.show()
         progressBarTransform.hide()
         layoutDownloadHint.animate().alpha(1f).start()
-        dots = Flowable.interval(300, TimeUnit.MILLISECONDS)
-            .subscribeOn(Schedulers.computation())
-            .take(100)
-            .map {
-                when (it % 6) {
-                    1L -> "."
-                    2L -> ".."
-                    3L -> "..."
-                    4L -> ".."
-                    5L -> "."
-                    else -> ""
-                }
-            }
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                textProgressHint.text = "資料下載中" + it
-            }, { Timber.e(it) })
-            .addTo(compositeDisposable)
+        textProgressHint.text = "資料下載中"
 
         viewModel.fetchOpenData()
     }
