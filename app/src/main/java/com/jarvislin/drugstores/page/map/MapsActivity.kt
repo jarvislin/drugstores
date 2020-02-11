@@ -95,8 +95,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         // progress bar
         progressBarTransform.indeterminateDrawable.tint(ContextCompat.getColor(this, R.color.colorAccent))
 
-        val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         fusedLocationClient.lastLocation.addOnSuccessListener { viewModel.saveLastLocation(it) }
@@ -185,13 +184,13 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
         moveTo(myLocation ?: viewModel.getLastLocation())
 
-        viewModel.downloaded.observe(this, Observer { done ->
+        viewModel.dataPrepared.observe(this, Observer { done ->
             if (done) {
-                layoutDownloadHint.animate().setStartDelay(1_000).alpha(0f).start()
                 viewModel.countDown()
                 viewModel.fetchNearDrugstoreInfo(positionLatitude, positionLongitude)
                 viewModel.drugstoreInfo.observe(this, Observer { addMarkers(it) })
             }
+            layoutDownloadHint.animate().setStartDelay(1_000).alpha(0f).start()
         })
 
         map.uiSettings.isMapToolbarEnabled = false

@@ -7,9 +7,11 @@ import io.reactivex.ObservableEmitter
 import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.Response
 import okhttp3.ResponseBody
 import okio.BufferedSink
 import okio.Okio
+import retrofit2.HttpException
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicBoolean
@@ -20,17 +22,23 @@ class Downloader(
     private val internalBufferBytes: Long = 2048
 ) {
 
-    fun download(url: String = "https://data.nhi.gov.tw/Datasets/Download.ashx?rid=A21030000I-D50001-001&l=https://data.nhi.gov.tw/resource/mask/maskdata.csv"): Observable<Progress> {
+    fun download(url: String): Observable<Progress> {
         return Observable.create<Progress> { emitter ->
             val isCanceled = AtomicBoolean(false)
 
             val request: Request = Request.Builder().url(url).get().build()
             val call = okHttpClient.newCall(request)
+            val response: Response
 
-            val response = call.execute()
+            try {
+                response = call.execute()
+            } catch (ex: Exception) {
+                emitter.onError(ex)
+                return@create
+            }
 
-            if (!response.isSuccessful) {
-                emitter.onError(IOException("Unexpected code " + response.message()))
+            if (response.isSuccessful.not()) {
+                emitter.onError(HttpException())
             }
 
             emitter.setCancellable { isCanceled.set(true) }
@@ -78,5 +86,6 @@ class Downloader(
         body.close()
         fileSink.close()
     }
-
 }
+
+class HttpException : Exception()
