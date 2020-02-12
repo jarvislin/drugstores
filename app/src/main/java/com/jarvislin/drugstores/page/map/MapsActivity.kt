@@ -34,6 +34,8 @@ import com.jarvislin.drugstores.page.search.SearchDialogFragment
 import com.jarvislin.drugstores.page.search.SearchDialogFragment.Companion.KEY_INFO
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_maps.*
 import org.jetbrains.anko.dip
@@ -57,6 +59,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var myLocation: LatLng? = null
     private var lastClickedMarker: Marker? = null
+    private var disposableMarkers: Disposable? = null
 
     companion object {
         private const val DELAY_MILLISECONDS = 100L
@@ -89,7 +92,12 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         }
 
         // progress bar
-        progressBarTransform.indeterminateDrawable.tint(ContextCompat.getColor(this, R.color.colorAccent))
+        progressBarTransform.indeterminateDrawable.tint(
+            ContextCompat.getColor(
+                this,
+                R.color.colorAccent
+            )
+        )
 
         // map
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
@@ -100,7 +108,8 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
         // download open data
         viewModel.downloadProgress.observe(this, Observer { progress ->
-            progressBarDownload.progress = (100 * progress.bytesDownloaded / progress.contentLength).toInt()
+            progressBarDownload.progress =
+                (100 * progress.bytesDownloaded / progress.contentLength).toInt()
             if (progress is Progress.Done) {
                 progressBarDownload.hide()
                 progressBarTransform.show()
@@ -184,7 +193,10 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
             viewModel.fetchNearDrugstoreInfo(positionLatitude, positionLongitude)
         }
 
-        map.setOnCameraMoveStartedListener { updateFabColor(R.color.secondaryIcons) }
+        map.setOnCameraMoveStartedListener {
+            disposableMarkers?.dispose()
+            updateFabColor(R.color.secondaryIcons)
+        }
 
         map.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
             override fun getInfoContents(marker: Marker): View? {
@@ -225,7 +237,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
 
     private fun addMarkers(drugstores: List<DrugstoreInfo>) {
-        Flowable.fromIterable(drugstores)
+        disposableMarkers = Flowable.fromIterable(drugstores)
             .subscribeOn(Schedulers.computation())
             .filter { cacheManager.isCached(it).not() }
             .map {
@@ -248,7 +260,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
                 pair.let { map.addMarker(it.second) }
                     .also { cacheManager.add(pair.first, it) }
             }, { Timber.e(it) })
-            .bind(this)
+            .addTo(compositeDisposable)
     }
 
 
