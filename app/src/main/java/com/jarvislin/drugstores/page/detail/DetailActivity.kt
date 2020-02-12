@@ -15,7 +15,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.jakewharton.rxbinding2.view.RxView
 import com.jarvislin.domain.entity.DrugstoreInfo
-import com.jarvislin.domain.entity.EntireInfo
 import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.base.BaseActivity
 import com.jarvislin.drugstores.base.BaseViewModel
@@ -31,7 +30,7 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
 
     companion object {
         private const val KEY_INFO = "key_info"
-        fun start(context: Context, info: EntireInfo) {
+        fun start(context: Context, info: DrugstoreInfo) {
             Intent(context, DetailActivity::class.java).apply {
                 putExtra(KEY_INFO, info)
                 context.startActivity(this)
@@ -39,7 +38,7 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
         }
     }
 
-    private val info by lazy { intent.getSerializableExtra(KEY_INFO) as EntireInfo }
+    private val info by lazy { intent.getSerializableExtra(KEY_INFO) as DrugstoreInfo }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,16 +50,16 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        layoutAdult.background = info.getAdultMaskAmount().toBackground()
-        layoutChild.background = info.getChildMaskAmount().toBackground()
+        layoutAdult.background = info.adultMaskAmount.toBackground()
+        layoutChild.background = info.childMaskAmount.toBackground()
 
-        textAdultAmount.text = info.getAdultMaskAmount().toString()
-        textChildAmount.text = info.getChildMaskAmount().toString()
+        textAdultAmount.text = info.adultMaskAmount.toString()
+        textChildAmount.text = info.childMaskAmount.toString()
 
-        textName.text = info.getName()
-        textAddress.text = info.getAddress()
-        textPhone.text = "電話  " + info.getPhone()
-        textUpdate.text = info.getUpdateAt().toUpdateWording()
+        textName.text = info.name
+        textAddress.text = info.address
+        textPhone.text = "電話  " + info.phone
+        textUpdate.text = info.updateAt.toUpdateWording()
 
         val calendar = Calendar.getInstance(Locale.getDefault())
         var day = calendar.get(Calendar.DAY_OF_WEEK)
@@ -98,13 +97,13 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
 
         // move camera
         info
-            .let { LatLng(it.getLat(), it.getLng()) }
+            .let { LatLng(it.lat, it.lng) }
             .also { CameraUpdateFactory.newLatLngZoom(it, 18f).run { map.moveCamera(this) } }
 
         // add marker
-        val markerInfo = MarkerInfoManager.getMarkerInfo(info.getAdultMaskAmount())
+        val markerInfo = MarkerInfoManager.getMarkerInfo(info.adultMaskAmount)
         val option = MarkerOptions()
-            .position(LatLng(info.getLat(), info.getLng()))
+            .position(LatLng(info.lat, info.lng))
 
         ContextCompat.getDrawable(this, markerInfo.drawableId)?.getBitmap()
             .let { option.icon(BitmapDescriptorFactory.fromBitmap(it)) }
@@ -128,7 +127,7 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
             .setPositiveButton(getString(R.string.dial)) { _, _ ->
                 Intent(Intent.ACTION_DIAL).apply {
                     try {
-                        data = Uri.parse("tel:${info.getPhone()}")
+                        data = Uri.parse("tel:${info.phone}")
                         startActivity(this)
                     } catch (ex: Exception) {
                         toast(getString(R.string.dial_error))
@@ -140,7 +139,7 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
 
     private fun openMap() {
         val gmmIntentUri =
-            Uri.parse("geo:${info.getLat()},${info.getLng()}?q=" + Uri.encode(info.getName()))
+            Uri.parse("geo:${info.lat},${info.lng}?q=" + Uri.encode(info.name))
         val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
         mapIntent.setPackage("com.google.android.apps.maps")
         if (mapIntent.resolveActivity(packageManager) != null) {

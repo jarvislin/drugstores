@@ -3,7 +3,7 @@ package com.jarvislin.domain.entity
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
-data class EnhancedDrugstoreInfo(
+data class ApiDrugstoreInfo(
     @SerializedName("type")
     val type: String,
     @SerializedName("features")
@@ -28,6 +28,7 @@ data class Feature(
     fun getAddress(): String = property.address
     fun getPhone(): String = property.phone
     fun isValid(): Boolean {
+        // defensive programming
         return try {
             getLat()
             getLng()
@@ -70,7 +71,9 @@ data class Property(
 ) : Serializable
 
 data class Geometry(
+    @SerializedName("type")
     val type: String,
+    @SerializedName("coordinates")
     val coordinates: List<String>
 ) : Serializable {
     // defensive

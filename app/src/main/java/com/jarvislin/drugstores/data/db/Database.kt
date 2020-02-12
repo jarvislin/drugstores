@@ -4,16 +4,14 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.jarvislin.domain.entity.Drugstore
-import com.jarvislin.domain.entity.OpenData
+import com.jarvislin.domain.entity.DrugstoreInfo
 
 @Database(
     exportSchema = false,
     entities = [
-        OpenData::class,
-        Drugstore::class
+        DrugstoreInfo::class
     ],
-    version = 1
+    version = 2
 )
 
 abstract class CustomDatabase : RoomDatabase() {
@@ -21,6 +19,8 @@ abstract class CustomDatabase : RoomDatabase() {
     abstract fun drugstoreDao(): DrugstoreDao
 
     companion object {
+
+        private const val DB_NAME = "drugstore.db"
 
         @Volatile
         private var INSTANCE: CustomDatabase? = null
@@ -33,7 +33,8 @@ abstract class CustomDatabase : RoomDatabase() {
         private fun buildDatabase(context: Context) =
             Room.databaseBuilder(
                 context.applicationContext,
-                CustomDatabase::class.java, "drugstore.db"
-            ).build()
+                CustomDatabase::class.java, DB_NAME
+            ).addMigrations(MIGRATION_1_2).build()
+
     }
 }

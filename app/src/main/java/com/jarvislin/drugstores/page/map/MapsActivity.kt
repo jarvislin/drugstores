@@ -25,7 +25,6 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.jakewharton.rxbinding2.view.RxView
 import com.jarvislin.domain.entity.DrugstoreInfo
-import com.jarvislin.domain.entity.EntireInfo
 import com.jarvislin.domain.entity.Progress
 import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.base.BaseActivity
@@ -35,8 +34,6 @@ import com.jarvislin.drugstores.page.search.SearchDialogFragment
 import com.jarvislin.drugstores.page.search.SearchDialogFragment.Companion.KEY_INFO
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_maps.*
 import org.jetbrains.anko.dip
@@ -214,31 +211,31 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         fab.setImageDrawable(drawable)
     }
 
-    private fun bindView(view: View, info: EntireInfo) {
-        view.findViewById<TextView>(R.id.textName).text = info.getName()
-        view.findViewById<TextView>(R.id.textUpdate).text = info.getUpdateAt().toUpdateWording()
+    private fun bindView(view: View, info: DrugstoreInfo) {
+        view.findViewById<TextView>(R.id.textName).text = info.name
+        view.findViewById<TextView>(R.id.textUpdate).text = info.updateAt.toUpdateWording()
         view.findViewById<TextView>(R.id.textAdultAmount).text =
-            info.getAdultMaskAmount().toString()
+            info.adultMaskAmount.toString()
         view.findViewById<TextView>(R.id.textChildAmount).text =
-            info.getChildMaskAmount().toString()
+            info.childMaskAmount.toString()
         view.findViewById<View>(R.id.layoutAdult).background =
-            info.getAdultMaskAmount().toBackground()
+            info.adultMaskAmount.toBackground()
         view.findViewById<View>(R.id.layoutChild).background =
-            info.getChildMaskAmount().toBackground()
+            info.childMaskAmount.toBackground()
     }
 
 
-    private fun addMarkers(drugstores: List<EntireInfo>) {
+    private fun addMarkers(drugstores: List<DrugstoreInfo>) {
         Flowable.fromIterable(drugstores)
             .subscribeOn(Schedulers.computation())
             .filter { cacheManager.isCached(it).not() }
             .map {
                 val markerInfo =
-                    MarkerInfoManager.getMarkerInfo(it.getAdultMaskAmount())
+                    MarkerInfoManager.getMarkerInfo(it.adultMaskAmount)
 
                 val option = MarkerOptions()
-                    .position(LatLng(it.getLat(), it.getLng()))
-                    .snippet(it.getId())
+                    .position(LatLng(it.lat, it.lng))
+                    .snippet(it.id)
                     .zIndex(markerInfo.zIndex)
 
                 ContextCompat.getDrawable(this, markerInfo.drawableId)?.getBitmap()

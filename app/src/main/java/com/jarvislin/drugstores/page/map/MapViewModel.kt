@@ -1,17 +1,15 @@
 package com.jarvislin.drugstores.page.map
 
 import android.location.Location
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.maps.model.LatLng
-import com.jarvislin.domain.entity.EntireInfo
+import com.jarvislin.domain.entity.DrugstoreInfo
 import com.jarvislin.domain.entity.Progress
 import com.jarvislin.domain.interactor.DrugstoreUseCase
 import com.jarvislin.drugstores.extension.bind
 import com.jarvislin.drugstores.base.BaseViewModel
 import com.jarvislin.drugstores.data.remote.HttpException
 import io.reactivex.Flowable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import org.koin.core.inject
 import timber.log.Timber
@@ -22,14 +20,14 @@ import java.util.concurrent.TimeUnit
 class MapViewModel : BaseViewModel() {
     private val useCase: DrugstoreUseCase by inject()
     val dataPrepared = MutableLiveData<Boolean>(false)
-    val drugstoreInfo = MutableLiveData<List<EntireInfo>>(emptyList())
+    val drugstoreInfo = MutableLiveData<List<DrugstoreInfo>>(emptyList())
     val downloadProgress = MutableLiveData<Progress>()
     val autoUpdate = MutableLiveData<Boolean>()
-    val searchedResult = MutableLiveData<List<EntireInfo>>()
+    val searchedResult = MutableLiveData<List<DrugstoreInfo>>()
     val statusBarHeight = MutableLiveData<Int>()
 
     fun fetchOpenData() {
-        useCase.fetchOpenData()
+        useCase.fetchData()
             .subscribe({ downloadProgress.postValue(it) }, {
                 when (it) {
                     is IOException -> toastText.postValue("無法連線，請檢查網路狀況")
@@ -53,7 +51,7 @@ class MapViewModel : BaseViewModel() {
     }
 
     fun saveLastLocation(location: Location?) {
-        location?.let { useCase.saveLocation(it.latitude, it.longitude) }
+        location?.let { useCase.saveLastLocation(it.latitude, it.longitude) }
     }
 
     fun getLastLocation(): LatLng {
@@ -61,7 +59,7 @@ class MapViewModel : BaseViewModel() {
     }
 
     fun handleLatestOpenData(file: File) {
-        useCase.handleLatestOpenData(file)
+        useCase.handleLatestData(file)
             .subscribe({ dataPrepared.postValue(true) }, { Timber.e(it) })
             .bind(this)
     }

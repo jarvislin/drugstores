@@ -5,13 +5,10 @@ import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.jakewharton.rxbinding2.view.RxView
 import com.jarvislin.domain.entity.DrugstoreInfo
-import com.jarvislin.domain.entity.EntireInfo
 import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.extension.throttleClick
 import com.jarvislin.drugstores.extension.toBackground
@@ -19,12 +16,10 @@ import com.jarvislin.drugstores.extension.toUpdateWording
 import com.jarvislin.drugstores.page.detail.DetailActivity
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
-import org.jetbrains.anko.toast
-import kotlin.collections.ArrayList
 
 class SearchAdapter : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
 
-    private val info = ArrayList<EntireInfo>()
+    private val info = ArrayList<DrugstoreInfo>()
     private val compositeDisposable = CompositeDisposable()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder {
@@ -38,7 +33,7 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
         holder.bind(info[position])
     }
 
-    fun update(info: List<EntireInfo>) {
+    fun update(info: List<DrugstoreInfo>) {
         this.info.clear()
         this.info.addAll(info)
         notifyDataSetChanged()
@@ -55,16 +50,16 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
         private val textAddress: TextView = itemView.findViewById(R.id.textAddress)
         private val layoutCard: View = itemView.findViewById(R.id.layoutCard)
 
-        fun bind(drugstoreInfo: EntireInfo) {
-            layoutAdult.background = drugstoreInfo.getAdultMaskAmount().toBackground()
-            layoutChild.background = drugstoreInfo.getChildMaskAmount().toBackground()
+        fun bind(drugstoreInfo: DrugstoreInfo) {
+            layoutAdult.background = drugstoreInfo.adultMaskAmount.toBackground()
+            layoutChild.background = drugstoreInfo.childMaskAmount.toBackground()
 
-            textAdultAmount.text = "成人 " + drugstoreInfo.getAdultMaskAmount().toString()
-            textChildAmount.text = "兒童 " + drugstoreInfo.getChildMaskAmount().toString()
+            textAdultAmount.text = "成人 " + drugstoreInfo.adultMaskAmount.toString()
+            textChildAmount.text = "兒童 " + drugstoreInfo.childMaskAmount.toString()
 
-            textName.text = drugstoreInfo.getName()
-            textAddress.text = drugstoreInfo.getAddress()
-            textUpdate.text = drugstoreInfo.getUpdateAt().toUpdateWording()
+            textName.text = drugstoreInfo.name
+            textAddress.text = drugstoreInfo.address
+            textUpdate.text = drugstoreInfo.updateAt.toUpdateWording()
 
             RxView.clicks(layoutCard)
                 .throttleClick()
@@ -72,11 +67,11 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
                 .addTo(compositeDisposable)
         }
 
-        private fun openMap(drugstoreInfo: EntireInfo) {
+        private fun openMap(drugstoreInfo: DrugstoreInfo) {
             val gmmIntentUri =
                 Uri.parse(
-                    "geo:${drugstoreInfo.getLng()},${drugstoreInfo.getLng()}?q=" + Uri.encode(
-                        drugstoreInfo.getName()
+                    "geo:${drugstoreInfo.lat},${drugstoreInfo.lng}?q=" + Uri.encode(
+                        drugstoreInfo.name
                     )
                 )
             val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
