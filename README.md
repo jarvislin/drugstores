@@ -5,7 +5,15 @@
 採用健康保險開放資料服務：
 健保特約機構口罩剩餘數量明細清單之資料集。
 
+## Download
+https://play.google.com/store/apps/details?id=com.jarvislin.drugstores
 
+## Changelog
+* 1.1.3: hotfix wrong proguard config
+* 1.1.2: handle root causes of CSV ParseError
+* 1.1.1: hotfix CSV ParseError
+* 1.1.0: feature of Search
+* 1.0.0: feature of Mask map
 
 ## Install
 * `git clone git@github.com:jarvislin/drugstores.git`
