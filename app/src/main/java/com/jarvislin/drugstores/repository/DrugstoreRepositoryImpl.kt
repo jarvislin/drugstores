@@ -44,21 +44,6 @@ class DrugstoreRepositoryImpl(
         return drugstoreDao.insertDrugstores(stores)
     }
 
-    override fun initDrugstores(): Single<List<Drugstore>> {
-        return Single.create<List<Drugstore>> { emitter ->
-            try {
-                App.instance().assets.open("info.json").use { stream ->
-                    val size: Int = stream.available()
-                    val buffer = ByteArray(size)
-                    stream.read(buffer)
-                    emitter.onSuccess(String(buffer, Charset.forName("UTF-8")).toList())
-                }
-            } catch (ex: Exception) {
-                emitter.onError(ex)
-            }
-        }.subscribeOn(Schedulers.io())
-    }
-
     override fun findNearDrugstoreInfo(
         latitude: Double,
         longitude: Double
@@ -98,17 +83,18 @@ class DrugstoreRepositoryImpl(
                     channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size())
                 val json = Charset.defaultCharset().decode(buffer).toString()
                 val info = json.toObject(EnhancedDrugstoreInfo::class.java)
-                info.features.map {
-                    Drugstore(
-                        id = it.getId(),
-                        name = it.getName(),
-                        lat = it.getLat(),
-                        lng = it.getLng(),
-                        address = it.getAddress(),
-                        phone = it.getPhone(),
-                        note = it.getNote()
-                    )
-                }.let { emitter.onSuccess(it) }
+                info.features.filter { it.isValid() }
+                    .map {
+                        Drugstore(
+                            id = it.getId(),
+                            name = it.getName(),
+                            lat = it.getLat(),
+                            lng = it.getLng(),
+                            address = it.getAddress(),
+                            phone = it.getPhone(),
+                            note = it.getNote()
+                        )
+                    }.let { emitter.onSuccess(it) }
             } catch (ex: Exception) {
                 emitter.onError(ex)
             } finally {
@@ -126,14 +112,15 @@ class DrugstoreRepositoryImpl(
                     channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size())
                 val json = Charset.defaultCharset().decode(buffer).toString()
                 val info = json.toObject(EnhancedDrugstoreInfo::class.java)
-                info.features.map {
-                    OpenData(
-                        id = it.getId(),
-                        adultMaskAmount = it.getAdultMaskAmount(),
-                        childMaskAmount = it.getChildMaskAmount(),
-                        updateAt = it.getUpdateAt()
-                    )
-                }.let { emitter.onSuccess(it) }
+                info.features.filter { it.isValid() }
+                    .map {
+                        OpenData(
+                            id = it.getId(),
+                            adultMaskAmount = it.getAdultMaskAmount(),
+                            childMaskAmount = it.getChildMaskAmount(),
+                            updateAt = it.getUpdateAt()
+                        )
+                    }.let { emitter.onSuccess(it) }
             } catch (ex: Exception) {
                 emitter.onError(ex)
             } finally {

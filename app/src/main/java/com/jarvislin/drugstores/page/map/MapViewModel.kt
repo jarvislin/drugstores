@@ -1,45 +1,49 @@
 package com.jarvislin.drugstores.page.map
 
 import android.location.Location
-import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.maps.model.LatLng
-import com.jarvislin.domain.entity.DrugstoreInfo
 import com.jarvislin.domain.entity.EntireInfo
 import com.jarvislin.domain.entity.Progress
 import com.jarvislin.domain.interactor.DrugstoreUseCase
 import com.jarvislin.drugstores.extension.bind
 import com.jarvislin.drugstores.base.BaseViewModel
+import com.jarvislin.drugstores.data.remote.HttpException
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import org.koin.core.inject
 import timber.log.Timber
 import java.io.File
+import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 class MapViewModel : BaseViewModel() {
     private val useCase: DrugstoreUseCase by inject()
-    val downloaded = MutableLiveData<Boolean>()
-    val drugstoreInfo = MutableLiveData<List<EntireInfo>>()
+    val dataPrepared = MutableLiveData<Boolean>(false)
+    val drugstoreInfo = MutableLiveData<List<EntireInfo>>(emptyList())
     val downloadProgress = MutableLiveData<Progress>()
     val autoUpdate = MutableLiveData<Boolean>()
     val searchedResult = MutableLiveData<List<EntireInfo>>()
     val statusBarHeight = MutableLiveData<Int>()
 
-    init {
-        downloaded.value = false
-        drugstoreInfo.value = emptyList()
-    }
-
     fun fetchOpenData() {
         useCase.fetchOpenData()
-            .subscribe({ downloadProgress.postValue(it) }, { Timber.e(it) })
+            .subscribe({ downloadProgress.postValue(it) }, {
+                when (it) {
+                    is IOException -> toastText.postValue("無法連線，請檢查網路狀況")
+                    is HttpException -> toastText.postValue("連線錯誤，請稍後再試")
+                    else -> toastText.postValue("發生異常，請聯絡作者")
+                }
+                dataPrepared.postValue(false)
+                Timber.e(it)
+            })
             .bind(this)
     }
 
     fun fetchNearDrugstoreInfo(latitude: Double, longitude: Double) {
-        if (downloaded.value != true) {
+        if (dataPrepared.value != true) {
             // from on camera idled
             return
         }
@@ -58,7 +62,7 @@ class MapViewModel : BaseViewModel() {
 
     fun handleLatestOpenData(file: File) {
         useCase.handleLatestOpenData(file)
-            .subscribe({ downloaded.postValue(true) }, { Timber.e(it) })
+            .subscribe({ dataPrepared.postValue(true) }, { Timber.e(it) })
             .bind(this)
     }
 
@@ -76,8 +80,7 @@ class MapViewModel : BaseViewModel() {
 
     fun searchAddress(keyword: String) {
         useCase.searchAddress(keyword)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ searchedResult.value = it }, { Timber.e(it) })
+            .subscribe({ searchedResult.postValue(it)}, { Timber.e(it) })
             .bind(this)
     }
 

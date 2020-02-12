@@ -53,55 +53,23 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
         private val textName: TextView = itemView.findViewById(R.id.textName)
         private val textUpdate: TextView = itemView.findViewById(R.id.textUpdate)
         private val textAddress: TextView = itemView.findViewById(R.id.textAddress)
-        private val textPhone: TextView = itemView.findViewById(R.id.textPhone)
-        private val imagePhone: ImageView = itemView.findViewById(R.id.imagePhone)
-        private val imageLocation: ImageView = itemView.findViewById(R.id.imageLocation)
         private val layoutCard: View = itemView.findViewById(R.id.layoutCard)
 
         fun bind(drugstoreInfo: EntireInfo) {
             layoutAdult.background = drugstoreInfo.getAdultMaskAmount().toBackground()
             layoutChild.background = drugstoreInfo.getChildMaskAmount().toBackground()
 
-            textAdultAmount.text = drugstoreInfo.getAdultMaskAmount().toString()
-            textChildAmount.text = drugstoreInfo.getChildMaskAmount().toString()
+            textAdultAmount.text = "成人 " + drugstoreInfo.getAdultMaskAmount().toString()
+            textChildAmount.text = "兒童 " + drugstoreInfo.getChildMaskAmount().toString()
 
             textName.text = drugstoreInfo.getName()
             textAddress.text = drugstoreInfo.getAddress()
-            textPhone.text = "電話  " + drugstoreInfo.getPhone()
             textUpdate.text = drugstoreInfo.getUpdateAt().toUpdateWording()
-
-            RxView.clicks(imagePhone)
-                .throttleClick()
-                .subscribe { showPhoneDialog(drugstoreInfo) }
-                .addTo(compositeDisposable)
-
-            RxView.clicks(imageLocation)
-                .throttleClick()
-                .subscribe { openMap(drugstoreInfo) }
-                .addTo(compositeDisposable)
 
             RxView.clicks(layoutCard)
                 .throttleClick()
                 .subscribe { DetailActivity.start(itemView.context, drugstoreInfo) }
                 .addTo(compositeDisposable)
-        }
-
-        private fun showPhoneDialog(drugstoreInfo: EntireInfo) {
-            AlertDialog.Builder(itemView.context)
-                .setTitle(itemView.context.getString(R.string.dial_title))
-                .setMessage(itemView.context.getString(R.string.dial_message))
-                .setNegativeButton(itemView.context.getString(R.string.dial)) { _, _ -> }
-                .setPositiveButton(itemView.context.getString(R.string.dismiss)) { _, _ ->
-                    Intent(Intent.ACTION_DIAL).apply {
-                        try {
-                            data = Uri.parse("tel:${drugstoreInfo.getPhone()}")
-                            itemView.context.startActivity(this)
-                        } catch (ex: Exception) {
-                            itemView.context.toast(itemView.context.getString(R.string.dial_error))
-                        }
-                    }
-                }
-                .show()
         }
 
         private fun openMap(drugstoreInfo: EntireInfo) {
