@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import com.jarvislin.domain.entity.DrugstoreInfo
 
 @Database(
-    exportSchema = false,
+    exportSchema = true,
     entities = [
         DrugstoreInfo::class
     ],

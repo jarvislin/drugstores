@@ -100,8 +100,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
         // download open data
         viewModel.downloadProgress.observe(this, Observer { progress ->
-            progressBarDownload.progress =
-                (100 * progress.bytesDownloaded / progress.contentLength).toInt()
+            progressBarDownload.progress = (100 * progress.bytesDownloaded / progress.contentLength).toInt()
             if (progress is Progress.Done) {
                 progressBarDownload.hide()
                 progressBarTransform.show()

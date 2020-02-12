@@ -10,6 +10,7 @@ import com.jarvislin.drugstores.extension.bind
 import com.jarvislin.drugstores.base.BaseViewModel
 import com.jarvislin.drugstores.data.remote.HttpException
 import io.reactivex.Flowable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import org.koin.core.inject
 import timber.log.Timber
@@ -28,13 +29,14 @@ class MapViewModel : BaseViewModel() {
 
     fun fetchOpenData() {
         useCase.fetchData()
-            .subscribe({ downloadProgress.postValue(it) }, {
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ downloadProgress.value = it }, {
                 when (it) {
                     is IOException -> toastText.postValue("無法連線，請檢查網路狀況")
                     is HttpException -> toastText.postValue("連線錯誤，請稍後再試")
                     else -> toastText.postValue("發生異常，請聯絡作者")
                 }
-                dataPrepared.postValue(false)
+                dataPrepared.value = false
                 Timber.e(it)
             })
             .bind(this)
@@ -78,7 +80,7 @@ class MapViewModel : BaseViewModel() {
 
     fun searchAddress(keyword: String) {
         useCase.searchAddress(keyword)
-            .subscribe({ searchedResult.postValue(it)}, { Timber.e(it) })
+            .subscribe({ searchedResult.postValue(it) }, { Timber.e(it) })
             .bind(this)
     }
 
