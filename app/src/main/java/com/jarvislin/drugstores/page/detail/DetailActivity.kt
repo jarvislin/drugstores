@@ -58,8 +58,17 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
 
         textName.text = info.name
         textAddress.text = info.address
-        textPhone.text = "電話  " + info.phone
+        textPhone.text = info.phone
         textUpdate.text = info.updateAt.toUpdateWording()
+        info.note.trim().let {
+            if (it.isNotEmpty() && it != "-") {
+                textOpening.text = info.note
+            } else {
+                textOpening.hide()
+                imageOpening.hide()
+            }
+        }
+
 
         val calendar = Calendar.getInstance(Locale.getDefault())
         var day = calendar.get(Calendar.DAY_OF_WEEK)

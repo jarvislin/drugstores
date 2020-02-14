@@ -10,9 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.jakewharton.rxbinding2.view.RxView
 import com.jarvislin.domain.entity.DrugstoreInfo
 import com.jarvislin.drugstores.R
-import com.jarvislin.drugstores.extension.throttleClick
-import com.jarvislin.drugstores.extension.toBackground
-import com.jarvislin.drugstores.extension.toUpdateWording
+import com.jarvislin.drugstores.extension.*
 import com.jarvislin.drugstores.page.detail.DetailActivity
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -48,6 +46,7 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
         private val textName: TextView = itemView.findViewById(R.id.textName)
         private val textUpdate: TextView = itemView.findViewById(R.id.textUpdate)
         private val textAddress: TextView = itemView.findViewById(R.id.textAddress)
+        private val textNote: TextView = itemView.findViewById(R.id.textNote)
         private val layoutCard: View = itemView.findViewById(R.id.layoutCard)
 
         fun bind(drugstoreInfo: DrugstoreInfo) {
@@ -60,6 +59,14 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
             textName.text = drugstoreInfo.name
             textAddress.text = drugstoreInfo.address
             textUpdate.text = drugstoreInfo.updateAt.toUpdateWording()
+            drugstoreInfo.note.trim().let {
+                if (it.isNotEmpty() && it != "-") {
+                    textNote.text = drugstoreInfo.note
+                    textNote.show()
+                } else {
+                    textNote.hide()
+                }
+            }
 
             RxView.clicks(layoutCard)
                 .throttleClick()
