@@ -94,7 +94,27 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
 
         RxView.clicks(imageLocation)
             .throttleClick()
-            .subscribe { openMap() }
+            .subscribe { openMap(info.lat, info.lng) }
+            .bind(this)
+
+        RxView.clicks(textShare)
+            .throttleClick()
+            .subscribe {
+                val wording = if (info.getNoteText().isEmpty()) {
+                    ""
+                } else {
+                    info.getNoteText() + "，"
+                }
+                shareText(
+                    "口罩資訊地圖",
+                    "${info.name}位於${info.address}，" +
+                            "$wording" +
+                            "成人口罩數量為：${info.adultMaskAmount}個，" +
+                            "兒童口罩數量為：${info.childMaskAmount}個，" +
+                            "口罩數量更新時間為：${info.updateAt}，" +
+                            "更多資訊請參考口罩資訊地圖：https://play.google.com/store/apps/details?id=com.jarvislin.drugstores"
+                )
+            }
             .bind(this)
     }
 
@@ -105,8 +125,7 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
         map.uiSettings.isMapToolbarEnabled = false
 
         // move camera
-        info
-            .let { LatLng(it.lat, it.lng) }
+        info.let { LatLng(it.lat, it.lng) }
             .also { CameraUpdateFactory.newLatLngZoom(it, 18f).run { map.moveCamera(this) } }
 
         // add marker
@@ -118,6 +137,8 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
             .let { option.icon(BitmapDescriptorFactory.fromBitmap(it)) }
 
         map.addMarker(option)
+
+        map.setOnMapClickListener { openMap(info.lat, info.lng) }
     }
 
     private fun showInfoDialog() {
@@ -144,15 +165,5 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
                 }
             }
             .show()
-    }
-
-    private fun openMap() {
-        val gmmIntentUri =
-            Uri.parse("geo:${info.lat},${info.lng}?q=" + Uri.encode(info.name))
-        val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-        mapIntent.setPackage("com.google.android.apps.maps")
-        if (mapIntent.resolveActivity(packageManager) != null) {
-            startActivity(mapIntent)
-        }
     }
 }

@@ -1,7 +1,5 @@
 package com.jarvislin.drugstores.page.search
 
-import android.content.Intent
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -48,6 +46,8 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
         private val textAddress: TextView = itemView.findViewById(R.id.textAddress)
         private val textNote: TextView = itemView.findViewById(R.id.textNote)
         private val layoutCard: View = itemView.findViewById(R.id.layoutCard)
+        private val textShare: View = itemView.findViewById(R.id.textShare)
+        private val textNavigate: View = itemView.findViewById(R.id.textNavigate)
 
         fun bind(drugstoreInfo: DrugstoreInfo) {
             layoutAdult.background = drugstoreInfo.adultMaskAmount.toBackground()
@@ -72,21 +72,36 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
                 .throttleClick()
                 .subscribe { DetailActivity.start(itemView.context, drugstoreInfo) }
                 .addTo(compositeDisposable)
-        }
 
-        private fun openMap(drugstoreInfo: DrugstoreInfo) {
-            val gmmIntentUri =
-                Uri.parse(
-                    "geo:${drugstoreInfo.lat},${drugstoreInfo.lng}?q=" + Uri.encode(
-                        drugstoreInfo.name
+            RxView.clicks(textShare)
+                .throttleClick()
+                .subscribe {
+                    val wording = if (drugstoreInfo.getNoteText().isEmpty()) {
+                        ""
+                    } else {
+                        drugstoreInfo.getNoteText() + "，"
+                    }
+                    itemView.context.shareText(
+                        "口罩資訊地圖",
+                        "${drugstoreInfo.name}位於${drugstoreInfo.address}，" +
+                                "$wording" +
+                                "成人口罩數量為：${drugstoreInfo.adultMaskAmount}個，" +
+                                "兒童口罩數量為：${drugstoreInfo.childMaskAmount}個，" +
+                                "口罩數量更新時間為：${drugstoreInfo.updateAt}，" +
+                                "更多資訊請參考口罩資訊地圖：https://play.google.com/store/apps/details?id=com.jarvislin.drugstores"
                     )
-                )
-            val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-            mapIntent.setPackage("com.google.android.apps.maps")
+                }
+                .addTo(compositeDisposable)
 
-            if (mapIntent.resolveActivity(itemView.context.packageManager) != null) {
-                itemView.context.startActivity(mapIntent)
-            }
+            RxView.clicks(textNavigate)
+                .throttleClick()
+                .subscribe {
+                    itemView.context.openMap(
+                        drugstoreInfo.lat,
+                        drugstoreInfo.lng
+                    )
+                }
+                .addTo(compositeDisposable)
         }
     }
 
