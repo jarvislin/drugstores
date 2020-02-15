@@ -17,11 +17,11 @@ import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
 
 class Downloader(
-    private val progressPeriodBytes: Long = 10000,
+    private val progressPeriodBytes: Long = 5000,
     private val internalBufferBytes: Long = 2048,
     private val okHttpClient: OkHttpClient = OkHttpClient.Builder().addInterceptor(
         HttpLoggingInterceptor().setLevel(
-            if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
+            if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.HEADERS
             else HttpLoggingInterceptor.Level.NONE
         )
     ).build()
@@ -46,14 +46,28 @@ class Downloader(
                 emitter.onError(HttpException())
             }
 
+            val originContentLength = response.networkResponse()?.header("Content-Length")?.toLong() // because okhttp remove content-length when server uses gzip
+
             emitter.setCancellable { isCanceled.set(true) }
 
             val cacheFile = File(App.instance().cacheDir, "temp")
             val sink = Okio.buffer(Okio.sink(cacheFile))
 
-            handleWrites(sink, response.body()!!, emitter, cacheFile, isCanceled)
+            handleWrites(
+                sink,
+                response.body()!!,
+                emitter,
+                cacheFile,
+                isCanceled,
+                originContentLength
+            )
 
-            emitter.onNext(Progress.Done(response.body()!!.contentLength(), cacheFile))
+            emitter.onNext(
+                Progress.Done(
+                    originContentLength ?: response.body()!!.contentLength(),
+                    cacheFile
+                )
+            )
             emitter.onComplete()
 
         }.subscribeOn(Schedulers.io())
@@ -64,14 +78,13 @@ class Downloader(
         body: ResponseBody,
         emitter: ObservableEmitter<Progress>,
         file: File,
-        isCanceled: AtomicBoolean
+        isCanceled: AtomicBoolean,
+        originContentLength: Long?
     ) {
         val contentLength = body.contentLength()
         var totalBytes = 0L
         var readBytes = 0L
         var progressLimitBytes = 0L
-
-        emitter.onNext(Progress.Downloading(totalBytes, contentLength, file)) // init
 
         while (readBytes != -1L) {
             if (isCanceled.get()) {
@@ -84,7 +97,13 @@ class Downloader(
             totalBytes += readBytes
             if (totalBytes > progressLimitBytes) {
                 progressLimitBytes += progressPeriodBytes
-                emitter.onNext(Progress.Downloading(totalBytes, contentLength, file))
+                emitter.onNext(
+                    Progress.Downloading(
+                        totalBytes,
+                        originContentLength ?: contentLength,
+                        file
+                    )
+                )
             }
         }
 

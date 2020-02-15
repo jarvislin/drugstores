@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:animateLayoutChanges="true">
+    android:layout_height="match_parent">
 
     <fragment
         android:id="@+id/map"
@@ -64,10 +63,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:animateLayoutChanges="true"
         android:background="@drawable/background_hint"
         android:elevation="8dp"
         android:gravity="center"
+        android:layout_marginEnd="16dp"
         android:minHeight="24dp"
         android:paddingStart="16dp"
         android:paddingTop="8dp"

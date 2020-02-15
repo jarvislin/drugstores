@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
@@ -21,6 +22,7 @@ import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.extension.hide
 import com.jarvislin.drugstores.extension.show
 import com.jarvislin.drugstores.extension.throttleClick
+import com.jarvislin.drugstores.extension.tint
 import com.jarvislin.drugstores.page.map.MapViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -103,6 +105,14 @@ class SearchDialogFragment : DialogFragment() {
             recyclerView.addItemDecoration(itemDecorator)
         }
 
+        // progress bar
+        progressBar.indeterminateDrawable.tint(
+            ContextCompat.getColor(
+                view.context,
+                R.color.colorAccent
+            )
+        )
+
 
         doNotUpdate = viewModel.searchedResult.value != null
 
@@ -110,12 +120,14 @@ class SearchDialogFragment : DialogFragment() {
         RxTextView.afterTextChangeEvents(editSearch)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
+                progressBar.show()
                 val info = arguments?.getSerializable(KEY_INFO) as? ArrayList<DrugstoreInfo>
                 val keyword = it.view().text.toString()
                 if (keyword.isNotEmpty()) {
                     viewModel.searchAddress(it.view().text.toString())
                 } else if (info != null) {
                     adapter.update(info)
+                    progressBar.hide()
                 }
             }, { Timber.e(it) })
             .addTo(compositeDisposable)
@@ -127,6 +139,7 @@ class SearchDialogFragment : DialogFragment() {
                     return@Observer
                 }
                 adapter.update(it)
+                view.findViewById<ProgressBar>(R.id.progressBar)?.hide()
             })
         }
 
@@ -136,7 +149,8 @@ class SearchDialogFragment : DialogFragment() {
             .subscribe { dismissAllowingStateLoss() }
             .addTo(compositeDisposable)
 
-        RxView.clicks(textInfo).throttleClick()
+        RxView.clicks(textInfo)
+            .throttleClick()
             .subscribe { showInfoDialog() }
             .addTo(compositeDisposable)
     }

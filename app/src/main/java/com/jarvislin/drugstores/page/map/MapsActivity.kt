@@ -5,6 +5,7 @@ import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Point
 import android.os.Bundle
 import android.os.Looper
 import android.view.LayoutInflater
@@ -25,7 +26,6 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.jakewharton.rxbinding2.view.RxView
 import com.jarvislin.domain.entity.DrugstoreInfo
-import com.jarvislin.domain.entity.EntireInfo
 import com.jarvislin.domain.entity.Progress
 import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.base.BaseActivity
@@ -60,6 +60,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var myLocation: LatLng? = null
     private var lastClickedMarker: Marker? = null
+    private var disposableMarkers: Disposable? = null
 
     companion object {
         private const val DELAY_MILLISECONDS = 100L
@@ -92,7 +93,12 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         }
 
         // progress bar
-        progressBarTransform.indeterminateDrawable.tint(ContextCompat.getColor(this, R.color.colorAccent))
+        progressBarTransform.indeterminateDrawable.tint(
+            ContextCompat.getColor(
+                this,
+                R.color.colorAccent
+            )
+        )
 
         // map
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
@@ -100,23 +106,6 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         fusedLocationClient.lastLocation.addOnSuccessListener { viewModel.saveLastLocation(it) }
         requestLocation()
-
-        // download open data
-        viewModel.downloadProgress.observe(this, Observer { progress ->
-            progressBarDownload.progress =
-                (100 * progress.bytesDownloaded / progress.contentLength).toInt()
-            if (progress is Progress.Done) {
-                progressBarDownload.hide()
-                progressBarTransform.show()
-                Timber.i("open data downloaded")
-                textProgressHint.text = "資料轉換中"
-                viewModel.handleLatestOpenData(progress.file)
-            }
-        })
-
-        viewModel.autoUpdate.observe(this, Observer { startDownload() })
-
-        startDownload()
 
         // handle search
         RxView.clicks(layoutSearch)
@@ -129,6 +118,23 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
                 }
                 dialogFragment.show(supportFragmentManager, "Search")
             }.bind(this)
+
+
+        // download open data
+        viewModel.autoUpdate.observe(this, Observer { startDownload() })
+        viewModel.downloadProgress.observe(this, Observer { progress ->
+            progressBarDownload.progress =
+                (100 * progress.bytesDownloaded / progress.contentLength).toInt()
+            if (progress is Progress.Done) {
+                progressBarDownload.hide()
+                progressBarTransform.show()
+                Timber.i("open data downloaded")
+                textProgressHint.text = "資料轉換中"
+                viewModel.handleLatestOpenData(progress.file)
+            }
+        })
+
+        startDownload()
     }
 
     private fun startDownload() {
@@ -141,7 +147,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         viewModel.fetchOpenData()
     }
 
-    private fun requestLocation() {
+    private fun requestLocation(callback: () -> Unit? = {}) {
         fusedLocationClient.requestLocationUpdates(
             LocationRequest().setInterval(30_000),
             object : LocationCallback() {
@@ -151,6 +157,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
                         it.locations.firstOrNull()?.let {
                             myLocation = LatLng(it.latitude, it.longitude)
                             viewModel.saveLastLocation(it)
+                            callback.invoke()
                         }
                     }
                 }
@@ -169,9 +176,9 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
         viewModel.dataPrepared.observe(this, Observer { done ->
             if (done) {
-                viewModel.countDown()
-                viewModel.fetchNearDrugstoreInfo(positionLatitude, positionLongitude)
                 viewModel.drugstoreInfo.observe(this, Observer { addMarkers(it) })
+                viewModel.fetchNearDrugstoreInfo(positionLatitude, positionLongitude)
+                viewModel.countDown()
             }
             layoutDownloadHint.animate().setStartDelay(1_000).alpha(0f).start()
         })
@@ -188,7 +195,10 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
             viewModel.fetchNearDrugstoreInfo(positionLatitude, positionLongitude)
         }
 
-        map.setOnCameraMoveStartedListener { updateFabColor(R.color.secondaryIcons) }
+        map.setOnCameraMoveStartedListener {
+            disposableMarkers?.dispose()
+            updateFabColor(R.color.secondaryIcons)
+        }
 
         map.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
             override fun getInfoContents(marker: Marker): View? {
@@ -197,10 +207,13 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
                 return infoWindowView
             }
 
-            override fun getInfoWindow(p0: Marker): View? {
-                return null
-            }
+            override fun getInfoWindow(p0: Marker): View? = null
         })
+
+        map.setOnMarkerClickListener {
+            animateTo(it)
+            true
+        }
 
         fab.setOnClickListener { checkPermission() }
     }
@@ -214,37 +227,36 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         fab.setImageDrawable(drawable)
     }
 
-    private fun bindView(view: View, info: EntireInfo) {
-        view.findViewById<TextView>(R.id.textName).text = info.getName()
-        view.findViewById<TextView>(R.id.textUpdate).text = info.getUpdateAt().toUpdateWording()
+    private fun bindView(view: View, info: DrugstoreInfo) {
+        view.findViewById<TextView>(R.id.textName).text = info.name
+        view.findViewById<TextView>(R.id.textUpdate).text = info.updateAt.toUpdateWording()
         view.findViewById<TextView>(R.id.textAdultAmount).text =
-            info.getAdultMaskAmount().toString()
+            info.adultMaskAmount.toString()
         view.findViewById<TextView>(R.id.textChildAmount).text =
-            info.getChildMaskAmount().toString()
+            info.childMaskAmount.toString()
         view.findViewById<View>(R.id.layoutAdult).background =
-            info.getAdultMaskAmount().toBackground()
+            info.adultMaskAmount.toBackground()
         view.findViewById<View>(R.id.layoutChild).background =
-            info.getChildMaskAmount().toBackground()
+            info.childMaskAmount.toBackground()
     }
 
 
-    private fun addMarkers(drugstores: List<EntireInfo>) {
-        Flowable.fromIterable(drugstores)
+    private fun addMarkers(drugstores: List<DrugstoreInfo>) {
+        disposableMarkers = Flowable.fromIterable(drugstores)
             .subscribeOn(Schedulers.computation())
             .filter { cacheManager.isCached(it).not() }
-            .map {
-                val markerInfo =
-                    MarkerInfoManager.getMarkerInfo(it.getAdultMaskAmount())
+            .map { info ->
+                MarkerInfoManager.getMarkerInfo(info.adultMaskAmount).let {
+                    val options = MarkerOptions()
+                        .position(LatLng(info.lat, info.lng))
+                        .snippet(info.id)
+                        .zIndex(it.zIndex)
 
-                val option = MarkerOptions()
-                    .position(LatLng(it.getLat(), it.getLng()))
-                    .snippet(it.getId())
-                    .zIndex(markerInfo.zIndex)
-
-                ContextCompat.getDrawable(this, markerInfo.drawableId)?.getBitmap()
-                    .let { option.icon(BitmapDescriptorFactory.fromBitmap(it)) }
-
-                Pair(it, option)
+                    ContextCompat.getDrawable(this, it.drawableId)?.getBitmap()
+                        .let { options.icon(BitmapDescriptorFactory.fromBitmap(it)) }
+                }.let {
+                    Pair(info, it)
+                }
             }
             .delay(DELAY_MILLISECONDS, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
@@ -252,7 +264,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
                 pair.let { map.addMarker(it.second) }
                     .also { cacheManager.add(pair.first, it) }
             }, { Timber.e(it) })
-            .bind(this)
+            .addTo(compositeDisposable)
     }
 
 
@@ -293,6 +305,24 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         }
     }
 
+    private fun animateTo(marker: Marker) {
+        val pointInScreen = map.projection.toScreenLocation(marker.position)
+        val newPoint = Point()
+        newPoint.x = pointInScreen.x
+        newPoint.y = pointInScreen.y - dip(100) // offset, looks good on pixel 3a XD
+        val newLatLng = map.projection.fromScreenLocation(newPoint)
+
+        CameraUpdateFactory.newLatLngZoom(newLatLng, map.cameraPosition.zoom).let {
+            map.animateCamera(it, 400, object : GoogleMap.CancelableCallback {
+                override fun onFinish() {
+                    marker.showInfoWindow()
+                }
+
+                override fun onCancel() {}
+            })
+        }
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -301,7 +331,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (hasPermission(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION)) {
             enableMyLocation()
-            requestLocation()
+            requestLocation { animateTo(viewModel.getLastLocation()) }
         }
     }
 

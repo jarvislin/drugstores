@@ -1,6 +1,6 @@
 package com.jarvislin.domain.interactor
 
-import com.jarvislin.domain.entity.EntireInfo
+import com.jarvislin.domain.entity.DrugstoreInfo
 import com.jarvislin.domain.entity.Progress
 import com.jarvislin.domain.repository.DrugstoreRepository
 import io.reactivex.Completable
@@ -10,15 +10,15 @@ import java.io.File
 
 class DrugstoreUseCase(private val drugstoreRepository: DrugstoreRepository) {
 
-    fun fetchOpenData(): Flowable<Progress> {
-        return drugstoreRepository.downloadOpenData()
+    fun fetchData(): Flowable<Progress> {
+        return drugstoreRepository.downloadData()
     }
 
-    fun findNearDrugstoreInfo(latitude: Double, longitude: Double): Single<List<EntireInfo>> {
+    fun findNearDrugstoreInfo(latitude: Double, longitude: Double): Single<List<DrugstoreInfo>> {
         return drugstoreRepository.findNearDrugstoreInfo(latitude, longitude)
     }
 
-    fun saveLocation(latitude: Double, longitude: Double) {
+    fun saveLastLocation(latitude: Double, longitude: Double) {
         drugstoreRepository.saveLastLocation(latitude, longitude)
     }
 
@@ -26,16 +26,13 @@ class DrugstoreUseCase(private val drugstoreRepository: DrugstoreRepository) {
         return drugstoreRepository.getLastLocation()
     }
 
-    fun handleLatestOpenData(file: File): Completable {
-        return drugstoreRepository.deleteDrugstores()
-            .flatMap { drugstoreRepository.transformToDrugstores(file) }
-            .map { drugstoreRepository.saveDrugstores(it) }
-            .flatMap { drugstoreRepository.deleteOpenData() }
-            .flatMap { drugstoreRepository.transformToOpenData(file) }
-            .flatMapCompletable { drugstoreRepository.saveOpenData(it) }
+    fun handleLatestData(file: File): Completable {
+        return drugstoreRepository.deleteDrugstoreInfo()
+            .flatMap { drugstoreRepository.transformToDrugstoreInfo(file) }
+            .flatMapCompletable { drugstoreRepository.saveDrugstoreInfo(it) }
     }
 
-    fun searchAddress(keyword: String): Single<List<EntireInfo>> {
+    fun searchAddress(keyword: String): Single<List<DrugstoreInfo>> {
         return drugstoreRepository.searchAddress(keyword)
     }
 }

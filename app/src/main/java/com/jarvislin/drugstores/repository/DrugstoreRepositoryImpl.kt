@@ -2,11 +2,9 @@ package com.jarvislin.drugstores.repository
 
 import com.jarvislin.domain.entity.*
 import com.jarvislin.domain.repository.DrugstoreRepository
-import com.jarvislin.drugstores.base.App
 import com.jarvislin.drugstores.data.LocalData
 import com.jarvislin.drugstores.data.db.DrugstoreDao
 import com.jarvislin.drugstores.data.remote.Downloader
-import com.jarvislin.drugstores.extension.toList
 import com.jarvislin.drugstores.extension.toObject
 import com.jarvislin.drugstores.page.map.MarkerCacheManager.Companion.MAX_MARKER_AMOUNT
 import io.reactivex.*
@@ -24,32 +22,25 @@ class DrugstoreRepositoryImpl(
     private val downloader: Downloader
 ) : DrugstoreRepository {
 
+    companion object {
+        private const val DATA_URL = "https://raw.githubusercontent.com/kiang/pharmacies/master/json/points.json"
+    }
 
-    override fun saveOpenData(data: List<OpenData>): Completable {
-        return drugstoreDao.insertOpenData(data)
+    override fun saveDrugstoreInfo(data: List<DrugstoreInfo>): Completable {
+        return drugstoreDao.addDrugstoreInfo(data)
             .subscribeOn(Schedulers.io())
     }
 
-    override fun deleteOpenData(): Single<Int> {
-        return drugstoreDao.deleteOpenData()
+    override fun deleteDrugstoreInfo(): Single<Int> {
+        return drugstoreDao.removeDrugstoreInfo()
             .subscribeOn(Schedulers.io())
-    }
-
-    override fun deleteDrugstores(): Single<Int> {
-        return drugstoreDao.deleteDrugstores()
-            .subscribeOn(Schedulers.io())
-    }
-
-    override fun saveDrugstores(stores: List<Drugstore>) {
-        return drugstoreDao.insertDrugstores(stores)
     }
 
     override fun findNearDrugstoreInfo(
         latitude: Double,
         longitude: Double
-    ): Single<List<EntireInfo>> {
-        return drugstoreDao.findNearDrugstoreInfo(latitude, longitude, MAX_MARKER_AMOUNT)
-            .map { it.map { it.toEntireInfo() } }
+    ): Single<List<DrugstoreInfo>> {
+        return drugstoreDao.getNearDrugstoreInfo(latitude, longitude, MAX_MARKER_AMOUNT)
             .subscribeOn(Schedulers.io())
     }
 
@@ -62,63 +53,40 @@ class DrugstoreRepositoryImpl(
         return Pair(location[0], location[1])
     }
 
-    override fun downloadOpenData(): Flowable<Progress> {
-        return downloader.download("https://raw.githubusercontent.com/kiang/pharmacies/master/json/points.json")
+    override fun downloadData(): Flowable<Progress> {
+        return downloader.download(DATA_URL)
             .toFlowable(BackpressureStrategy.LATEST)
             .subscribeOn(Schedulers.io())
     }
 
-    override fun searchAddress(keyword: String): Single<List<EntireInfo>> {
-        return drugstoreDao.searchAddress(keyword)
-            .map { it.map { it.toEntireInfo() } }
+    override fun searchAddress(keyword: String): Single<List<DrugstoreInfo>> {
+        return drugstoreDao.getSearchResult(keyword)
             .subscribeOn(Schedulers.io())
     }
 
-    override fun transformToDrugstores(file: File): Single<List<Drugstore>> {
-        return Single.create<List<Drugstore>> { emitter ->
+    override fun transformToDrugstoreInfo(file: File): Single<List<DrugstoreInfo>> {
+        return Single.create<List<DrugstoreInfo>> { emitter ->
             val stream = FileInputStream(file)
             try {
                 val channel: FileChannel = stream.channel
                 val buffer: MappedByteBuffer =
                     channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size())
                 val json = Charset.defaultCharset().decode(buffer).toString()
-                val info = json.toObject(EnhancedDrugstoreInfo::class.java)
+                val info = json.toObject(ApiDrugstoreInfo::class.java)
                 info.features.filter { it.isValid() }
                     .map {
-                        Drugstore(
+                        DrugstoreInfo(
                             id = it.getId(),
                             name = it.getName(),
                             lat = it.getLat(),
                             lng = it.getLng(),
                             address = it.getAddress(),
                             phone = it.getPhone(),
-                            note = it.getNote()
-                        )
-                    }.let { emitter.onSuccess(it) }
-            } catch (ex: Exception) {
-                emitter.onError(ex)
-            } finally {
-                stream.close()
-            }
-        }.subscribeOn(Schedulers.io())
-    }
-
-    override fun transformToOpenData(file: File): Single<List<OpenData>> {
-        return Single.create<List<OpenData>> { emitter ->
-            val stream = FileInputStream(file)
-            try {
-                val channel: FileChannel = stream.channel
-                val buffer: MappedByteBuffer =
-                    channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size())
-                val json = Charset.defaultCharset().decode(buffer).toString()
-                val info = json.toObject(EnhancedDrugstoreInfo::class.java)
-                info.features.filter { it.isValid() }
-                    .map {
-                        OpenData(
-                            id = it.getId(),
+                            note = it.getNote(),
                             adultMaskAmount = it.getAdultMaskAmount(),
                             childMaskAmount = it.getChildMaskAmount(),
-                            updateAt = it.getUpdateAt()
+                            updateAt = it.getUpdateAt(),
+                            available = it.getAvailable()
                         )
                     }.let { emitter.onSuccess(it) }
             } catch (ex: Exception) {
@@ -128,5 +96,4 @@ class DrugstoreRepositoryImpl(
             }
         }.subscribeOn(Schedulers.io())
     }
-
 }
