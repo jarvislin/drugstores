@@ -30,4 +30,15 @@ data class DrugstoreInfo(
     val address: String,
     @ColumnInfo(name = "phone")
     val phone: String
-) : Serializable
+) : Serializable {
+
+    fun getNoteText(): String {
+        note.trim().let {
+            return if (it == "-") {
+                ""
+            } else {
+                it
+            }
+        }
+    }
+}

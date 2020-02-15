@@ -8,6 +8,7 @@ import com.jarvislin.domain.entity.Progress
 import com.jarvislin.domain.interactor.DrugstoreUseCase
 import com.jarvislin.drugstores.extension.bind
 import com.jarvislin.drugstores.base.BaseViewModel
+import com.jarvislin.drugstores.data.db.DrugstoreDao
 import com.jarvislin.drugstores.data.remote.HttpException
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -80,6 +81,7 @@ class MapViewModel : BaseViewModel() {
 
     fun searchAddress(keyword: String) {
         useCase.searchAddress(keyword)
+            .delay(600L, TimeUnit.MILLISECONDS) // for showing progress bar
             .subscribe({ searchedResult.postValue(it) }, { Timber.e(it) })
             .bind(this)
     }

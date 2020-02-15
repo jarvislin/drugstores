@@ -66,6 +66,7 @@
         android:background="@drawable/background_hint"
         android:elevation="8dp"
         android:gravity="center"
+        android:layout_marginEnd="16dp"
         android:minHeight="24dp"
         android:paddingStart="16dp"
         android:paddingTop="8dp"

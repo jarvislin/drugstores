@@ -106,7 +106,21 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         fusedLocationClient.lastLocation.addOnSuccessListener { viewModel.saveLastLocation(it) }
         requestLocation()
 
+        // handle search
+        RxView.clicks(layoutSearch)
+            .throttleClick()
+            .subscribe {
+                val dialogFragment = SearchDialogFragment()
+                dialogFragment.arguments = Bundle().apply {
+                    putSerializable(KEY_INFO, viewModel.drugstoreInfo.value?.let { ArrayList(it) }
+                        ?: ArrayList<DrugstoreInfo>())
+                }
+                dialogFragment.show(supportFragmentManager, "Search")
+            }.bind(this)
+
+
         // download open data
+        viewModel.autoUpdate.observe(this, Observer { startDownload() })
         viewModel.downloadProgress.observe(this, Observer { progress ->
             progressBarDownload.progress =
                 (100 * progress.bytesDownloaded / progress.contentLength).toInt()
@@ -119,21 +133,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
             }
         })
 
-        viewModel.autoUpdate.observe(this, Observer { startDownload() })
-
         startDownload()
-
-        // handle search
-        RxView.clicks(layoutSearch)
-            .throttleClick()
-            .subscribe {
-                val dialogFragment = SearchDialogFragment()
-                dialogFragment.arguments = Bundle().apply {
-                    putSerializable(KEY_INFO, viewModel.drugstoreInfo.value?.let { ArrayList(it) }
-                        ?: ArrayList<DrugstoreInfo>())
-                }
-                dialogFragment.show(supportFragmentManager, "Search")
-            }.bind(this)
     }
 
     private fun startDownload() {
@@ -146,7 +146,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         viewModel.fetchOpenData()
     }
 
-    private fun requestLocation() {
+    private fun requestLocation(callback: () -> Unit? = {}) {
         fusedLocationClient.requestLocationUpdates(
             LocationRequest().setInterval(30_000),
             object : LocationCallback() {
@@ -156,6 +156,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
                         it.locations.firstOrNull()?.let {
                             myLocation = LatLng(it.latitude, it.longitude)
                             viewModel.saveLastLocation(it)
+                            callback.invoke()
                         }
                     }
                 }
@@ -174,9 +175,9 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
         viewModel.dataPrepared.observe(this, Observer { done ->
             if (done) {
-                viewModel.countDown()
-                viewModel.fetchNearDrugstoreInfo(positionLatitude, positionLongitude)
                 viewModel.drugstoreInfo.observe(this, Observer { addMarkers(it) })
+                viewModel.fetchNearDrugstoreInfo(positionLatitude, positionLongitude)
+                viewModel.countDown()
             }
             layoutDownloadHint.animate().setStartDelay(1_000).alpha(0f).start()
         })
@@ -205,9 +206,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
                 return infoWindowView
             }
 
-            override fun getInfoWindow(p0: Marker): View? {
-                return null
-            }
+            override fun getInfoWindow(p0: Marker): View? = null
         })
 
         fab.setOnClickListener { checkPermission() }
@@ -240,19 +239,18 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         disposableMarkers = Flowable.fromIterable(drugstores)
             .subscribeOn(Schedulers.computation())
             .filter { cacheManager.isCached(it).not() }
-            .map {
-                val markerInfo =
-                    MarkerInfoManager.getMarkerInfo(it.adultMaskAmount)
+            .map { info ->
+                MarkerInfoManager.getMarkerInfo(info.adultMaskAmount).let {
+                    val options = MarkerOptions()
+                        .position(LatLng(info.lat, info.lng))
+                        .snippet(info.id)
+                        .zIndex(it.zIndex)
 
-                val option = MarkerOptions()
-                    .position(LatLng(it.lat, it.lng))
-                    .snippet(it.id)
-                    .zIndex(markerInfo.zIndex)
-
-                ContextCompat.getDrawable(this, markerInfo.drawableId)?.getBitmap()
-                    .let { option.icon(BitmapDescriptorFactory.fromBitmap(it)) }
-
-                Pair(it, option)
+                    ContextCompat.getDrawable(this, it.drawableId)?.getBitmap()
+                        .let { options.icon(BitmapDescriptorFactory.fromBitmap(it)) }
+                }.let {
+                    Pair(info, it)
+                }
             }
             .delay(DELAY_MILLISECONDS, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
@@ -309,7 +307,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (hasPermission(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION)) {
             enableMyLocation()
-            requestLocation()
+            requestLocation { animateTo(viewModel.getLastLocation()) }
         }
     }
 
