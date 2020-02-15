@@ -4,6 +4,7 @@ import com.jarvislin.domain.entity.*
 import com.jarvislin.domain.repository.DrugstoreRepository
 import com.jarvislin.drugstores.data.LocalData
 import com.jarvislin.drugstores.data.db.DrugstoreDao
+import com.jarvislin.drugstores.data.model.ApiDrugstoreInfo
 import com.jarvislin.drugstores.data.remote.Downloader
 import com.jarvislin.drugstores.extension.toObject
 import com.jarvislin.drugstores.page.map.MarkerCacheManager.Companion.MAX_MARKER_AMOUNT

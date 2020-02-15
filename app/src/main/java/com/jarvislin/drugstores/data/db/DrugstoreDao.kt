@@ -14,7 +14,7 @@ interface DrugstoreDao {
     fun getDrugstoreInfo(id: String): Single<List<DrugstoreInfo>>
 
     @Insert(onConflict = IGNORE)
-    fun addDrugstoreInfo(shelters: List<DrugstoreInfo>):Completable
+    fun addDrugstoreInfo(info: List<DrugstoreInfo>):Completable
 
     @Query("DELETE FROM DrugstoreInfo")
     fun removeDrugstoreInfo(): Single<Int>

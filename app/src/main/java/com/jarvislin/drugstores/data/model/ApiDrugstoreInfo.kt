@@ -1,16 +1,16 @@
-package com.jarvislin.domain.entity
+package com.jarvislin.drugstores.data.model
 
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
-data class ApiDrugstoreInfo(
+class ApiDrugstoreInfo(
     @SerializedName("type")
     val type: String,
     @SerializedName("features")
     val features: List<Feature>
 ) : Serializable
 
-data class Feature(
+class Feature(
     @SerializedName("properties")
     val property: Property,
     @SerializedName("geometry")
@@ -41,7 +41,7 @@ data class Feature(
     }
 }
 
-data class Property(
+class Property(
     @SerializedName("id")
     val id: String,
     @SerializedName("name")
@@ -70,7 +70,7 @@ data class Property(
     val cunli: String
 ) : Serializable
 
-data class Geometry(
+class Geometry(
     @SerializedName("type")
     val type: String,
     @SerializedName("coordinates")
