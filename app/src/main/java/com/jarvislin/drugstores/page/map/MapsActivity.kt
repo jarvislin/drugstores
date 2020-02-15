@@ -123,8 +123,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         // download open data
         viewModel.autoUpdate.observe(this, Observer { startDownload() })
         viewModel.downloadProgress.observe(this, Observer { progress ->
-            progressBarDownload.progress =
-                (100 * progress.bytesDownloaded / progress.contentLength).toInt()
+            progressBarDownload.progress = (100 * progress.bytesDownloaded / progress.contentLength).toInt()
             if (progress is Progress.Done) {
                 progressBarDownload.hide()
                 progressBarTransform.show()
@@ -147,17 +146,16 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         viewModel.fetchOpenData()
     }
 
-    private fun requestLocation(callback: () -> Unit? = {}) {
+    private fun requestLocation() {
         fusedLocationClient.requestLocationUpdates(
-            LocationRequest().setNumUpdates(3).setMaxWaitTime(1_200).setInterval(300).setExpirationDuration(1_000),
-            object : LocationCallback() {
+            LocationRequest().setInterval(30_000), object : LocationCallback() {
                 override fun onLocationResult(result: LocationResult?) {
+                    Timber.e("location update")
                     super.onLocationResult(result)
                     result?.let {
                         it.locations.firstOrNull()?.let {
                             myLocation = LatLng(it.latitude, it.longitude)
                             viewModel.saveLastLocation(it)
-                            callback.invoke()
                         }
                     }
                 }
@@ -168,6 +166,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
+
         if ((hasPermission(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION))) {
             enableMyLocation()
         }
@@ -186,11 +185,9 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         map.uiSettings.isMapToolbarEnabled = false
 
         map.setOnInfoWindowClickListener {
-            DetailActivity.start(
-                this,
-                cacheManager.getEntireInfo(it)
-            )
+            DetailActivity.start(this, cacheManager.getEntireInfo(it))
         }
+
         map.setOnCameraIdleListener {
             viewModel.fetchNearDrugstoreInfo(positionLatitude, positionLongitude)
         }
@@ -219,12 +216,10 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     }
 
     private fun updateFabColor(colorId: Int) {
-        val drawable = ContextCompat.getDrawable(
-            this,
-            R.drawable.ic_my_location
-        )
-        drawable?.tint(ContextCompat.getColor(this, colorId))
-        fab.setImageDrawable(drawable)
+        ContextCompat.getDrawable(this, R.drawable.ic_my_location)?.apply {
+            tint(ContextCompat.getColor(this@MapsActivity, colorId))
+            fab.setImageDrawable(this)
+        }
     }
 
     private fun bindView(view: View, info: DrugstoreInfo) {
@@ -271,8 +266,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     private fun checkPermission() {
         if (hasPermission(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION)) {
             enableMyLocation()
-            animateTo(
-                myLocation ?: viewModel.getLastLocation(),
+            animateTo(myLocation ?: viewModel.getLastLocation(),
                 callback = { updateFabColor(R.color.colorAccent) })
         } else {
             ActivityCompat.requestPermissions(
@@ -331,11 +325,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (hasPermission(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION)) {
             enableMyLocation()
-            requestLocation {
-                animateTo(
-                    viewModel.getLastLocation(),
-                    callback = { updateFabColor(R.color.colorAccent) })
-            }
+            requestLocation()
         }
     }
 
