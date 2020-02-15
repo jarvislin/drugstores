@@ -21,6 +21,7 @@
 #-renamesourcefileattribute SourceFile
 
 #
+-keep class com.jarvislin.drugstores.data.model.** { *; }
 -keep class com.jarvislin.domain.entity.** { *; }
 -keep interface com.jarvislin.domain.entity.** { *; }
 
