@@ -149,7 +149,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
     private fun requestLocation(callback: () -> Unit? = {}) {
         fusedLocationClient.requestLocationUpdates(
-            LocationRequest().setInterval(30_000),
+            LocationRequest().setNumUpdates(3).setMaxWaitTime(1_200).setInterval(300).setExpirationDuration(1_000),
             object : LocationCallback() {
                 override fun onLocationResult(result: LocationResult?) {
                     super.onLocationResult(result)
@@ -331,7 +331,11 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (hasPermission(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION)) {
             enableMyLocation()
-            requestLocation { animateTo(viewModel.getLastLocation()) }
+            requestLocation {
+                animateTo(
+                    viewModel.getLastLocation(),
+                    callback = { updateFabColor(R.color.colorAccent) })
+            }
         }
     }
 
