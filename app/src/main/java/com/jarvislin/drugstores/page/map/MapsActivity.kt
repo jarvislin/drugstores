@@ -5,6 +5,7 @@ import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Point
 import android.os.Bundle
 import android.os.Looper
 import android.view.LayoutInflater
@@ -209,6 +210,11 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
             override fun getInfoWindow(p0: Marker): View? = null
         })
 
+        map.setOnMarkerClickListener {
+            animateTo(it)
+            true
+        }
+
         fab.setOnClickListener { checkPermission() }
     }
 
@@ -292,6 +298,24 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
             map.animateCamera(it, object : GoogleMap.CancelableCallback {
                 override fun onFinish() {
                     callback.invoke()
+                }
+
+                override fun onCancel() {}
+            })
+        }
+    }
+
+    private fun animateTo(marker: Marker) {
+        val pointInScreen = map.projection.toScreenLocation(marker.position)
+        val newPoint = Point()
+        newPoint.x = pointInScreen.x
+        newPoint.y = pointInScreen.y - dip(100) // offset, looks good on pixel 3a XD
+        val newLatLng = map.projection.fromScreenLocation(newPoint)
+
+        CameraUpdateFactory.newLatLngZoom(newLatLng, map.cameraPosition.zoom).let {
+            map.animateCamera(it, 400, object : GoogleMap.CancelableCallback {
+                override fun onFinish() {
+                    marker.showInfoWindow()
                 }
 
                 override fun onCancel() {}
