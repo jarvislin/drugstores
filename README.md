@@ -8,7 +8,10 @@
 ## Download
 https://play.google.com/store/apps/details?id=com.jarvislin.drugstores
 
-## Changelog
+## Changel
+* 1.2.1: fix GPS issue
+* 1.2.0: feature of note, DB migration
+* 1.1.4: using defensice programming to handle remote data resource
 * 1.1.3: hotfix wrong proguard config
 * 1.1.2: handle root causes of CSV ParseError
 * 1.1.1: hotfix CSV ParseError
