@@ -9,7 +9,11 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:paddingBottom="60dp">
 
         <fragment
             android:id="@+id/map"
@@ -55,20 +59,6 @@
             app:layout_constraintBottom_toBottomOf="@+id/textDateType"
             app:layout_constraintStart_toEndOf="@+id/textDateType" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/textShare"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:background="?attr/selectableItemBackground"
-            android:padding="8dp"
-            android:text="分享資訊"
-            android:textColor="@color/colorAccent"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="@+id/textName"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/textName" />
-
         <TextView
             android:id="@+id/textNote"
             android:layout_width="0dp"
@@ -83,203 +73,326 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textDateType" />
 
-        <TextView
-            android:id="@+id/textName"
-            android:layout_width="0dp"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardMaskStatus"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="8dp"
-            android:textColor="@color/primaryText"
-            android:textSize="21sp"
-            app:layout_constraintEnd_toStartOf="@+id/textShare"
-            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="16dp"
+            android:background="@color/white"
+            android:visibility="gone"
+            app:cardCornerRadius="8dp"
             app:layout_constraintTop_toBottomOf="@+id/textNote"
-            tools:text="幸福醫院" />
+            tools:visibility="visible">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/layoutAdult"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="12dp"
-            android:padding="16dp"
-            app:layout_constraintEnd_toStartOf="@+id/layoutChild"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textName"
-            tools:background="@drawable/background_sufficient">
-
-            <TextView
-                android:id="@+id/textAdult"
-                android:layout_width="wrap_content"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="成人口罩"
-                android:textColor="@color/white"
-                android:textSize="21sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/textNote">
 
-            <TextView
-                android:id="@+id/textAdultAmount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
-                android:textColor="@color/white"
-                android:textSize="40sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textAdult"
-                tools:text="200" />
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/imageUser"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@color/white"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_user" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginBottom="8dp"
-                android:text="片"
-                android:textColor="#aaffffff"
-                android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="@+id/textAdultAmount"
-                app:layout_constraintStart_toEndOf="@+id/textAdultAmount" />
+                <TextView
+                    android:id="@+id/textUserName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="熱心人士"
+                    android:textColor="@color/primaryText"
+                    android:textSize="13sp"
+                    app:layout_constraintBottom_toTopOf="@+id/textMaskStatus"
+                    app:layout_constraintStart_toEndOf="@+id/imageUser"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_chainStyle="packed" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                <TextView
+                    android:id="@+id/textMaskStatus"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:textColor="@color/secondaryText"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/imageUser"
+                    app:layout_constraintTop_toBottomOf="@+id/textUserName"
+                    tools:text="目前口罩數量充足" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/layoutChild"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="16dp"
-            android:background="@color/icons"
-            android:padding="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/layoutAdult"
-            app:layout_constraintTop_toBottomOf="@+id/textName"
-            tools:background="@drawable/background_empty">
+                <TextView
+                    android:id="@+id/textMaskStatusTime"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-light"
+                    android:gravity="end"
+                    android:textColor="@color/divider"
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toTopOf="@+id/textMaskStatus"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/textUserName"
+                    tools:text="5分鐘前" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <TextView
-                android:id="@+id/textChild"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="兒童口罩"
-                android:textColor="@color/white"
-                android:textSize="21sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.cardview.widget.CardView>
 
-            <TextView
-                android:id="@+id/textChildAmount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
-                android:textColor="@color/white"
-                android:textSize="40sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textChild"
-                tools:text="200" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginBottom="8dp"
-                android:text="片"
-                android:textColor="#aaffffff"
-                android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="@+id/textChildAmount"
-                app:layout_constraintStart_toEndOf="@+id/textChildAmount" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <TextView
-            android:id="@+id/textUpdate"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:fontFamily="sans-serif-light"
-            android:textColor="@color/divider"
-            android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/layoutAdult"
-            tools:text="資料更新於 5 分鐘前" />
-
-        <TextView
-            android:id="@+id/textPhone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="12dp"
-            android:gravity="center_vertical"
-            android:minHeight="48dp"
-            android:textColor="@color/secondaryText"
-            android:textSize="17sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textUpdate"
-            tools:text="電話  02-12345678" />
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/imagePhone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:background="?attr/selectableItemBackground"
-            android:padding="12dp"
-            app:layout_constraintBottom_toBottomOf="@+id/textPhone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textName"
-            app:layout_constraintTop_toTopOf="@+id/textPhone"
-            app:srcCompat="@drawable/ic_phone" />
-
-        <TextView
-            android:id="@+id/textAddress"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:gravity="center_vertical"
-            android:minHeight="48dp"
-            android:textColor="@color/secondaryText"
-            android:textSize="17sp"
-            app:layout_constraintEnd_toStartOf="@+id/imageLocation"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textPhone"
-            tools:text="板橋區新北市" />
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/imageLocation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:background="?attr/selectableItemBackground"
-            android:padding="12dp"
-            app:layout_constraintBottom_toBottomOf="@+id/textAddress"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/textAddress"
-            app:srcCompat="@drawable/ic_place" />
-
-        <TextView
-            android:id="@+id/textOpening"
-            android:layout_width="0dp"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardView"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="12dp"
             android:layout_marginEnd="16dp"
-            android:textColor="@color/secondaryText"
-            android:textSize="17sp"
-            app:layout_constraintEnd_toStartOf="@+id/imageOpening"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textAddress"
-            tools:text="1點發放號碼牌，2點開賣" />
+            android:background="@color/white"
+            app:cardCornerRadius="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/cardMaskStatus"
+            app:layout_goneMarginTop="12dp">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/imageOpening"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="28dp"
-            app:layout_constraintBottom_toBottomOf="@+id/textOpening"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/textOpening"
-            app:srcCompat="@drawable/ic_note" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/textName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:textColor="@color/primaryText"
+                    android:textSize="21sp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="幸福醫院" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/layoutAdult"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="12dp"
+                    android:padding="16dp"
+                    app:layout_constraintEnd_toStartOf="@+id/layoutChild"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textName"
+                    tools:background="@drawable/background_sufficient">
+
+                    <TextView
+                        android:id="@+id/textAdult"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="成人口罩"
+                        android:textColor="@color/white"
+                        android:textSize="21sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/textAdultAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/white"
+                        android:textSize="40sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/textAdult"
+                        tools:text="200" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="片"
+                        android:textColor="#aaffffff"
+                        android:textSize="16sp"
+                        app:layout_constraintBottom_toBottomOf="@+id/textAdultAmount"
+                        app:layout_constraintStart_toEndOf="@+id/textAdultAmount" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/layoutChild"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginEnd="16dp"
+                    android:background="@color/icons"
+                    android:padding="16dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/layoutAdult"
+                    app:layout_constraintTop_toBottomOf="@+id/textName"
+                    tools:background="@drawable/background_empty">
+
+                    <TextView
+                        android:id="@+id/textChild"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="兒童口罩"
+                        android:textColor="@color/white"
+                        android:textSize="21sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/textChildAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/white"
+                        android:textSize="40sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/textChild"
+                        tools:text="200" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="片"
+                        android:textColor="#aaffffff"
+                        android:textSize="16sp"
+                        app:layout_constraintBottom_toBottomOf="@+id/textChildAmount"
+                        app:layout_constraintStart_toEndOf="@+id/textChildAmount" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <TextView
+                    android:id="@+id/textUpdate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="sans-serif-light"
+                    android:textColor="@color/divider"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/layoutAdult"
+                    tools:text="資料更新於 5 分鐘前" />
+
+                <TextView
+                    android:id="@+id/textPhone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center_vertical"
+                    android:minHeight="48dp"
+                    android:textColor="@color/secondaryText"
+                    android:textSize="17sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textUpdate"
+                    tools:text="電話  02-12345678" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/imagePhone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:padding="12dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/textPhone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textName"
+                    app:layout_constraintTop_toTopOf="@+id/textPhone"
+                    app:srcCompat="@drawable/ic_phone" />
+
+                <TextView
+                    android:id="@+id/textAddress"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:gravity="center_vertical"
+                    android:minHeight="48dp"
+                    android:textColor="@color/secondaryText"
+                    android:textSize="17sp"
+                    app:layout_constraintBottom_toTopOf="@+id/textOpening"
+                    app:layout_constraintEnd_toStartOf="@+id/imageLocation"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textPhone"
+                    tools:text="板橋區新北市" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/imageLocation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:padding="12dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/textAddress"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/textAddress"
+                    app:srcCompat="@drawable/ic_place" />
+
+                <TextView
+                    android:id="@+id/textOpening"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginEnd="16dp"
+                    android:textColor="@color/secondaryText"
+                    android:textSize="17sp"
+                    app:layout_constraintEnd_toStartOf="@+id/imageOpening"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textAddress"
+                    tools:text="1點發放號碼牌，2點開賣" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/imageOpening"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="28dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/textOpening"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/textOpening"
+                    app:srcCompat="@drawable/ic_note" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal"
+                    android:paddingBottom="12dp"
+                    app:layout_constraintTop_toBottomOf="@+id/textOpening">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/textShare"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="8dp"
+                        android:text="分享"
+                        android:textColor="@color/colorAccent"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/textReport"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="8dp"
+                        android:text="回報"
+                        android:textColor="@color/colorAccent"
+                        android:textSize="16sp" />
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

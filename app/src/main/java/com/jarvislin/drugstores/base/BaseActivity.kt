@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
+import org.jetbrains.anko.longToast
 import org.jetbrains.anko.toast
 
 
@@ -17,6 +18,7 @@ abstract class BaseActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel?.toastText?.observe(this, Observer { toast(it) })
+        viewModel?.longToastText?.observe(this, Observer { longToast(it) })
     }
 
     fun addDisposable(disposable: Disposable) {
