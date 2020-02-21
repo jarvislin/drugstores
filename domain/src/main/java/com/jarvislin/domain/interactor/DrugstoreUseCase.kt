@@ -1,9 +1,6 @@
 package com.jarvislin.domain.interactor
 
-import com.jarvislin.domain.entity.DrugstoreInfo
-import com.jarvislin.domain.entity.MaskStatus
-import com.jarvislin.domain.entity.Progress
-import com.jarvislin.domain.entity.Status
+import com.jarvislin.domain.entity.*
 import com.jarvislin.domain.repository.DrugstoreRepository
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -40,7 +37,12 @@ class DrugstoreUseCase(private val drugstoreRepository: DrugstoreRepository) {
     }
 
     fun reportMaskStatus(id: String, status: Status): Completable {
-        return drugstoreRepository.reportMaskStatus(id, status)
+        return if (drugstoreRepository.isValidReportTime()) {
+            drugstoreRepository.reportMaskStatus(id, status)
+                .doOnComplete { drugstoreRepository.saveReportTime() }
+        } else {
+            Completable.error(InvalidReportTimeException())
+        }
     }
 
     fun fetchMaskStatus(id: String): Maybe<MaskStatus> {

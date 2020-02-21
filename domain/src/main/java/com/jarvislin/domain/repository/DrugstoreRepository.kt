@@ -18,4 +18,6 @@ interface DrugstoreRepository {
     fun searchAddress(keyword: String): Single<List<DrugstoreInfo>>
     fun reportMaskStatus(id: String, status: Status): Completable
     fun fetchMaskStatus(id: String): Maybe<MaskStatus>
+    fun isValidReportTime(): Boolean
+    fun saveReportTime()
 }

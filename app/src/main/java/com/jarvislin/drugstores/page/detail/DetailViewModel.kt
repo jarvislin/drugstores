@@ -1,6 +1,7 @@
 package com.jarvislin.drugstores.page.detail
 
 import androidx.lifecycle.MutableLiveData
+import com.jarvislin.domain.entity.InvalidReportTimeException
 import com.jarvislin.domain.entity.MaskStatus
 import com.jarvislin.domain.entity.Status
 import com.jarvislin.domain.interactor.DrugstoreUseCase
@@ -16,8 +17,16 @@ class DetailViewModel : BaseViewModel() {
 
     fun reportMaskStatus(id: String, status: Status) {
         useCase.reportMaskStatus(id, status)
-            .doOnSubscribe { longToastText.postValue("回報成功") }
-            .subscribe({ latestMaskStatus.postValue(MaskStatus(status, Date())) }, { Timber.e(it) })
+            .subscribe({
+                longToastText.postValue("回報成功")
+                latestMaskStatus.postValue(MaskStatus(status, Date()))
+            }, {
+                if (it is InvalidReportTimeException) {
+                    longToastText.postValue("回報過於頻繁，請稍後再試")
+                } else {
+                    Timber.e(it)
+                }
+            })
             .bind(this)
     }
 

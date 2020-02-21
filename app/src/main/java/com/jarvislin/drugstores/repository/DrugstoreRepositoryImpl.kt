@@ -158,4 +158,12 @@ class DrugstoreRepositoryImpl(
                 .addOnFailureListener { emitter.onError(it) }
         }.subscribeOn(Schedulers.io())
     }
+
+    override fun isValidReportTime(): Boolean {
+        return System.currentTimeMillis() - localData.lastReportTimestamp > 1000 * 60 * 10 // 10 mins
+    }
+
+    override fun saveReportTime() {
+        localData.lastReportTimestamp = System.currentTimeMillis()
+    }
 }
