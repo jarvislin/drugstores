@@ -7,6 +7,7 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
+import com.google.firebase.auth.FirebaseAuth
 import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.page.map.MapsActivity
 
@@ -27,7 +28,8 @@ class SplashActivity : AppCompatActivity() {
         val status = googleApiAvailability.isGooglePlayServicesAvailable(this)
         if (status != ConnectionResult.SUCCESS) {
             if (googleApiAvailability.isUserResolvableError(status)) {
-                val dialog = googleApiAvailability.getErrorDialog(this, status, REQUEST_PLAY_SERVICE)
+                val dialog =
+                    googleApiAvailability.getErrorDialog(this, status, REQUEST_PLAY_SERVICE)
                 dialog.setOnDismissListener { checkInAppUpdate() }
                 dialog.show()
             }
@@ -51,11 +53,16 @@ class SplashActivity : AppCompatActivity() {
                     REQUEST_UPDATE
                 )
             } else {
-                direct()
+                login()
             }
         }
 
-        appUpdateInfoTask.addOnFailureListener { direct() }
+        appUpdateInfoTask.addOnFailureListener { login() }
+    }
+
+    private fun login() {
+        FirebaseAuth.getInstance().signInAnonymously()
+            .addOnCompleteListener { direct() }
     }
 
     private fun direct() {
