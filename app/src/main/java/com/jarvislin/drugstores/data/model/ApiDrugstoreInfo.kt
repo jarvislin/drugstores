@@ -23,10 +23,17 @@ class Feature(
     fun getUpdateAt(): String = property.updated
     fun getAdultMaskAmount(): Int = property.maskAdult.toInt()
     fun getChildMaskAmount(): Int = property.maskChild.toInt()
-    fun getNote(): String = property.note
     fun getAvailable(): String = property.available
     fun getAddress(): String = property.address
     fun getPhone(): String = property.phone
+    fun getNote(): String {
+        return when {
+            property.customNote.trim().isNotEmpty() -> property.customNote
+            property.note.trim() == "-" -> ""
+            else -> property.note
+        }
+    }
+
     fun isValid(): Boolean {
         // defensive programming
         return try {
@@ -60,6 +67,8 @@ class Property(
     val available: String,
     @SerializedName("note")
     val note: String,
+    @SerializedName("custom_note")
+    val customNote: String,
     @SerializedName("website")
     val website: String,
     @SerializedName("county")
@@ -79,5 +88,6 @@ class Geometry(
     // defensive
     // because somebody put opening hours here XD
     fun getLat(): String = coordinates[1]
+
     fun getLng(): String = coordinates[0]
 }

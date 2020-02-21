@@ -4,6 +4,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.io.Serializable
+import java.text.SimpleDateFormat
+import java.util.*
 
 @Entity(tableName = "DrugstoreInfo")
 data class DrugstoreInfo(
@@ -32,12 +34,24 @@ data class DrugstoreInfo(
     val phone: String
 ) : Serializable {
 
-    fun getNoteText(): String {
-        note.trim().let {
-            return if (it == "-") {
-                ""
+    fun getUpdateWording(): String {
+        val format = SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.getDefault())
+        return try {
+            val current = System.currentTimeMillis()
+            val date = format.parse(updateAt)
+            val diffHour = (current - date.time) / 60 / 60 / 1000
+            val diffMinute = (current - date.time) / 60 / 1000
+            val diffSecond = (current - date.time) / 1000
+            when {
+                diffHour > 0 -> "資料更新於 $diffHour 小時前"
+                diffMinute > 0 -> "資料更新於 $diffMinute 分鐘前"
+                else -> "資料更新於 $diffSecond 秒前"
+            }
+        } catch (ex: Exception) {
+            if (updateAt.isEmpty()) {
+                "無更新時間"
             } else {
-                it
+                "更新於：$this"
             }
         }
     }

@@ -4,8 +4,12 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.RadioButton
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -15,20 +19,25 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.jakewharton.rxbinding2.view.RxView
 import com.jarvislin.domain.entity.DrugstoreInfo
+import com.jarvislin.domain.entity.MaskStatus
+import com.jarvislin.domain.entity.Status
 import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.base.BaseActivity
-import com.jarvislin.drugstores.base.BaseViewModel
 import com.jarvislin.drugstores.extension.*
 import com.jarvislin.drugstores.page.map.MarkerInfoManager
+import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_detail.*
 import org.jetbrains.anko.toast
+import org.koin.android.ext.android.inject
 import java.util.*
 
 
-class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivity(),
+class DetailActivity : BaseActivity(),
     OnMapReadyCallback {
 
     companion object {
+        private const val FORM_URL =
+            "https://docs.google.com/forms/d/e/1FAIpQLSf1lLV7nNoZMFdOER7jmh735zM8W_0G8TJJKDEC3E0ZBPgEMQ/viewform"
         private const val KEY_INFO = "key_info"
         fun start(context: Context, info: DrugstoreInfo) {
             Intent(context, DetailActivity::class.java).apply {
@@ -38,6 +47,7 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
         }
     }
 
+    override val viewModel: DetailViewModel by inject()
     private val info by lazy { intent.getSerializableExtra(KEY_INFO) as DrugstoreInfo }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,6 +60,9 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+        viewModel.latestMaskStatus.observe(this, Observer { showMaskStatus(it) })
+        viewModel.fetchMaskStatus(info.id)
+
         layoutAdult.background = info.adultMaskAmount.toBackground()
         layoutChild.background = info.childMaskAmount.toBackground()
 
@@ -59,7 +72,7 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
         textName.text = info.name
         textAddress.text = info.address
         textPhone.text = info.phone
-        textUpdate.text = info.updateAt.toUpdateWording()
+        textUpdate.text = info.getUpdateWording()
         info.note.trim().let {
             if (it.isNotEmpty() && it != "-") {
                 textOpening.text = info.note
@@ -78,7 +91,7 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
         val text = when (day) {
             1, 3, 5 -> "單號"
             2, 4, 6 -> "雙號"
-            else -> "無限制"
+            else -> "單雙號"
         }
         textDateType.text = text
 
@@ -100,10 +113,10 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
         RxView.clicks(textShare)
             .throttleClick()
             .subscribe {
-                val wording = if (info.getNoteText().isEmpty()) {
+                val wording = if (info.note.isEmpty()) {
                     ""
                 } else {
-                    info.getNoteText() + "，"
+                    info.note + "，"
                 }
                 shareText(
                     "口罩資訊地圖",
@@ -116,6 +129,105 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
                 )
             }
             .bind(this)
+
+        RxView.clicks(textReport)
+            .throttleClick()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { showReportDialog() }
+            .bind(this)
+    }
+
+    private fun showMaskStatus(maskStatus: MaskStatus) {
+        val text = when (maskStatus.status) {
+            Status.Empty -> getString(R.string.option_empty)
+            Status.Warning -> getString(R.string.option_warning)
+            Status.Sufficient -> getString(R.string.option_sufficient)
+        }
+
+        textMaskStatus.text = "成人口罩$text。"
+        textMaskStatusTime.text = maskStatus.getReportWording()
+        cardMaskStatus.show()
+    }
+
+    private fun showReportDialog() {
+        val view = LayoutInflater.from(this).inflate(R.layout.dialog_report, null, false)
+        val textSeller = view.findViewById<View>(R.id.textSeller)
+        val textBuyer = view.findViewById<View>(R.id.textBuyer)
+
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("回報相關資訊")
+            .setPositiveButton(getString(R.string.dismiss)) { _, _ -> }
+            .setView(view)
+            .show()
+
+        RxView.clicks(textSeller)
+            .throttleClick()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                dialog.dismiss()
+                openWeb(FORM_URL)
+            }
+            .bind(this)
+
+        RxView.clicks(textBuyer)
+            .throttleClick()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                dialog.dismiss()
+                showBuyerDialog()
+            }
+            .bind(this)
+    }
+
+    private fun showBuyerDialog() {
+        val view = LayoutInflater.from(this).inflate(R.layout.dialog_buyer, null, false)
+        val radioSufficient = view.findViewById<RadioButton>(R.id.radioSufficient)
+        val radioWarning = view.findViewById<RadioButton>(R.id.radioWarning)
+        val radioEmpty = view.findViewById<RadioButton>(R.id.radioEmpty)
+
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("還有成人口罩嗎？")
+            .setView(view)
+            .setPositiveButton(getString(R.string.dismiss)) { _, _ -> }
+            .show()
+
+        RxView.clicks(radioSufficient)
+            .throttleClick()
+            .subscribe {
+                dialog.dismiss()
+                showConfirmDialog(Status.Sufficient)
+            }
+            .bind(this)
+
+        RxView.clicks(radioWarning)
+            .throttleClick()
+            .subscribe {
+                dialog.dismiss()
+                showConfirmDialog(Status.Warning)
+            }
+            .bind(this)
+
+        RxView.clicks(radioEmpty)
+            .throttleClick()
+            .subscribe {
+                dialog.dismiss()
+                showConfirmDialog(Status.Empty)
+            }
+            .bind(this)
+    }
+
+    private fun showConfirmDialog(status: Status) {
+        val option = when (status) {
+            Status.Empty -> getString(R.string.option_empty)
+            Status.Warning -> getString(R.string.option_warning)
+            Status.Sufficient -> getString(R.string.option_sufficient)
+        }
+
+        AlertDialog.Builder(this)
+            .setMessage("即將送出選項：$option")
+            .setPositiveButton("送出") { _, _ -> viewModel.reportMaskStatus(info.id, status) }
+            .setNegativeButton("取消") { _, _ -> }
+            .show()
     }
 
     override fun onMapReady(map: GoogleMap) {
@@ -130,8 +242,7 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
 
         // add marker
         val markerInfo = MarkerInfoManager.getMarkerInfo(info.adultMaskAmount)
-        val option = MarkerOptions()
-            .position(LatLng(info.lat, info.lng))
+        val option = MarkerOptions().position(LatLng(info.lat, info.lng))
 
         ContextCompat.getDrawable(this, markerInfo.drawableId)?.getBitmap()
             .let { option.icon(BitmapDescriptorFactory.fromBitmap(it)) }
@@ -167,3 +278,4 @@ class DetailActivity(override val viewModel: BaseViewModel? = null) : BaseActivi
             .show()
     }
 }
+

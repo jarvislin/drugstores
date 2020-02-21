@@ -1,10 +1,13 @@
 package com.jarvislin.domain.interactor
 
 import com.jarvislin.domain.entity.DrugstoreInfo
+import com.jarvislin.domain.entity.MaskStatus
 import com.jarvislin.domain.entity.Progress
+import com.jarvislin.domain.entity.Status
 import com.jarvislin.domain.repository.DrugstoreRepository
 import io.reactivex.Completable
 import io.reactivex.Flowable
+import io.reactivex.Maybe
 import io.reactivex.Single
 import java.io.File
 
@@ -34,5 +37,13 @@ class DrugstoreUseCase(private val drugstoreRepository: DrugstoreRepository) {
 
     fun searchAddress(keyword: String): Single<List<DrugstoreInfo>> {
         return drugstoreRepository.searchAddress(keyword)
+    }
+
+    fun reportMaskStatus(id: String, status: Status): Completable {
+        return drugstoreRepository.reportMaskStatus(id, status)
+    }
+
+    fun fetchMaskStatus(id: String): Maybe<MaskStatus> {
+        return drugstoreRepository.fetchMaskStatus(id)
     }
 }
