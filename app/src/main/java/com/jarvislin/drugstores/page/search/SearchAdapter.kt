@@ -58,7 +58,7 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
 
             textName.text = drugstoreInfo.name
             textAddress.text = drugstoreInfo.address
-            textUpdate.text = drugstoreInfo.updateAt.toUpdateWording()
+            textUpdate.text = drugstoreInfo.getUpdateWording()
             drugstoreInfo.note.trim().let {
                 if (it.isNotEmpty() && it != "-") {
                     textNote.text = drugstoreInfo.note
@@ -76,10 +76,10 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
             RxView.clicks(textShare)
                 .throttleClick()
                 .subscribe {
-                    val wording = if (drugstoreInfo.getNoteText().isEmpty()) {
+                    val wording = if (drugstoreInfo.note.isEmpty()) {
                         ""
                     } else {
-                        drugstoreInfo.getNoteText() + "，"
+                        drugstoreInfo.note + "，"
                     }
                     itemView.context.shareText(
                         "口罩資訊地圖",

@@ -123,7 +123,8 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         // download open data
         viewModel.autoUpdate.observe(this, Observer { startDownload() })
         viewModel.downloadProgress.observe(this, Observer { progress ->
-            progressBarDownload.progress = (100 * progress.bytesDownloaded / progress.contentLength).toInt()
+            progressBarDownload.progress =
+                (100 * progress.bytesDownloaded / progress.contentLength).toInt()
             if (progress is Progress.Done) {
                 progressBarDownload.hide()
                 progressBarTransform.show()
@@ -150,7 +151,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         fusedLocationClient.requestLocationUpdates(
             LocationRequest().setInterval(30_000), object : LocationCallback() {
                 override fun onLocationResult(result: LocationResult?) {
-                    Timber.e("location update")
+                    Timber.i("location update")
                     super.onLocationResult(result)
                     result?.let {
                         it.locations.firstOrNull()?.let {
@@ -224,7 +225,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
     private fun bindView(view: View, info: DrugstoreInfo) {
         view.findViewById<TextView>(R.id.textName).text = info.name
-        view.findViewById<TextView>(R.id.textUpdate).text = info.updateAt.toUpdateWording()
+        view.findViewById<TextView>(R.id.textUpdate).text = info.getUpdateWording()
         view.findViewById<TextView>(R.id.textAdultAmount).text =
             info.adultMaskAmount.toString()
         view.findViewById<TextView>(R.id.textChildAmount).text =
