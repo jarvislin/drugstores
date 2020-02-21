@@ -11,6 +11,7 @@ import java.io.IOException
 abstract class BaseViewModel : ViewModel(), KoinComponent {
     protected val compositeDisposable = CompositeDisposable()
     val toastText = MutableLiveData<String>()
+    val longToastText = MutableLiveData<String>()
 
     fun addDisposable(disposable: Disposable) {
         compositeDisposable.add(disposable)

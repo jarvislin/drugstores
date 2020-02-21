@@ -8,4 +8,7 @@
     <string name="id_note_title">購買規則</string>
     <string name="id_note_message">身分證字號末碼為雙號者（0、2、4、6、8）於每週二、四、六購買；末碼為單號者（1、3、5、7、9）可於每週一、三、五購買；週日則開放全民皆可購買。每人每次限購兩片，七天內不能重複購買。</string>
     <string name="hint_mask_amount">口罩可能與實際數量有所差異，請斟酌參考。</string>
+    <string name="option_empty">沒有了</string>
+    <string name="option_warning">剩下不多</string>
+    <string name="option_sufficient">數量充足</string>
 </resources>

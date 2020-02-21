@@ -1,5 +1,9 @@
 package com.jarvislin.drugstores.repository
 
+import android.text.format.DateUtils
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.jarvislin.domain.entity.*
 import com.jarvislin.domain.repository.DrugstoreRepository
 import com.jarvislin.drugstores.data.LocalData
@@ -15,16 +19,24 @@ import java.io.FileInputStream
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 import java.nio.charset.Charset
+import java.util.*
 
 
 class DrugstoreRepositoryImpl(
     private val drugstoreDao: DrugstoreDao,
     private val localData: LocalData,
-    private val downloader: Downloader
+    private val downloader: Downloader,
+    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) : DrugstoreRepository {
 
+
     companion object {
-        private const val DATA_URL = "https://raw.githubusercontent.com/kiang/pharmacies/master/json/points.json"
+        private const val DATA_URL =
+            "https://raw.githubusercontent.com/kiang/pharmacies/master/json/points.json"
+        private const val COLLECTION_ROOT = "drugstores"
+        private const val COLLECTION_REPORTS = "reports"
+        private const val FILED_STATUS = "status"
+        private const val FILED_TIMESTAMP = "timestamp"
     }
 
     override fun saveDrugstoreInfo(data: List<DrugstoreInfo>): Completable {
@@ -95,6 +107,55 @@ class DrugstoreRepositoryImpl(
             } finally {
                 stream.close()
             }
+        }.subscribeOn(Schedulers.io())
+    }
+
+    override fun reportMaskStatus(id: String, status: Status): Completable {
+        val data = hashMapOf(
+            FILED_STATUS to status.value,
+            FILED_TIMESTAMP to Timestamp.now()
+        )
+
+        return Completable.create { emitter ->
+            db.collection(COLLECTION_ROOT)
+                .document(id)
+                .collection(COLLECTION_REPORTS)
+                .add(data)
+                .addOnSuccessListener { emitter.onComplete() }
+                .addOnFailureListener { emitter.onError(it) }
+        }.subscribeOn(Schedulers.io())
+    }
+
+    override fun fetchMaskStatus(id: String): Maybe<MaskStatus> {
+        return Maybe.create<MaskStatus> { emitter ->
+            db.collection(COLLECTION_ROOT)
+                .document(id)
+                .collection(COLLECTION_REPORTS)
+                .orderBy(FILED_TIMESTAMP, Query.Direction.DESCENDING)
+                .limit(1)
+                .get()
+                .addOnSuccessListener {
+                    if (it.documents.isEmpty()) {
+                        emitter.onComplete()
+                        return@addOnSuccessListener
+                    }
+
+                    it.documents.first().apply {
+                        val status = getLong(FILED_STATUS).let { Status.from(it) }
+                        val timestamp = getDate(FILED_TIMESTAMP)
+                        if (status == null || timestamp == null) {
+                            emitter.onComplete()
+                        } else {
+                            if (DateUtils.isToday(timestamp.time)) {
+                                emitter.onSuccess(MaskStatus(status, timestamp))
+                            } else {
+                                emitter.onComplete()
+                            }
+                        }
+                    }
+
+                }
+                .addOnFailureListener { emitter.onError(it) }
         }.subscribeOn(Schedulers.io())
     }
 }
