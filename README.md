@@ -24,8 +24,8 @@ https://play.google.com/store/apps/details?id=com.jarvislin.drugstores
 
 ## Install
 * `git clone git@github.com:jarvislin/drugstores.git`
-* Replace Google Map API key in `values/google_maps_api.xml`w
-* Replace Firebase config (google-services.json) with yours.
+* Replace Google Map API key in `values/google_maps_api.xml`
+* Enable Anonymous login and Firestore in Firebase console, replace thie config `google-services.json` with yours.
 
 ## License
 Apache License 2.0 - UI design and icons are not included.
