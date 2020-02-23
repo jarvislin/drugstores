@@ -27,10 +27,13 @@ https://play.google.com/store/apps/details?id=com.jarvislin.drugstores
 * Replace Google Map API key in `values/google_maps_api.xml`w
 * Replace Firebase config (google-services.json) with yours.
 
+## License
+Apache License 2.0 - UI design and icons are not included.
+
 ## Attribute
 UI from [Penny Yang](https://challenge.thef2e.com/user/3405?schedule=4432#works-4432).
 
-Icons made by [Freepik](https://www.flaticon.com/authors/freepik) from https://www.flaticon.com/
+Some icons made by [Freepik](https://www.flaticon.com/authors/freepik) from https://www.flaticon.com/
 
 ## Reference
 https://github.com/kiang/pharmacies
