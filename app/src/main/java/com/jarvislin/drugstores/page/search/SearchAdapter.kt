@@ -10,6 +10,7 @@ import com.jarvislin.domain.entity.DrugstoreInfo
 import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.extension.*
 import com.jarvislin.drugstores.page.detail.DetailActivity
+import com.jarvislin.drugstores.widget.ModelConverter
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 
@@ -17,6 +18,7 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
 
     private val info = ArrayList<DrugstoreInfo>()
     private val compositeDisposable = CompositeDisposable()
+    private val modelConverter by lazy { ModelConverter() }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_info, parent, false)
@@ -50,15 +52,15 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
         private val textNavigate: View = itemView.findViewById(R.id.textNavigate)
 
         fun bind(drugstoreInfo: DrugstoreInfo) {
-            layoutAdult.background = drugstoreInfo.adultMaskAmount.toBackground()
-            layoutChild.background = drugstoreInfo.childMaskAmount.toBackground()
+            layoutAdult.background = modelConverter.from(drugstoreInfo).toAdultMaskBackground()
+            layoutChild.background = modelConverter.from(drugstoreInfo).toChildMaskBackground()
 
-            textAdultAmount.text = "成人 " + drugstoreInfo.adultMaskAmount.toString()
-            textChildAmount.text = "兒童 " + drugstoreInfo.childMaskAmount.toString()
+            textAdultAmount.text = modelConverter.from(drugstoreInfo).toAdultMaskAmountWording()
+            textChildAmount.text = modelConverter.from(drugstoreInfo).toChildMaskAmountWording()
 
             textName.text = drugstoreInfo.name
             textAddress.text = drugstoreInfo.address
-            textUpdate.text = drugstoreInfo.getUpdateWording()
+            textUpdate.text = modelConverter.from(drugstoreInfo).toUpdateWording()
             drugstoreInfo.note.trim().let {
                 if (it.isNotEmpty() && it != "-") {
                     textNote.text = drugstoreInfo.note
@@ -76,19 +78,9 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
             RxView.clicks(textShare)
                 .throttleClick()
                 .subscribe {
-                    val wording = if (drugstoreInfo.note.isEmpty()) {
-                        ""
-                    } else {
-                        drugstoreInfo.note + "，"
-                    }
                     itemView.context.shareText(
                         "口罩資訊地圖",
-                        "${drugstoreInfo.name}位於${drugstoreInfo.address}，" +
-                                "$wording" +
-                                "成人口罩數量為：${drugstoreInfo.adultMaskAmount}個，" +
-                                "兒童口罩數量為：${drugstoreInfo.childMaskAmount}個，" +
-                                "口罩數量更新時間為：${drugstoreInfo.updateAt}，" +
-                                "更多資訊請參考口罩資訊地圖：https://play.google.com/store/apps/details?id=com.jarvislin.drugstores"
+                        modelConverter.from(drugstoreInfo).toShareContentText()
                     )
                 }
                 .addTo(compositeDisposable)

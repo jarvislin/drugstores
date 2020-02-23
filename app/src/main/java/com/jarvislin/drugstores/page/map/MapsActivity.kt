@@ -33,6 +33,7 @@ import com.jarvislin.drugstores.extension.*
 import com.jarvislin.drugstores.page.detail.DetailActivity
 import com.jarvislin.drugstores.page.search.SearchDialogFragment
 import com.jarvislin.drugstores.page.search.SearchDialogFragment.Companion.KEY_INFO
+import com.jarvislin.drugstores.widget.ModelConverter
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -61,6 +62,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     private var myLocation: LatLng? = null
     private var lastClickedMarker: Marker? = null
     private var disposableMarkers: Disposable? = null
+    private val modelConverter by lazy { ModelConverter() }
 
     companion object {
         private const val DELAY_MILLISECONDS = 100L
@@ -186,7 +188,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         map.uiSettings.isMapToolbarEnabled = false
 
         map.setOnInfoWindowClickListener {
-            DetailActivity.start(this, cacheManager.getEntireInfo(it))
+            DetailActivity.start(this, cacheManager.getDrugstoreInfo(it))
         }
 
         map.setOnCameraIdleListener {
@@ -201,7 +203,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         map.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
             override fun getInfoContents(marker: Marker): View? {
                 lastClickedMarker = marker
-                bindView(infoWindowView, cacheManager.getEntireInfo(marker))
+                bindView(infoWindowView, cacheManager.getDrugstoreInfo(marker))
                 return infoWindowView
             }
 
@@ -225,15 +227,15 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
     private fun bindView(view: View, info: DrugstoreInfo) {
         view.findViewById<TextView>(R.id.textName).text = info.name
-        view.findViewById<TextView>(R.id.textUpdate).text = info.getUpdateWording()
+        view.findViewById<TextView>(R.id.textUpdate).text = modelConverter.from(info).toUpdateWording()
         view.findViewById<TextView>(R.id.textAdultAmount).text =
             info.adultMaskAmount.toString()
         view.findViewById<TextView>(R.id.textChildAmount).text =
             info.childMaskAmount.toString()
         view.findViewById<View>(R.id.layoutAdult).background =
-            info.adultMaskAmount.toBackground()
+            modelConverter.from(info).toAdultMaskBackground()
         view.findViewById<View>(R.id.layoutChild).background =
-            info.childMaskAmount.toBackground()
+            modelConverter.from(info).toChildMaskBackground()
     }
 
 

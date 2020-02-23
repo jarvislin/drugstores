@@ -25,6 +25,7 @@ import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.base.BaseActivity
 import com.jarvislin.drugstores.extension.*
 import com.jarvislin.drugstores.page.map.MarkerInfoManager
+import com.jarvislin.drugstores.widget.ModelConverter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_detail.*
 import org.jetbrains.anko.toast
@@ -49,6 +50,7 @@ class DetailActivity : BaseActivity(),
 
     override val viewModel: DetailViewModel by inject()
     private val info by lazy { intent.getSerializableExtra(KEY_INFO) as DrugstoreInfo }
+    private val modelConverter by lazy { ModelConverter() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,8 +65,8 @@ class DetailActivity : BaseActivity(),
         viewModel.latestMaskStatus.observe(this, Observer { showMaskStatus(it) })
         viewModel.fetchMaskStatus(info.id)
 
-        layoutAdult.background = info.adultMaskAmount.toBackground()
-        layoutChild.background = info.childMaskAmount.toBackground()
+        layoutAdult.background = modelConverter.from(info).toAdultMaskBackground()
+        layoutChild.background = modelConverter.from(info).toChildMaskBackground()
 
         textAdultAmount.text = info.adultMaskAmount.toString()
         textChildAmount.text = info.childMaskAmount.toString()
@@ -72,7 +74,7 @@ class DetailActivity : BaseActivity(),
         textName.text = info.name
         textAddress.text = info.address
         textPhone.text = info.phone
-        textUpdate.text = info.getUpdateWording()
+        textUpdate.text = modelConverter.from(info).toUpdateWording()
         info.note.trim().let {
             if (it.isNotEmpty() && it != "-") {
                 textOpening.text = info.note
@@ -82,18 +84,7 @@ class DetailActivity : BaseActivity(),
             }
         }
 
-
-        val calendar = Calendar.getInstance(Locale.getDefault())
-        var day = calendar.get(Calendar.DAY_OF_WEEK)
-        if (calendar.firstDayOfWeek == Calendar.SUNDAY) {
-            day--
-        }
-        val text = when (day) {
-            1, 3, 5 -> "單號"
-            2, 4, 6 -> "雙號"
-            else -> "單雙號"
-        }
-        textDateType.text = text
+        textDateType.text = modelConverter.from(info).toDateType()
 
         RxView.clicks(textInfo)
             .throttleClick()
@@ -113,19 +104,10 @@ class DetailActivity : BaseActivity(),
         RxView.clicks(textShare)
             .throttleClick()
             .subscribe {
-                val wording = if (info.note.isEmpty()) {
-                    ""
-                } else {
-                    info.note + "，"
-                }
+
                 shareText(
                     "口罩資訊地圖",
-                    "${info.name}位於${info.address}，" +
-                            "$wording" +
-                            "成人口罩數量為：${info.adultMaskAmount}個，" +
-                            "兒童口罩數量為：${info.childMaskAmount}個，" +
-                            "口罩數量更新時間為：${info.updateAt}，" +
-                            "更多資訊請參考口罩資訊地圖：https://play.google.com/store/apps/details?id=com.jarvislin.drugstores"
+                    modelConverter.from(info).toShareContentText()
                 )
             }
             .bind(this)
@@ -138,14 +120,8 @@ class DetailActivity : BaseActivity(),
     }
 
     private fun showMaskStatus(maskStatus: MaskStatus) {
-        val text = when (maskStatus.status) {
-            Status.Empty -> getString(R.string.option_empty)
-            Status.Warning -> getString(R.string.option_warning)
-            Status.Sufficient -> getString(R.string.option_sufficient)
-        }
-
-        textMaskStatus.text = "成人口罩$text。"
-        textMaskStatusTime.text = maskStatus.getReportWording()
+        textMaskStatus.text = modelConverter.from(maskStatus).toAmountWording()
+        textMaskStatusTime.text = modelConverter.from(maskStatus).toReportWording()
         cardMaskStatus.show()
     }
 

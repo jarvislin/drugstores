@@ -37,7 +37,7 @@ class MarkerCacheManager {
         storeSet.add(drugstore)
     }
 
-    fun getEntireInfo(marker: Marker): DrugstoreInfo {
+    fun getDrugstoreInfo(marker: Marker): DrugstoreInfo {
         return storeSet.first { it.id == marker.snippet }
     }
 }

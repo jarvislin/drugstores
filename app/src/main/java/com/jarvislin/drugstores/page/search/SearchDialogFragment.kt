@@ -24,6 +24,8 @@ import com.jarvislin.drugstores.extension.show
 import com.jarvislin.drugstores.extension.throttleClick
 import com.jarvislin.drugstores.extension.tint
 import com.jarvislin.drugstores.page.map.MapViewModel
+import com.jarvislin.drugstores.widget.InfoConverter
+import com.jarvislin.drugstores.widget.ModelConverter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -81,18 +83,7 @@ class SearchDialogFragment : DialogFragment() {
             }
         }
 
-        // init wording
-        val calendar = Calendar.getInstance(Locale.getDefault())
-        var day = calendar.get(Calendar.DAY_OF_WEEK)
-        if (calendar.firstDayOfWeek == Calendar.SUNDAY) {
-            day--
-        }
-        val text = when (day) {
-            1, 3, 5 -> "單號"
-            2, 4, 6 -> "雙號"
-            else -> "單雙號"
-        }
-        textDateType.text = text
+        textDateType.text = InfoConverter.toDateTypeText()
 
         // init recycler view
         recyclerView.layoutManager =
