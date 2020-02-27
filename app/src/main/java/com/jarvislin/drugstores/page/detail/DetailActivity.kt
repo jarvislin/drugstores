@@ -25,7 +25,9 @@ import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.base.BaseActivity
 import com.jarvislin.drugstores.extension.*
 import com.jarvislin.drugstores.page.map.MarkerInfoManager
+import com.jarvislin.drugstores.widget.InfoConverter
 import com.jarvislin.drugstores.widget.ModelConverter
+import com.jarvislin.drugstores.widget.OpenTimeView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_detail.*
 import org.jetbrains.anko.toast
@@ -86,6 +88,16 @@ class DetailActivity : BaseActivity(),
 
         textDateType.text = modelConverter.from(info).toDateType()
 
+        if(info.isValidOpenTime()){
+            modelConverter.from(info).toOpenTime()
+                .mapIndexed { index: Int, triple: Triple<Boolean, Boolean, Boolean> ->
+                    OpenTimeView(this).apply {
+                        setOpenTime(InfoConverter.toDayOfWeek(index), triple)
+                    }
+                }.forEach { layoutOpenTime.addView(it) }
+            cardOpenTime.show()
+        }
+
         RxView.clicks(textInfo)
             .throttleClick()
             .subscribe { showInfoDialog() }
@@ -104,7 +116,6 @@ class DetailActivity : BaseActivity(),
         RxView.clicks(textShare)
             .throttleClick()
             .subscribe {
-
                 shareText(
                     "口罩資訊地圖",
                     modelConverter.from(info).toShareContentText()

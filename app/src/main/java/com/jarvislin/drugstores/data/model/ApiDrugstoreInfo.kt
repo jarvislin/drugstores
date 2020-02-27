@@ -34,6 +34,8 @@ class Feature(
         }
     }
 
+    fun getServicePeriods(): String = property.servicePeriods
+
     fun isValid(): Boolean {
         // defensive programming
         return try {
@@ -76,7 +78,9 @@ class Property(
     @SerializedName("town")
     val town: String,
     @SerializedName("cunli")
-    val cunli: String
+    val cunli: String,
+    @SerializedName("service_periods")
+    val servicePeriods: String
 ) : Serializable
 
 class Geometry(

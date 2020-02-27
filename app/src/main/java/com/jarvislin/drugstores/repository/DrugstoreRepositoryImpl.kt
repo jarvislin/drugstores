@@ -99,7 +99,7 @@ class DrugstoreRepositoryImpl(
                             adultMaskAmount = it.getAdultMaskAmount(),
                             childMaskAmount = it.getChildMaskAmount(),
                             updateAt = it.getUpdateAt(),
-                            available = it.getAvailable()
+                            available = it.getServicePeriods()
                         )
                     }.let { emitter.onSuccess(it) }
             } catch (ex: Exception) {

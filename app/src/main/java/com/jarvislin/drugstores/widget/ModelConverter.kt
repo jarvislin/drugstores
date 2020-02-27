@@ -53,6 +53,22 @@ class InfoConverter(private val info: DrugstoreInfo) {
         }
     }
 
+    fun toOpenTime(): List<Triple<Boolean, Boolean, Boolean>> {
+        val mornings = CharArray(7)
+        val afternoons = CharArray(7)
+        val nights = CharArray(7)
+        info.available.toCharArray(mornings, 0, 0, 7)
+        info.available.toCharArray(afternoons, 0, 7, 14)
+        info.available.toCharArray(nights, 0, 14, 21)
+        return mornings.mapIndexed { index: Int, morning: Char ->
+            Triple(
+                morning == 'N',
+                afternoons[index] == 'N',
+                nights[index] == 'N'
+            )
+        }
+    }
+
     fun toShareContentText(): String {
         val wording = if (info.note.isEmpty()) {
             ""
@@ -80,6 +96,18 @@ class InfoConverter(private val info: DrugstoreInfo) {
                 1, 3, 5 -> "單號"
                 2, 4, 6 -> "雙號"
                 else -> "單雙號"
+            }
+        }
+
+        fun toDayOfWeek(index: Int): String {
+            return when (index) {
+                0 -> "週一"
+                1 -> "週二"
+                2 -> "週三"
+                3 -> "週四"
+                4 -> "週五"
+                5 -> "週六"
+                else -> "週日"
             }
         }
     }
