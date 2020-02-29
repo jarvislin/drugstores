@@ -74,7 +74,9 @@ class DetailActivity : BaseActivity(),
         mapFragment.getMapAsync(this)
 
         viewModel.latestMaskStatus.observe(this, Observer { showMaskStatus(it) })
+        viewModel.usesNumberTicket.observe(this, Observer { cardNumberTicket.show() })
         viewModel.fetchMaskStatus(info.id)
+        viewModel.fetchUsesNumberTicket(info.id)
 
         layoutAdult.background = modelConverter.from(info).toAdultMaskBackground()
         layoutChild.background = modelConverter.from(info).toChildMaskBackground()
@@ -225,12 +227,22 @@ class DetailActivity : BaseActivity(),
         val view = LayoutInflater.from(this).inflate(R.layout.dialog_report, null, false)
         val textSeller = view.findViewById<View>(R.id.textSeller)
         val textBuyer = view.findViewById<View>(R.id.textBuyer)
+        val textNumber = view.findViewById<View>(R.id.textNumber)
 
         val dialog = AlertDialog.Builder(this)
             .setTitle("回報相關資訊")
             .setPositiveButton(getString(R.string.dismiss)) { _, _ -> }
             .setView(view)
             .show()
+
+        RxView.clicks(textNumber)
+            .throttleClick()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                dialog.dismiss()
+                showNumberDialog()
+            }
+            .bind(this)
 
         RxView.clicks(textSeller)
             .throttleClick()
@@ -249,6 +261,19 @@ class DetailActivity : BaseActivity(),
                 showBuyerDialog()
             }
             .bind(this)
+    }
+
+    private fun showNumberDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("採用號碼牌制度？")
+            .setMessage("即將回報此藥局採用號碼牌制度")
+            .setNegativeButton(getString(R.string.cancel)) { _, _ -> }
+            .setPositiveButton(getString(R.string.submit)) { _, _ ->
+                viewModel.reportNumberTicket(
+                    info.id
+                )
+            }
+            .show()
     }
 
     private fun showBuyerDialog() {

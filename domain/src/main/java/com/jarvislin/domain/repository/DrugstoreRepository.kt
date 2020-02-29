@@ -20,4 +20,6 @@ interface DrugstoreRepository {
     fun fetchMaskStatus(id: String): Maybe<MaskStatus>
     fun isValidReportTime(): Boolean
     fun saveReportTime()
+    fun reportNumberTicket(id: String): Completable
+    fun fetchUsesNumberTicket(id: String): Maybe<Boolean>
 }
