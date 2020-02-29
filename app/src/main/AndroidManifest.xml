@@ -10,6 +10,7 @@
     <application
         android:name=".base.App"
         android:allowBackup="false"
+        android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
@@ -38,6 +39,10 @@
             android:name=".page.map.MapsActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Translucent" />
+
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-7707196961258408~6869780399" />
     </application>
 
 </manifest>

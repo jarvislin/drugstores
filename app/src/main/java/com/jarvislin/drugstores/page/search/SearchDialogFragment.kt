@@ -25,7 +25,6 @@ import com.jarvislin.drugstores.extension.throttleClick
 import com.jarvislin.drugstores.extension.tint
 import com.jarvislin.drugstores.page.map.MapViewModel
 import com.jarvislin.drugstores.widget.InfoConverter
-import com.jarvislin.drugstores.widget.ModelConverter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -35,7 +34,6 @@ import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import timber.log.Timber
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 
 class SearchDialogFragment : DialogFragment() {
@@ -132,6 +130,9 @@ class SearchDialogFragment : DialogFragment() {
                 adapter.update(it)
                 view.findViewById<ProgressBar>(R.id.progressBar)?.hide()
             })
+
+            viewModel.ad.observe(it, Observer { adapter.setAd(it) })
+            viewModel.ad.value?.let { adapter.setAd(it) }
         }
 
         RxView.clicks(imageBack)

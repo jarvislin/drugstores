@@ -2,10 +2,14 @@ package com.jarvislin.drugstores.page.map
 
 import android.location.Location
 import androidx.lifecycle.MutableLiveData
+import com.google.android.gms.ads.AdLoader
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.formats.UnifiedNativeAd
 import com.google.android.gms.maps.model.LatLng
 import com.jarvislin.domain.entity.DrugstoreInfo
 import com.jarvislin.domain.entity.Progress
 import com.jarvislin.domain.interactor.DrugstoreUseCase
+import com.jarvislin.drugstores.base.App
 import com.jarvislin.drugstores.extension.bind
 import com.jarvislin.drugstores.base.BaseViewModel
 import com.jarvislin.drugstores.data.db.DrugstoreDao
@@ -27,6 +31,7 @@ class MapViewModel : BaseViewModel() {
     val autoUpdate = MutableLiveData<Boolean>()
     val searchedResult = MutableLiveData<List<DrugstoreInfo>>()
     val statusBarHeight = MutableLiveData<Int>()
+    val ad = MutableLiveData<UnifiedNativeAd>()
 
     fun fetchOpenData() {
         useCase.fetchData()
@@ -88,5 +93,18 @@ class MapViewModel : BaseViewModel() {
 
     fun saveStatusBarHeight(height: Int) {
         statusBarHeight.postValue(height)
+    }
+
+    fun requestAd(adId: String, location: Location?) {
+        val adBuilder = AdRequest.Builder()
+            .addTestDevice("94AAY0LJFG")
+        location?.let { adBuilder.setLocation(it) }
+        AdLoader.Builder(App.instance(), adId)
+            .forUnifiedNativeAd {
+                ad.value?.destroy()
+                ad.postValue(it)
+            }
+            .build()
+            .loadAd(adBuilder.build())
     }
 }
