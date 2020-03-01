@@ -24,6 +24,7 @@ import com.jarvislin.drugstores.extension.show
 import com.jarvislin.drugstores.extension.throttleClick
 import com.jarvislin.drugstores.extension.tint
 import com.jarvislin.drugstores.page.map.MapViewModel
+import com.jarvislin.drugstores.widget.InfoConverter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -33,7 +34,6 @@ import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import timber.log.Timber
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 
 class SearchDialogFragment : DialogFragment() {
@@ -81,18 +81,7 @@ class SearchDialogFragment : DialogFragment() {
             }
         }
 
-        // init wording
-        val calendar = Calendar.getInstance(Locale.getDefault())
-        var day = calendar.get(Calendar.DAY_OF_WEEK)
-        if (calendar.firstDayOfWeek == Calendar.SUNDAY) {
-            day--
-        }
-        val text = when (day) {
-            1, 3, 5 -> "單號"
-            2, 4, 6 -> "雙號"
-            else -> "單雙號"
-        }
-        textDateType.text = text
+        textDateType.text = InfoConverter.toDateTypeText()
 
         // init recycler view
         recyclerView.layoutManager =
@@ -141,6 +130,9 @@ class SearchDialogFragment : DialogFragment() {
                 adapter.update(it)
                 view.findViewById<ProgressBar>(R.id.progressBar)?.hide()
             })
+
+            viewModel.ad.observe(it, Observer { adapter.setAd(it) })
+            viewModel.ad.value?.let { adapter.setAd(it) }
         }
 
         RxView.clicks(imageBack)

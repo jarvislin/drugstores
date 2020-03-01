@@ -2,14 +2,17 @@ package com.jarvislin.drugstores.page.detail
 
 import android.content.Context
 import android.content.Intent
+import android.location.Location
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.RadioButton
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
+import com.google.android.gms.ads.formats.UnifiedNativeAd
+import com.google.android.gms.ads.formats.UnifiedNativeAdView
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -25,11 +28,13 @@ import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.base.BaseActivity
 import com.jarvislin.drugstores.extension.*
 import com.jarvislin.drugstores.page.map.MarkerInfoManager
+import com.jarvislin.drugstores.widget.InfoConverter
+import com.jarvislin.drugstores.widget.ModelConverter
+import com.jarvislin.drugstores.widget.OpenTimeView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_detail.*
 import org.jetbrains.anko.toast
 import org.koin.android.ext.android.inject
-import java.util.*
 
 
 class DetailActivity : BaseActivity(),
@@ -39,9 +44,15 @@ class DetailActivity : BaseActivity(),
         private const val FORM_URL =
             "https://docs.google.com/forms/d/e/1FAIpQLSf1lLV7nNoZMFdOER7jmh735zM8W_0G8TJJKDEC3E0ZBPgEMQ/viewform"
         private const val KEY_INFO = "key_info"
-        fun start(context: Context, info: DrugstoreInfo) {
+        private const val KEY_LOCATION = "key_location"
+        fun start(
+            context: Context,
+            info: DrugstoreInfo,
+            location: Location? = null
+        ) {
             Intent(context, DetailActivity::class.java).apply {
                 putExtra(KEY_INFO, info)
+                location?.let { putExtra(KEY_LOCATION, it) }
                 context.startActivity(this)
             }
         }
@@ -49,6 +60,8 @@ class DetailActivity : BaseActivity(),
 
     override val viewModel: DetailViewModel by inject()
     private val info by lazy { intent.getSerializableExtra(KEY_INFO) as DrugstoreInfo }
+    private val location by lazy { intent.getParcelableExtra(KEY_LOCATION) as? Location }
+    private val modelConverter by lazy { ModelConverter() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,10 +74,12 @@ class DetailActivity : BaseActivity(),
         mapFragment.getMapAsync(this)
 
         viewModel.latestMaskStatus.observe(this, Observer { showMaskStatus(it) })
+        viewModel.usesNumberTicket.observe(this, Observer { cardNumberTicket.show() })
         viewModel.fetchMaskStatus(info.id)
+        viewModel.fetchUsesNumberTicket(info.id)
 
-        layoutAdult.background = info.adultMaskAmount.toBackground()
-        layoutChild.background = info.childMaskAmount.toBackground()
+        layoutAdult.background = modelConverter.from(info).toAdultMaskBackground()
+        layoutChild.background = modelConverter.from(info).toChildMaskBackground()
 
         textAdultAmount.text = info.adultMaskAmount.toString()
         textChildAmount.text = info.childMaskAmount.toString()
@@ -72,7 +87,7 @@ class DetailActivity : BaseActivity(),
         textName.text = info.name
         textAddress.text = info.address
         textPhone.text = info.phone
-        textUpdate.text = info.getUpdateWording()
+        textUpdate.text = modelConverter.from(info).toUpdateWording()
         info.note.trim().let {
             if (it.isNotEmpty() && it != "-") {
                 textOpening.text = info.note
@@ -82,18 +97,17 @@ class DetailActivity : BaseActivity(),
             }
         }
 
+        textDateType.text = modelConverter.from(info).toDateType()
 
-        val calendar = Calendar.getInstance(Locale.getDefault())
-        var day = calendar.get(Calendar.DAY_OF_WEEK)
-        if (calendar.firstDayOfWeek == Calendar.SUNDAY) {
-            day--
+        if (info.isValidOpenTime()) {
+            modelConverter.from(info).toOpenTime()
+                .mapIndexed { index: Int, triple: Triple<Boolean, Boolean, Boolean> ->
+                    OpenTimeView(this).apply {
+                        setOpenTime(InfoConverter.toDayOfWeek(index), triple, index)
+                    }
+                }.forEach { layoutOpenTime.addView(it) }
+            cardOpenTime.show()
         }
-        val text = when (day) {
-            1, 3, 5 -> "單號"
-            2, 4, 6 -> "雙號"
-            else -> "單雙號"
-        }
-        textDateType.text = text
 
         RxView.clicks(textInfo)
             .throttleClick()
@@ -113,19 +127,9 @@ class DetailActivity : BaseActivity(),
         RxView.clicks(textShare)
             .throttleClick()
             .subscribe {
-                val wording = if (info.note.isEmpty()) {
-                    ""
-                } else {
-                    info.note + "，"
-                }
                 shareText(
                     "口罩資訊地圖",
-                    "${info.name}位於${info.address}，" +
-                            "$wording" +
-                            "成人口罩數量為：${info.adultMaskAmount}個，" +
-                            "兒童口罩數量為：${info.childMaskAmount}個，" +
-                            "口罩數量更新時間為：${info.updateAt}，" +
-                            "更多資訊請參考口罩資訊地圖：https://play.google.com/store/apps/details?id=com.jarvislin.drugstores"
+                    modelConverter.from(info).toShareContentText()
                 )
             }
             .bind(this)
@@ -135,17 +139,87 @@ class DetailActivity : BaseActivity(),
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { showReportDialog() }
             .bind(this)
+
+
+        viewModel.requestAd(getString(R.string.id_detail), location)
+        viewModel.ad.observe(this, Observer { populateAdView(it) })
+    }
+
+    private fun populateAdView(nativeAd: UnifiedNativeAd) {
+        val adView =
+            LayoutInflater.from(this).inflate(R.layout.view_ad_large, null) as UnifiedNativeAdView
+        adView.bodyView = adView.findViewById<TextView>(R.id.ad_body)
+        adView.starRatingView = adView.findViewById<RatingBar>(R.id.ad_stars)
+        adView.mediaView = adView.findViewById(R.id.ad_media)
+        adView.callToActionView = adView.findViewById<TextView>(R.id.ad_call_to_action)
+        adView.priceView = adView.findViewById<TextView>(R.id.ad_price)
+        adView.storeView = adView.findViewById<TextView>(R.id.ad_store)
+        adView.iconView = adView.findViewById<ImageView>(R.id.ad_app_icon)
+        adView.advertiserView = adView.findViewById(R.id.ad_advertiser)
+
+        adView.mediaView.setImageScaleType(ImageView.ScaleType.CENTER_CROP)
+
+        if (nativeAd.body == null) {
+            adView.bodyView.hide()
+        } else {
+            adView.bodyView.show()
+            (adView.bodyView as TextView).text = nativeAd.body
+        }
+
+        if (nativeAd.callToAction == null) {
+            adView.callToActionView.hide()
+        } else {
+            adView.callToActionView.show()
+            (adView.callToActionView as TextView).text = nativeAd.callToAction
+        }
+
+        if (nativeAd.icon == null) {
+            adView.iconView.hide()
+        } else {
+            (adView.iconView as ImageView).setImageDrawable(
+                nativeAd.icon.drawable
+            )
+            adView.iconView.show()
+        }
+
+        if (nativeAd.price == null) {
+            adView.priceView.hide()
+        } else {
+            adView.priceView.show()
+            (adView.priceView as TextView).text = nativeAd.price
+        }
+
+        if (nativeAd.store == null) {
+            adView.storeView.hide()
+        } else {
+            adView.storeView.show()
+            (adView.storeView as TextView).text = nativeAd.store
+        }
+
+        if (nativeAd.starRating == null) {
+            adView.starRatingView.hide()
+        } else {
+            (adView.starRatingView as RatingBar).rating = nativeAd.starRating!!.toFloat()
+            adView.starRatingView.show()
+        }
+
+        if (nativeAd.advertiser == null) {
+            adView.advertiserView.hide()
+        } else {
+            (adView.advertiserView as TextView).text = nativeAd.advertiser
+            adView.advertiserView.show()
+        }
+
+        adView.setNativeAd(nativeAd)
+
+        cardAd.removeAllViews()
+        cardAd.addView(adView)
+        cardAd.show()
     }
 
     private fun showMaskStatus(maskStatus: MaskStatus) {
-        val text = when (maskStatus.status) {
-            Status.Empty -> getString(R.string.option_empty)
-            Status.Warning -> getString(R.string.option_warning)
-            Status.Sufficient -> getString(R.string.option_sufficient)
-        }
-
-        textMaskStatus.text = "成人口罩$text。"
-        textMaskStatusTime.text = maskStatus.getReportWording()
+        textMaskStatus.text = modelConverter.from(maskStatus).toAmountWording()
+        textMaskStatusTime.text = modelConverter.from(maskStatus).toReportWording()
         cardMaskStatus.show()
     }
 
@@ -153,12 +227,22 @@ class DetailActivity : BaseActivity(),
         val view = LayoutInflater.from(this).inflate(R.layout.dialog_report, null, false)
         val textSeller = view.findViewById<View>(R.id.textSeller)
         val textBuyer = view.findViewById<View>(R.id.textBuyer)
+        val textNumber = view.findViewById<View>(R.id.textNumber)
 
         val dialog = AlertDialog.Builder(this)
             .setTitle("回報相關資訊")
             .setPositiveButton(getString(R.string.dismiss)) { _, _ -> }
             .setView(view)
             .show()
+
+        RxView.clicks(textNumber)
+            .throttleClick()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                dialog.dismiss()
+                showNumberDialog()
+            }
+            .bind(this)
 
         RxView.clicks(textSeller)
             .throttleClick()
@@ -177,6 +261,19 @@ class DetailActivity : BaseActivity(),
                 showBuyerDialog()
             }
             .bind(this)
+    }
+
+    private fun showNumberDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("採用號碼牌制度？")
+            .setMessage("即將回報此藥局採用號碼牌制度")
+            .setNegativeButton(getString(R.string.cancel)) { _, _ -> }
+            .setPositiveButton(getString(R.string.submit)) { _, _ ->
+                viewModel.reportNumberTicket(
+                    info.id
+                )
+            }
+            .show()
     }
 
     private fun showBuyerDialog() {
@@ -276,6 +373,11 @@ class DetailActivity : BaseActivity(),
                 }
             }
             .show()
+    }
+
+    override fun onDestroy() {
+        viewModel.ad.value?.destroy()
+        super.onDestroy()
     }
 }
 

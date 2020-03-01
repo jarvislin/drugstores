@@ -29,16 +29,6 @@ fun Drawable.tint(@ColorInt color: Int) {
     }
 }
 
-fun Int.toBackground(): Drawable? {
-    return ContextCompat.getDrawable(
-        App.instance(), when {
-            this == 0 -> R.drawable.background_empty
-            this in 1..20 -> R.drawable.background_warning
-            else -> R.drawable.background_sufficient
-        }
-    )
-}
-
 fun Drawable.getBitmap(): Bitmap {
     val bitmap = Bitmap.createBitmap(
         this.intrinsicWidth,

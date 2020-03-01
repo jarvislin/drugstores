@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Point
+import android.location.Location
 import android.os.Bundle
 import android.os.Looper
 import android.view.LayoutInflater
@@ -15,6 +16,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
+import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -33,6 +35,7 @@ import com.jarvislin.drugstores.extension.*
 import com.jarvislin.drugstores.page.detail.DetailActivity
 import com.jarvislin.drugstores.page.search.SearchDialogFragment
 import com.jarvislin.drugstores.page.search.SearchDialogFragment.Companion.KEY_INFO
+import com.jarvislin.drugstores.widget.ModelConverter
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -58,9 +61,10 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     private val positionLongitude get() = map.cameraPosition.target.longitude
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private var myLocation: LatLng? = null
+    private var myLocation: Location? = null
     private var lastClickedMarker: Marker? = null
     private var disposableMarkers: Disposable? = null
+    private val modelConverter by lazy { ModelConverter() }
 
     companion object {
         private const val DELAY_MILLISECONDS = 100L
@@ -111,6 +115,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         RxView.clicks(layoutSearch)
             .throttleClick()
             .subscribe {
+                viewModel.requestAd(getString(R.string.id_list), myLocation)
                 val dialogFragment = SearchDialogFragment()
                 dialogFragment.arguments = Bundle().apply {
                     putSerializable(KEY_INFO, viewModel.drugstoreInfo.value?.let { ArrayList(it) }
@@ -135,6 +140,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         })
 
         startDownload()
+        MobileAds.initialize(this)
     }
 
     private fun startDownload() {
@@ -155,7 +161,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
                     super.onLocationResult(result)
                     result?.let {
                         it.locations.firstOrNull()?.let {
-                            myLocation = LatLng(it.latitude, it.longitude)
+                            myLocation = it
                             viewModel.saveLastLocation(it)
                         }
                     }
@@ -172,7 +178,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
             enableMyLocation()
         }
 
-        moveTo(myLocation ?: viewModel.getLastLocation())
+        moveTo(myLocation?.toLatLng() ?: viewModel.getLastLocation())
 
         viewModel.dataPrepared.observe(this, Observer { done ->
             if (done) {
@@ -186,7 +192,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         map.uiSettings.isMapToolbarEnabled = false
 
         map.setOnInfoWindowClickListener {
-            DetailActivity.start(this, cacheManager.getEntireInfo(it))
+            DetailActivity.start(this, cacheManager.getDrugstoreInfo(it), myLocation)
         }
 
         map.setOnCameraIdleListener {
@@ -201,7 +207,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         map.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
             override fun getInfoContents(marker: Marker): View? {
                 lastClickedMarker = marker
-                bindView(infoWindowView, cacheManager.getEntireInfo(marker))
+                bindView(infoWindowView, cacheManager.getDrugstoreInfo(marker))
                 return infoWindowView
             }
 
@@ -225,15 +231,16 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
     private fun bindView(view: View, info: DrugstoreInfo) {
         view.findViewById<TextView>(R.id.textName).text = info.name
-        view.findViewById<TextView>(R.id.textUpdate).text = info.getUpdateWording()
+        view.findViewById<TextView>(R.id.textUpdate).text =
+            modelConverter.from(info).toUpdateWording()
         view.findViewById<TextView>(R.id.textAdultAmount).text =
             info.adultMaskAmount.toString()
         view.findViewById<TextView>(R.id.textChildAmount).text =
             info.childMaskAmount.toString()
         view.findViewById<View>(R.id.layoutAdult).background =
-            info.adultMaskAmount.toBackground()
+            modelConverter.from(info).toAdultMaskBackground()
         view.findViewById<View>(R.id.layoutChild).background =
-            info.childMaskAmount.toBackground()
+            modelConverter.from(info).toChildMaskBackground()
     }
 
 
@@ -267,7 +274,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     private fun checkPermission() {
         if (hasPermission(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION)) {
             enableMyLocation()
-            animateTo(myLocation ?: viewModel.getLastLocation(),
+            animateTo(myLocation?.toLatLng() ?: viewModel.getLastLocation(),
                 callback = { updateFabColor(R.color.colorAccent) })
         } else {
             ActivityCompat.requestPermissions(
@@ -342,6 +349,11 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
             super.onBackPressed()
         }
     }
+
+    override fun onDestroy() {
+        viewModel.ad.value?.destroy()
+        super.onDestroy()
+    }
 }
 
 fun Context.hasPermission(vararg permission: String): Boolean {
@@ -352,3 +364,5 @@ fun Context.hasPermission(vararg permission: String): Boolean {
         ) == PackageManager.PERMISSION_GRANTED
     }
 }
+
+fun Location.toLatLng(): LatLng = LatLng(latitude, longitude)

@@ -13,7 +13,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 29
         versionCode getTimestamp() as Integer ?: 0
-        versionName "1.3.0"
+        versionName "1.4.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         kapt {
             arguments {
@@ -54,7 +54,8 @@ dependencies {
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'com.google.android.gms:play-services-location:17.0.0'
-    implementation 'com.google.android.play:core:1.6.4'
+    implementation 'com.google.android.play:core:1.6.5'
+    implementation 'com.google.android.gms:play-services-ads:18.3.0'
 
     // AAC
     def lifecycle_version = "2.2.0"
@@ -64,9 +65,9 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-livedata-core:$lifecycle_version"
 
     // Firebase
-    implementation 'com.google.firebase:firebase-analytics:17.2.2'
+    implementation 'com.google.firebase:firebase-analytics:17.2.3'
     implementation 'com.google.firebase:firebase-crashlytics:17.0.0-beta01'
-    implementation 'com.google.firebase:firebase-firestore:21.4.0'
+    implementation 'com.google.firebase:firebase-firestore:21.4.1'
     implementation 'com.google.firebase:firebase-auth:19.2.0'
 
     // room
@@ -107,7 +108,7 @@ dependencies {
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.2.0'
 
     // gson
-    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.google.code.gson:gson:2.8.6'
 
 
     androidTestImplementation "androidx.room:room-testing:$room_version"
