@@ -11,4 +11,6 @@
     <string name="option_empty">沒有了</string>
     <string name="option_warning">剩下不多</string>
     <string name="option_sufficient">數量充足</string>
+    <string name="submit">送出</string>
+    <string name="cancel">取消</string>
 </resources>

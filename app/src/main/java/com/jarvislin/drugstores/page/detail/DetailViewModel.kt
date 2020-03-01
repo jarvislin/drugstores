@@ -20,6 +20,7 @@ class DetailViewModel : BaseViewModel() {
     private val useCase: DrugstoreUseCase by inject()
     val latestMaskStatus = MutableLiveData<MaskStatus>()
     val ad = MutableLiveData<UnifiedNativeAd>()
+    val usesNumberTicket = MutableLiveData<Boolean>()
 
     fun reportMaskStatus(id: String, status: Status) {
         useCase.reportMaskStatus(id, status)
@@ -49,8 +50,24 @@ class DetailViewModel : BaseViewModel() {
         AdLoader.Builder(App.instance(), adId)
             .forUnifiedNativeAd {
                 ad.value?.destroy()
-                ad.postValue(it) }
+                ad.postValue(it)
+            }
             .build()
             .loadAd(adBuilder.build())
+    }
+
+    fun reportNumberTicket(id: String) {
+        useCase.reportNumberTicket(id)
+            .subscribe({
+                usesNumberTicket.postValue(true)
+                longToastText.postValue("回報成功")
+            }, { Timber.e(it) })
+            .bind(this)
+    }
+
+    fun fetchUsesNumberTicket(id: String) {
+        useCase.fetchUsesNumberTicket(id)
+            .subscribe({ usesNumberTicket.postValue(it) }, { Timber.e(it) })
+            .bind(this)
     }
 }

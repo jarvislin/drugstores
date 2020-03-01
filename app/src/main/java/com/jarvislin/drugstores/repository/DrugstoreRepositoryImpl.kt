@@ -37,6 +37,7 @@ class DrugstoreRepositoryImpl(
         private const val COLLECTION_REPORTS = "reports"
         private const val FILED_STATUS = "status"
         private const val FILED_TIMESTAMP = "timestamp"
+        private const val FILED_USES_NUMBER_TICKET = "uses_number_ticket"
     }
 
     override fun saveDrugstoreInfo(data: List<DrugstoreInfo>): Completable {
@@ -157,6 +158,39 @@ class DrugstoreRepositoryImpl(
                 }
                 .addOnFailureListener { emitter.onError(it) }
         }.subscribeOn(Schedulers.io())
+    }
+
+    override fun reportNumberTicket(id: String): Completable {
+        val data = hashMapOf(
+            FILED_USES_NUMBER_TICKET to true
+        )
+
+        return Completable.create { emitter ->
+            db.collection(COLLECTION_ROOT)
+                .document(id)
+                .set(data)
+                .addOnSuccessListener { emitter.onComplete() }
+                .addOnFailureListener { emitter.onError(it) }
+        }
+            .subscribeOn(Schedulers.io())
+    }
+
+    override fun fetchUsesNumberTicket(id: String): Maybe<Boolean> {
+        return Maybe.create<Boolean> { emitter ->
+            db.collection(COLLECTION_ROOT)
+                .document(id)
+                .get()
+                .addOnSuccessListener {
+                    val usesNumberTicket = it.getBoolean(FILED_USES_NUMBER_TICKET)
+                    if (usesNumberTicket == null) {
+                        emitter.onComplete()
+                    } else {
+                        emitter.onSuccess(usesNumberTicket)
+                    }
+                }
+                .addOnFailureListener { emitter.onError(it) }
+        }
+            .subscribeOn(Schedulers.io())
     }
 
     override fun isValidReportTime(): Boolean {
