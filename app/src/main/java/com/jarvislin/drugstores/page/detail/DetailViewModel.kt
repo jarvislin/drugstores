@@ -48,6 +48,7 @@ class DetailViewModel : BaseViewModel() {
     fun requestAd(adId: String, location: Location?) {
         val videoOptions = VideoOptions.Builder()
             .setClickToExpandRequested(true)
+            .setCustomControlsRequested(true)
             .build()
 
         val adOptions = NativeAdOptions.Builder()

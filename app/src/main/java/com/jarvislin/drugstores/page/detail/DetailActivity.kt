@@ -157,8 +157,6 @@ class DetailActivity : BaseActivity(),
         adView.iconView = adView.findViewById<ImageView>(R.id.ad_app_icon)
         adView.advertiserView = adView.findViewById(R.id.ad_advertiser)
 
-        adView.mediaView.setImageScaleType(ImageView.ScaleType.CENTER_CROP)
-
         if (nativeAd.body == null) {
             adView.bodyView.hide()
         } else {
@@ -215,6 +213,12 @@ class DetailActivity : BaseActivity(),
         cardAd.removeAllViews()
         cardAd.addView(adView)
         cardAd.show()
+
+        nativeAd.videoController.let {
+            if (it.hasVideoContent() && it.isCustomControlsEnabled) {
+                it.play()
+            }
+        }
     }
 
     private fun showMaskStatus(maskStatus: MaskStatus) {

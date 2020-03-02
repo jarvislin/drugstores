@@ -149,7 +149,6 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             adView.storeView = adView.findViewById<TextView>(R.id.ad_store)
             adView.iconView = adView.findViewById<ImageView>(R.id.ad_app_icon)
             adView.advertiserView = adView.findViewById(R.id.ad_advertiser)
-            adView.mediaView.setImageScaleType(ImageView.ScaleType.CENTER_CROP)
 
             if (ad!!.body == null) {
                 adView.bodyView.hide()
@@ -207,6 +206,12 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             (itemView as ViewGroup).apply {
                 removeAllViews()
                 addView(adView)
+            }
+
+            ad?.videoController?.let {
+                if (it.hasVideoContent() && it.isCustomControlsEnabled) {
+                    it.play()
+                }
             }
         }
 
