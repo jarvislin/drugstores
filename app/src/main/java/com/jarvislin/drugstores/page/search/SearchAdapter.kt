@@ -65,7 +65,7 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     fun setAd(ad: UnifiedNativeAd) {
         this.ad = ad
-        if (info.size >= 3 && info[POSITION_AD] !is AdItem) {
+        if (info.size > 3 && info[POSITION_AD] !is AdItem) {
             info.add(POSITION_AD, AdItem())
             notifyDataSetChanged()
         }

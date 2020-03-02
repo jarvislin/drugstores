@@ -4,6 +4,8 @@ import android.location.Location
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.ads.AdLoader
 import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.VideoOptions
+import com.google.android.gms.ads.formats.NativeAdOptions
 import com.google.android.gms.ads.formats.UnifiedNativeAd
 import com.google.android.gms.maps.model.LatLng
 import com.jarvislin.domain.entity.DrugstoreInfo
@@ -96,14 +98,24 @@ class MapViewModel : BaseViewModel() {
     }
 
     fun requestAd(adId: String, location: Location?) {
+        val videoOptions = VideoOptions.Builder()
+            .setClickToExpandRequested(true)
+            .build()
+
+        val adOptions = NativeAdOptions.Builder()
+            .setVideoOptions(videoOptions)
+            .build()
+
         val adBuilder = AdRequest.Builder()
             .addTestDevice("94AAY0LJFG")
+
         location?.let { adBuilder.setLocation(it) }
         AdLoader.Builder(App.instance(), adId)
             .forUnifiedNativeAd {
                 ad.value?.destroy()
                 ad.postValue(it)
             }
+            .withNativeAdOptions(adOptions)
             .build()
             .loadAd(adBuilder.build())
     }
