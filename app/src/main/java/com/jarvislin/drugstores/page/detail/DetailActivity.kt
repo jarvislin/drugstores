@@ -11,6 +11,14 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
+import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.components.YAxis
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.ValueFormatter
+import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.android.gms.ads.formats.UnifiedNativeAd
 import com.google.android.gms.ads.formats.UnifiedNativeAdView
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -22,11 +30,13 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.jakewharton.rxbinding2.view.RxView
 import com.jarvislin.domain.entity.DrugstoreInfo
+import com.jarvislin.domain.entity.MaskRecord
 import com.jarvislin.domain.entity.MaskStatus
 import com.jarvislin.domain.entity.Status
 import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.base.BaseActivity
 import com.jarvislin.drugstores.extension.*
+import com.jarvislin.drugstores.page.chart.ChartActivity
 import com.jarvislin.drugstores.page.map.MarkerInfoManager
 import com.jarvislin.drugstores.widget.InfoConverter
 import com.jarvislin.drugstores.widget.ModelConverter
@@ -35,6 +45,10 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_detail.*
 import org.jetbrains.anko.toast
 import org.koin.android.ext.android.inject
+import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class DetailActivity : BaseActivity(),
@@ -109,6 +123,15 @@ class DetailActivity : BaseActivity(),
             cardOpenTime.show()
         }
 
+        viewModel.requestAd(getString(R.string.id_detail), location)
+        viewModel.ad.observe(this, Observer { populateAdView(it) })
+
+        viewModel.fetchRecords(info.id)
+        viewModel.records.observe(this, Observer {
+            populateChartView(it)
+            Timber.e(it.toJson())
+        })
+
         RxView.clicks(textInfo)
             .throttleClick()
             .subscribe { showInfoDialog() }
@@ -140,9 +163,89 @@ class DetailActivity : BaseActivity(),
             .subscribe { showReportDialog() }
             .bind(this)
 
+        RxView.clicks(textRecords)
+            .throttleClick()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { showRecordsDialog() }
+            .bind(this)
+    }
 
-        viewModel.requestAd(getString(R.string.id_detail), location)
-        viewModel.ad.observe(this, Observer { populateAdView(it) })
+    private fun showRecordsDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("庫存量說明")
+            .setMessage("收錄早上七點至晚上十點的存量資料，用來推測約略的口罩販售時間。")
+            .setPositiveButton(getString(R.string.dismiss)) { _, _ -> }
+            .show()
+    }
+
+    private fun populateChartView(records: List<MaskRecord>) {
+
+        val rightAxis = chartView.axisRight
+        rightAxis.setDrawAxisLine(false)
+        rightAxis.setDrawGridLines(false)
+        rightAxis.setDrawLabels(false)
+
+        val leftAxis = chartView.axisLeft
+        leftAxis.setDrawGridLines(true)
+        leftAxis.axisMinimum = 0f
+        leftAxis.textSize = 14.5f
+        leftAxis.textColor = ContextCompat.getColor(this, R.color.primaryText)
+
+        val xAxis = chartView.xAxis
+        xAxis.setDrawGridLines(false)
+        xAxis.labelRotationAngle = -60f
+        xAxis.textSize = 13.5f
+        xAxis.textColor = ContextCompat.getColor(this, R.color.secondaryText)
+        xAxis.granularity = 1f
+        xAxis.position = XAxis.XAxisPosition.BOTTOM
+
+        val adults = ArrayList<Entry>()
+        val children = ArrayList<Entry>()
+        val dates = ArrayList<Date>()
+
+        records.forEachIndexed { index, maskRecord ->
+            adults.add(Entry(index.toFloat(), maskRecord.adultAmount.toFloat()))
+            children.add(Entry(index.toFloat(), maskRecord.childAmount.toFloat()))
+            dates.add(maskRecord.date)
+        }
+
+        val adultsDataSet =
+            initLineDataSetSettings(LineDataSet(adults, "成人"), ColorTemplate.JOYFUL_COLORS[0])
+        val childrenDataSet =
+            initLineDataSetSettings(LineDataSet(children, "兒童"), ColorTemplate.JOYFUL_COLORS[3])
+
+        chartView.data = LineData(adultsDataSet, childrenDataSet)
+        chartView.setExtraOffsets(12f, 0f, 24f, 16f)
+        chartView.xAxis.valueFormatter = ChartDateFormatter(dates, "HH:mm")
+        chartView.description.text = ""
+        chartView.legend.apply {
+            horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
+            verticalAlignment = Legend.LegendVerticalAlignment.TOP
+            yOffset = 12f
+            formSize = 14f
+            textSize = 14f
+            form = Legend.LegendForm.LINE
+        }
+        chartView.setTouchEnabled(false)
+
+        chartView.invalidate()
+        cardChart.show()
+    }
+
+    private fun initLineDataSetSettings(lineDataSet: LineDataSet, color: Int): LineDataSet {
+        lineDataSet.color = color
+        lineDataSet.lineWidth = 1f
+        lineDataSet.setCircleColor(color)
+        lineDataSet.circleRadius = 1.5f
+        lineDataSet.fillColor = color
+        lineDataSet.mode = LineDataSet.Mode.LINEAR
+        lineDataSet.setDrawValues(false)
+        lineDataSet.setDrawCircles(false)
+        lineDataSet.valueTextSize = 14f
+        lineDataSet.valueTextColor = color
+        lineDataSet.axisDependency = YAxis.AxisDependency.LEFT
+
+        return lineDataSet
     }
 
     private fun populateAdView(nativeAd: UnifiedNativeAd) {
@@ -385,3 +488,13 @@ class DetailActivity : BaseActivity(),
     }
 }
 
+class ChartDateFormatter(
+    private val dates: List<Date>,
+    private val pattern: String = "MM.dd HH:mm"
+) : ValueFormatter() {
+    override fun getFormattedValue(value: Float): String {
+        return value.toInt().let {
+            SimpleDateFormat(pattern, Locale.getDefault()).format(dates[it])
+        }
+    }
+}

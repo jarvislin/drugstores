@@ -8,6 +8,7 @@ import com.google.android.gms.ads.VideoOptions
 import com.google.android.gms.ads.formats.NativeAdOptions
 import com.google.android.gms.ads.formats.UnifiedNativeAd
 import com.jarvislin.domain.entity.InvalidReportTimeException
+import com.jarvislin.domain.entity.MaskRecord
 import com.jarvislin.domain.entity.MaskStatus
 import com.jarvislin.domain.entity.Status
 import com.jarvislin.domain.interactor.DrugstoreUseCase
@@ -21,6 +22,7 @@ import java.util.*
 class DetailViewModel : BaseViewModel() {
     private val useCase: DrugstoreUseCase by inject()
     val latestMaskStatus = MutableLiveData<MaskStatus>()
+    val records = MutableLiveData<List<MaskRecord>>()
     val ad = MutableLiveData<UnifiedNativeAd>()
     val usesNumberTicket = MutableLiveData<Boolean>()
 
@@ -81,6 +83,12 @@ class DetailViewModel : BaseViewModel() {
     fun fetchUsesNumberTicket(id: String) {
         useCase.fetchUsesNumberTicket(id)
             .subscribe({ usesNumberTicket.postValue(it) }, { Timber.e(it) })
+            .bind(this)
+    }
+
+    fun fetchRecords(id: String) {
+        useCase.fetchRecords(id)
+            .subscribe({ records.postValue(it) }, { Timber.e(it) })
             .bind(this)
     }
 }

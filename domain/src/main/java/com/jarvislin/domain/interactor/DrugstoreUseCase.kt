@@ -56,4 +56,8 @@ class DrugstoreUseCase(private val drugstoreRepository: DrugstoreRepository) {
     fun fetchUsesNumberTicket(id: String): Maybe<Boolean> {
         return drugstoreRepository.fetchUsesNumberTicket(id)
     }
+
+    fun fetchRecords(id: String): Maybe<List<MaskRecord>> {
+        return drugstoreRepository.fetchRecords(id)
+    }
 }
