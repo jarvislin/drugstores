@@ -110,6 +110,9 @@ dependencies {
     // gson
     implementation 'com.google.code.gson:gson:2.8.6'
 
+    // chart
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
 
     androidTestImplementation "androidx.room:room-testing:$room_version"
     testImplementation 'junit:junit:4.12'

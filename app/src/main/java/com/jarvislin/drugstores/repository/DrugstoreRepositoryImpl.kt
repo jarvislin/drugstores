@@ -35,9 +35,12 @@ class DrugstoreRepositoryImpl(
             "https://raw.githubusercontent.com/kiang/pharmacies/master/json/points.json"
         private const val COLLECTION_ROOT = "drugstores"
         private const val COLLECTION_REPORTS = "reports"
+        private const val COLLECTION_HISTORIES = "histories"
         private const val FILED_STATUS = "status"
         private const val FILED_TIMESTAMP = "timestamp"
         private const val FILED_USES_NUMBER_TICKET = "uses_number_ticket"
+        private const val FILED_MASK_ADULT = "mask_adult"
+        private const val FILED_MASK_CHILD = "mask_child"
     }
 
     override fun saveDrugstoreInfo(data: List<DrugstoreInfo>): Completable {
@@ -191,6 +194,41 @@ class DrugstoreRepositoryImpl(
                 .addOnFailureListener { emitter.onError(it) }
         }
             .subscribeOn(Schedulers.io())
+    }
+
+    override fun fetchRecords(id: String): Maybe<List<MaskRecord>> {
+        return Maybe.create<List<MaskRecord>> { emitter ->
+            db.collection(COLLECTION_ROOT)
+                .document(id)
+                .collection(COLLECTION_HISTORIES)
+                .orderBy(FILED_TIMESTAMP, Query.Direction.DESCENDING)
+                .limit(31)
+                .get()
+                .addOnSuccessListener {
+                    if (it.isEmpty) {
+                        emitter.onComplete()
+                    } else {
+                        it.documents.filter {
+                            it.getLong(FILED_MASK_ADULT) != null &&
+                                    it.getLong(FILED_MASK_CHILD) != null &&
+                                    it.getDate(FILED_TIMESTAMP) != null
+                        }.map {
+                            MaskRecord(
+                                it.getLong(FILED_MASK_ADULT)!!.toInt(),
+                                it.getLong(FILED_MASK_CHILD)!!.toInt(),
+                                it.getDate(FILED_TIMESTAMP)!!
+                            )
+                        }.let {
+                            if (it.isEmpty()) {
+                                emitter.onComplete()
+                            } else {
+                                emitter.onSuccess(it.sortedBy { it.date })
+                            }
+                        }
+                    }
+                }
+                .addOnFailureListener { emitter.onError(it) }
+        }.subscribeOn(Schedulers.io())
     }
 
     override fun isValidReportTime(): Boolean {
