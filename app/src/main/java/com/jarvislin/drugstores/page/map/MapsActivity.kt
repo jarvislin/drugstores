@@ -338,6 +338,9 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     }
 
     private fun enableMyLocation() {
+        if (::map.isInitialized.not()) {
+            return
+        }
         map.uiSettings.isMyLocationButtonEnabled = false
         map.isMyLocationEnabled = true
     }
