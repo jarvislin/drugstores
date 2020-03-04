@@ -36,7 +36,6 @@ import com.jarvislin.domain.entity.Status
 import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.base.BaseActivity
 import com.jarvislin.drugstores.extension.*
-import com.jarvislin.drugstores.page.chart.ChartActivity
 import com.jarvislin.drugstores.page.map.MarkerInfoManager
 import com.jarvislin.drugstores.widget.InfoConverter
 import com.jarvislin.drugstores.widget.ModelConverter
