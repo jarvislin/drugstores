@@ -10,6 +10,7 @@
     <color name="secondaryIcons">@color/secondaryText</color>
     <color name="divider">#BDBDBD</color>
     <color name="white">@android:color/white</color>
+    <color name="chart">#F5F5F5</color>
 
     <!--  mask  -->
     <color name="warning">#E67F22</color>
