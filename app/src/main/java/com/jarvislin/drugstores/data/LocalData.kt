@@ -1,17 +1,24 @@
 package com.jarvislin.drugstores.data
 
 import android.content.Context
+import com.jarvislin.domain.entity.Proclamation
 import com.jarvislin.drugstores.data.Preferences.Companion.PREFERENCE_NAME
+import com.jarvislin.drugstores.extension.toList
 import java.util.*
 
 class LocalData(private val context: Context) {
     companion object {
         private const val KEY_LAST_LOCATION = "key_last_location"
         private const val KEY_LAST_REPORT_TIMESTAMP = "key_last_report_timestamp"
+        private const val KEY_PROCLAMATIONS = "key_proclamations"
     }
+
+    val proclamations: List<Proclamation>
+        get() = proclamationsText.toList()
 
     var lastLocation: String by preferences(KEY_LAST_LOCATION, "25.0393868,121.5087163")
     var lastReportTimestamp: Long by preferences(KEY_LAST_REPORT_TIMESTAMP, 0L)
+    var proclamationsText: String by preferences(KEY_PROCLAMATIONS, "[]")
 
 
     private fun <T : Any> preferences(name: String, defaultValue: T) =

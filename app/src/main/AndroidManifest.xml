@@ -39,6 +39,8 @@
             android:name=".page.map.MapsActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Translucent" />
+        <activity android:name=".page.proclamation.ProclamationActivity" />
+        <activity android:name=".page.proclamation.PreviewActivity" />
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
