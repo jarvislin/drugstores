@@ -172,7 +172,7 @@ class DetailActivity : BaseActivity(),
     private fun showRecordsDialog() {
         AlertDialog.Builder(this)
             .setTitle("庫存量說明")
-            .setMessage("收錄早上七點至晚上十點的存量資料，用來推測約略的口罩販售時間。")
+            .setMessage("收錄早上七點至晚上十點的存量資料，用來推測約略的口罩販售時間；圖表支援水平及垂直的兩指縮放功能。")
             .setPositiveButton(getString(R.string.dismiss)) { _, _ -> }
             .show()
     }
@@ -225,7 +225,6 @@ class DetailActivity : BaseActivity(),
             textSize = 14f
             form = Legend.LegendForm.LINE
         }
-        chartView.setTouchEnabled(false)
 
         chartView.invalidate()
         cardChart.show()
