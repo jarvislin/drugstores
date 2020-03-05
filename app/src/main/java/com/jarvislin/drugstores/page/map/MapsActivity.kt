@@ -81,6 +81,8 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
 
+        checkPermission()
+
         // init margin
         val id = resources.getIdentifier("status_bar_height", "dimen", "android");
         if (id > 0) {
@@ -110,6 +112,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         fusedLocationClient.lastLocation.addOnSuccessListener { viewModel.saveLastLocation(it) }
         requestLocation()
+        moveToMyLocation()
 
         // handle search
         RxView.clicks(layoutSearch)
@@ -272,7 +275,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
 
     private fun checkPermission() {
-        if (hasPermission(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION)) {
+        if (hasPermission(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION) && ::map.isInitialized) {
             enableMyLocation()
             animateTo(myLocation?.toLatLng() ?: viewModel.getLastLocation(),
                 callback = { updateFabColor(R.color.colorAccent) })
@@ -334,7 +337,21 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         if (hasPermission(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION)) {
             enableMyLocation()
             requestLocation()
+            moveToMyLocation()
         }
+    }
+
+    private fun moveToMyLocation() {
+        Flowable.interval(600, TimeUnit.MILLISECONDS)
+            .take(5)
+            .subscribeOn(Schedulers.computation())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                if (::map.isInitialized) {
+                    myLocation?.let { moveTo(it.toLatLng()) }
+                }
+            }, { Timber.e(it) })
+            .bind(this)
     }
 
     private fun enableMyLocation() {
