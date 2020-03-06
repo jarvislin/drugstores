@@ -64,6 +64,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     private var myLocation: Location? = null
     private var lastClickedMarker: Marker? = null
     private var disposableMarkers: Disposable? = null
+    private var disposableLocation: Disposable? = null
     private val modelConverter by lazy { ModelConverter() }
 
     companion object {
@@ -342,16 +343,17 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     }
 
     private fun moveToMyLocation() {
-        Flowable.interval(600, TimeUnit.MILLISECONDS)
-            .take(5)
+        disposableLocation = Flowable.interval(600, TimeUnit.MILLISECONDS)
+            .take(6)
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 if (::map.isInitialized) {
                     myLocation?.let { moveTo(it.toLatLng()) }
+                    disposableLocation?.dispose()
                 }
             }, { Timber.e(it) })
-            .bind(this)
+            .addTo(compositeDisposable)
     }
 
     private fun enableMyLocation() {

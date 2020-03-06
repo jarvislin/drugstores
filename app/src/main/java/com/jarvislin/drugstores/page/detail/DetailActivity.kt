@@ -188,6 +188,7 @@ class DetailActivity : BaseActivity(),
         leftAxis.setDrawGridLines(true)
         leftAxis.axisMinimum = 0f
         leftAxis.textSize = 14.5f
+        leftAxis.granularity = 1f
         leftAxis.textColor = ContextCompat.getColor(this, R.color.primaryText)
 
         val xAxis = chartView.xAxis
