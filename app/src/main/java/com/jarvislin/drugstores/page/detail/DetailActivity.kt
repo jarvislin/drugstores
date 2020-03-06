@@ -57,7 +57,7 @@ class DetailActivity : BaseActivity(),
         private const val FORM_URL =
             "https://docs.google.com/forms/d/e/1FAIpQLSf1lLV7nNoZMFdOER7jmh735zM8W_0G8TJJKDEC3E0ZBPgEMQ/viewform"
         private const val KEY_INFO = "key_info"
-        private const val KEY_LOCATION = "key_location"
+        const val KEY_LOCATION = "key_location"
         fun start(
             context: Context,
             info: DrugstoreInfo,
@@ -111,6 +111,7 @@ class DetailActivity : BaseActivity(),
         }
 
         textDateType.text = modelConverter.from(info).toDateType()
+        textDistance.text = modelConverter.from(info).toDistance(location)
 
         if (info.isValidOpenTime()) {
             modelConverter.from(info).toOpenTime()

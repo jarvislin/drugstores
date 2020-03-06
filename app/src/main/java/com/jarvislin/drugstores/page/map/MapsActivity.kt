@@ -33,6 +33,7 @@ import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.base.BaseActivity
 import com.jarvislin.drugstores.extension.*
 import com.jarvislin.drugstores.page.detail.DetailActivity
+import com.jarvislin.drugstores.page.detail.DetailActivity.Companion.KEY_LOCATION
 import com.jarvislin.drugstores.page.search.SearchDialogFragment
 import com.jarvislin.drugstores.page.search.SearchDialogFragment.Companion.KEY_INFO
 import com.jarvislin.drugstores.widget.ModelConverter
@@ -122,6 +123,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
                 dialogFragment.arguments = Bundle().apply {
                     putSerializable(KEY_INFO, viewModel.drugstoreInfo.value?.let { ArrayList(it) }
                         ?: ArrayList<DrugstoreInfo>())
+                    putParcelable(KEY_LOCATION, myLocation)
                 }
                 dialogFragment.show(supportFragmentManager, "Search")
             }.bind(this)

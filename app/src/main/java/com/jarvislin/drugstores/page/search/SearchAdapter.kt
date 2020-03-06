@@ -1,5 +1,6 @@
 package com.jarvislin.drugstores.page.search
 
+import android.location.Location
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,6 +23,7 @@ import io.reactivex.rxkotlin.addTo
 
 class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    private var location: Location? = null
     private var ad: UnifiedNativeAd? = null
     private val info = ArrayList<Item>()
     private val compositeDisposable = CompositeDisposable()
@@ -57,9 +59,10 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     }
 
-    fun update(info: List<DrugstoreInfo>) {
+    fun update(info: List<DrugstoreInfo>, location: Location?) {
         this.info.clear()
         this.info.addAll(info)
+        this.location = location
         notifyDataSetChanged()
     }
 
@@ -83,6 +86,7 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         private val textChildAmount: TextView = itemView.findViewById(R.id.textChildAmount)
         private val textName: TextView = itemView.findViewById(R.id.textName)
         private val textUpdate: TextView = itemView.findViewById(R.id.textUpdate)
+        private val textDistance: TextView = itemView.findViewById(R.id.textDistance)
         private val textAddress: TextView = itemView.findViewById(R.id.textAddress)
         private val textNote: TextView = itemView.findViewById(R.id.textNote)
         private val layoutCard: View = itemView.findViewById(R.id.layoutCard)
@@ -99,6 +103,7 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             textName.text = drugstoreInfo.name
             textAddress.text = drugstoreInfo.address
             textUpdate.text = modelConverter.from(drugstoreInfo).toUpdateWording()
+            textDistance.text = modelConverter.from(drugstoreInfo).toDistance(location)
             drugstoreInfo.note.trim().let {
                 if (it.isNotEmpty() && it != "-") {
                     textNote.text = drugstoreInfo.note
@@ -110,7 +115,7 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
             RxView.clicks(layoutCard)
                 .throttleClick()
-                .subscribe { DetailActivity.start(itemView.context, drugstoreInfo) }
+                .subscribe { DetailActivity.start(itemView.context, drugstoreInfo, location) }
                 .addTo(compositeDisposable)
 
             RxView.clicks(textShare)

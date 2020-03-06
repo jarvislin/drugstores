@@ -5,7 +5,7 @@ import com.jarvislin.drugstores.R
 object MarkerInfoManager {
     fun getMarkerInfo(maskAmount: Int): MarkerInfo {
         return when (maskAmount) {
-            in 0..0 -> MarkerInfo.Empty
+            0 -> MarkerInfo.Empty
             in 1..20 -> MarkerInfo.Warning
             else -> MarkerInfo.Sufficient
         }
