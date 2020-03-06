@@ -82,8 +82,6 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
 
-        checkPermission()
-
         // init margin
         val id = resources.getIdentifier("status_bar_height", "dimen", "android");
         if (id > 0) {
@@ -145,6 +143,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
         startDownload()
         MobileAds.initialize(this)
+        checkPermission()
     }
 
     private fun startDownload() {
@@ -158,21 +157,23 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     }
 
     private fun requestLocation() {
-        fusedLocationClient.requestLocationUpdates(
-            LocationRequest().setInterval(30_000), object : LocationCallback() {
-                override fun onLocationResult(result: LocationResult?) {
-                    Timber.i("location update")
-                    super.onLocationResult(result)
-                    result?.let {
-                        it.locations.firstOrNull()?.let {
-                            myLocation = it
-                            viewModel.saveLastLocation(it)
+        if (::fusedLocationClient.isInitialized) {
+            fusedLocationClient.requestLocationUpdates(
+                LocationRequest().setInterval(30_000), object : LocationCallback() {
+                    override fun onLocationResult(result: LocationResult?) {
+                        Timber.i("location update")
+                        super.onLocationResult(result)
+                        result?.let {
+                            it.locations.firstOrNull()?.let {
+                                myLocation = it
+                                viewModel.saveLastLocation(it)
+                            }
                         }
                     }
-                }
-            },
-            Looper.getMainLooper()
-        )
+                },
+                Looper.getMainLooper()
+            )
+        }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
