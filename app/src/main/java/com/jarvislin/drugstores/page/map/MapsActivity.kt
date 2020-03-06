@@ -64,6 +64,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     private var myLocation: Location? = null
     private var lastClickedMarker: Marker? = null
     private var disposableMarkers: Disposable? = null
+    private var disposableLocation: Disposable? = null
     private val modelConverter by lazy { ModelConverter() }
 
     companion object {
@@ -80,6 +81,8 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
+
+        checkPermission()
 
         // init margin
         val id = resources.getIdentifier("status_bar_height", "dimen", "android");
@@ -110,6 +113,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         fusedLocationClient.lastLocation.addOnSuccessListener { viewModel.saveLastLocation(it) }
         requestLocation()
+        moveToMyLocation()
 
         // handle search
         RxView.clicks(layoutSearch)
@@ -272,7 +276,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
 
     private fun checkPermission() {
-        if (hasPermission(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION)) {
+        if (hasPermission(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION) && ::map.isInitialized) {
             enableMyLocation()
             animateTo(myLocation?.toLatLng() ?: viewModel.getLastLocation(),
                 callback = { updateFabColor(R.color.colorAccent) })
@@ -334,7 +338,22 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         if (hasPermission(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION)) {
             enableMyLocation()
             requestLocation()
+            moveToMyLocation()
         }
+    }
+
+    private fun moveToMyLocation() {
+        disposableLocation = Flowable.interval(600, TimeUnit.MILLISECONDS)
+            .take(6)
+            .subscribeOn(Schedulers.computation())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                if (::map.isInitialized) {
+                    myLocation?.let { moveTo(it.toLatLng()) }
+                    disposableLocation?.dispose()
+                }
+            }, { Timber.e(it) })
+            .addTo(compositeDisposable)
     }
 
     private fun enableMyLocation() {
