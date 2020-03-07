@@ -2,6 +2,7 @@ package com.jarvislin.drugstores.page.search
 
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -23,6 +24,7 @@ import com.jarvislin.drugstores.extension.hide
 import com.jarvislin.drugstores.extension.show
 import com.jarvislin.drugstores.extension.throttleClick
 import com.jarvislin.drugstores.extension.tint
+import com.jarvislin.drugstores.page.detail.DetailActivity.Companion.KEY_LOCATION
 import com.jarvislin.drugstores.page.map.MapViewModel
 import com.jarvislin.drugstores.widget.InfoConverter
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -105,6 +107,8 @@ class SearchDialogFragment : DialogFragment() {
 
         doNotUpdate = viewModel.searchedResult.value != null
 
+        val location = arguments?.getParcelable<Location>(KEY_LOCATION)
+
         // handle keyword
         RxTextView.afterTextChangeEvents(editSearch)
             .observeOn(AndroidSchedulers.mainThread())
@@ -115,7 +119,7 @@ class SearchDialogFragment : DialogFragment() {
                 if (keyword.isNotEmpty()) {
                     viewModel.searchAddress(it.view().text.toString())
                 } else if (info != null) {
-                    adapter.update(info)
+                    adapter.update(info, location)
                     progressBar.hide()
                 }
             }, { Timber.e(it) })
@@ -127,7 +131,7 @@ class SearchDialogFragment : DialogFragment() {
                     doNotUpdate = false
                     return@Observer
                 }
-                adapter.update(it)
+                adapter.update(it, location)
                 view.findViewById<ProgressBar>(R.id.progressBar)?.hide()
             })
 

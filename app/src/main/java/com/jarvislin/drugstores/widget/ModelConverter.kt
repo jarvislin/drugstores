@@ -1,14 +1,18 @@
 package com.jarvislin.drugstores.widget
 
 import android.graphics.drawable.Drawable
+import android.location.Location
 import androidx.core.content.ContextCompat
 import com.jarvislin.domain.entity.DrugstoreInfo
 import com.jarvislin.domain.entity.MaskStatus
 import com.jarvislin.domain.entity.Status
 import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.base.App
+import com.jarvislin.drugstores.page.map.toLatLng
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.round
+
 
 class ModelConverter {
     fun from(info: DrugstoreInfo) = InfoConverter(info)
@@ -84,6 +88,23 @@ class InfoConverter(private val info: DrugstoreInfo) {
     }
 
     fun toDateType() = toDateTypeText()
+    fun toDistance(location: Location?): String {
+        location?.toLatLng()?.let {
+            val result = FloatArray(1)
+            Location.distanceBetween(
+                it.latitude, it.longitude,
+                info.lat, info.lng,
+                result
+            )
+            return when (val meter = result.first()) {
+                in 0f..50f -> "約 50 公尺內"
+                in 51f..999f -> "約 ${meter.toInt()} 公尺"
+                in 1000f..30000f -> "約 ${(meter/1000).round(1)} 公里"
+                else -> "超過 30 公里"
+            }
+        }
+        return ""
+    }
 
     companion object {
         fun toDateTypeText(): String {
@@ -136,4 +157,10 @@ class MaskStatusConverter(private val maskStatus: MaskStatus) {
 
         return "成人口罩$text。"
     }
+}
+
+fun Float.round(decimals: Int): Double {
+    var multiplier = 1.0
+    repeat(decimals) { multiplier *= 10 }
+    return round(this * multiplier) / multiplier
 }
