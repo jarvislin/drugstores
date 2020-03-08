@@ -144,7 +144,8 @@
         android:layout_gravity="start"
         android:background="@color/white"
         app:headerLayout="@layout/drawer_header"
-        app:itemIconPadding="8dp"
+        app:itemTextAppearance="@style/TextAppearance.Navigation"
+        app:itemIconPadding="16dp"
         app:menu="@menu/drawer">
 
         <TextView

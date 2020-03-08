@@ -15,4 +15,9 @@
     <style name="DialogTheme" parent="@style/Base.Theme.AppCompat.Light.Dialog">
         <item name="android:windowTranslucentStatus">true</item>
     </style>
+
+    <style name="TextAppearance.Navigation" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/secondaryText</item>
+        <item name="android:textSize">16sp</item>
+    </style>
 </resources>

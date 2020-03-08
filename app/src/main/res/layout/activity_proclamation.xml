@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FAFAFA"
     android:clipChildren="false"
-    android:clipToPadding="false"
-    android:background="#FAFAFA">
+    android:clipToPadding="false">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -25,6 +25,7 @@
         android:layout_height="0dp"
         android:clipToPadding="false"
         android:paddingTop="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar"
         tools:listitem="@layout/item_proclamation" />
 </androidx.constraintlayout.widget.ConstraintLayout>

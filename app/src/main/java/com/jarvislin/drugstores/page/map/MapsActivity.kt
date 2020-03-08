@@ -32,6 +32,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.jakewharton.rxbinding2.view.RxView
 import com.jarvislin.domain.entity.DrugstoreInfo
 import com.jarvislin.domain.entity.Progress
+import com.jarvislin.drugstores.BuildConfig
 import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.base.BaseActivity
 import com.jarvislin.drugstores.extension.*
@@ -123,6 +124,8 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
             drawerView.closeDrawer(GravityCompat.START)
             true
         }
+
+        textVersion.text = getString(R.string.version).format(BuildConfig.VERSION_NAME)
 
         // map
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
