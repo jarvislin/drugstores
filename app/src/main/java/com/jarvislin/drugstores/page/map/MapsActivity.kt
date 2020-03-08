@@ -17,7 +17,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
-import androidx.core.view.MenuItemCompat
 import androidx.lifecycle.Observer
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.location.*
@@ -29,6 +28,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.jakewharton.rxbinding2.view.RxView
 import com.jarvislin.domain.entity.DrugstoreInfo
 import com.jarvislin.domain.entity.Progress
@@ -59,6 +59,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
     override val viewModel: MapViewModel by viewModel()
     private val cacheManager: MarkerCacheManager by inject()
+    private val analytics: FirebaseAnalytics by lazy { FirebaseAnalytics.getInstance(this) }
     private val infoWindowView by lazy {
         LayoutInflater.from(this).inflate(R.layout.window, null, false)
     }
@@ -113,13 +114,19 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
         RxView.clicks(imageMenu)
             .throttleClick()
-            .subscribe { drawerView.openDrawer(GravityCompat.START) }
+            .subscribe {
+                analytics.logEvent("map_click_menu", null)
+                drawerView.openDrawer(GravityCompat.START)
+            }
             .bind(this)
 
         navigationView.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.menuProclamation -> viewModel.proclamations.value?.let {
-                    ProclamationActivity.start(this, it.first)
+                R.id.menuProclamation -> {
+                    analytics.logEvent("map_click_drawer_proclamations", null)
+                    viewModel.proclamations.value?.let {
+                        ProclamationActivity.start(this, it.first)
+                    }
                 }
 //                R.id.menuQuestion -> QuestionsActivity.start(this)
             }
@@ -142,6 +149,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
             .throttleClick()
             .subscribe {
                 viewModel.requestAd(getString(R.string.id_list), myLocation)
+                analytics.logEvent("map_click_search", null)
                 val dialogFragment = SearchDialogFragment()
                 dialogFragment.arguments = Bundle().apply {
                     putSerializable(KEY_INFO, viewModel.drugstoreInfo.value?.let { ArrayList(it) }
@@ -237,7 +245,11 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         map.uiSettings.isMapToolbarEnabled = false
 
         map.setOnInfoWindowClickListener {
-            DetailActivity.start(this, cacheManager.getDrugstoreInfo(it), myLocation)
+            val info = cacheManager.getDrugstoreInfo(it)
+            analytics.logEvent("map_click_info_window", Bundle().apply {
+                putString("id", info.id)
+            })
+            DetailActivity.start(this, info, myLocation)
         }
 
         map.setOnCameraIdleListener {
@@ -260,11 +272,15 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         })
 
         map.setOnMarkerClickListener {
+            analytics.logEvent("map_click_marker", null)
             animateTo(it)
             true
         }
 
-        fab.setOnClickListener { checkPermission() }
+        fab.setOnClickListener {
+            analytics.logEvent("map_click_fab", null)
+            checkPermission()
+        }
     }
 
     private fun updateFabColor(colorId: Int) {

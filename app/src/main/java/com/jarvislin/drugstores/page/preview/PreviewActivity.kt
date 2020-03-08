@@ -1,4 +1,4 @@
-package com.jarvislin.drugstores.page.proclamation
+package com.jarvislin.drugstores.page.preview
 
 import android.content.Context
 import android.content.Intent

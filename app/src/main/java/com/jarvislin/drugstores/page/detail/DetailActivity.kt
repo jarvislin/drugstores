@@ -28,6 +28,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.jakewharton.rxbinding2.view.RxView
 import com.jarvislin.domain.entity.DrugstoreInfo
 import com.jarvislin.domain.entity.MaskRecord
@@ -75,6 +76,7 @@ class DetailActivity : BaseActivity(),
     override val viewModel: DetailViewModel by inject()
     private val info by lazy { intent.getSerializableExtra(KEY_INFO) as DrugstoreInfo }
     private val location by lazy { intent.getParcelableExtra(KEY_LOCATION) as? Location }
+    private val analytics: FirebaseAnalytics by lazy { FirebaseAnalytics.getInstance(this) }
     private val modelConverter by lazy { ModelConverter() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -137,22 +139,31 @@ class DetailActivity : BaseActivity(),
 
         RxView.clicks(textInfo)
             .throttleClick()
-            .subscribe { showInfoDialog() }
+            .subscribe {
+                analytics.logEvent("detail_click_info", null)
+                showInfoDialog() }
             .bind(this)
 
         RxView.clicks(imagePhone)
             .throttleClick()
-            .subscribe { showPhoneDialog() }
+            .subscribe {
+                analytics.logEvent("detail_click_phone", null)
+                showPhoneDialog()
+            }
             .bind(this)
 
         RxView.clicks(imageLocation)
             .throttleClick()
-            .subscribe { openMap(info.lat, info.lng) }
+            .subscribe {
+                analytics.logEvent("detail_click_address", null)
+                openMap(info.lat, info.lng)
+            }
             .bind(this)
 
         RxView.clicks(textShare)
             .throttleClick()
             .subscribe {
+                analytics.logEvent("detail_click_share", null)
                 shareText(
                     "口罩資訊地圖",
                     modelConverter.from(info).toShareContentText()
@@ -163,21 +174,33 @@ class DetailActivity : BaseActivity(),
         RxView.clicks(textReport)
             .throttleClick()
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { showReportDialog() }
+            .subscribe {
+                analytics.logEvent("detail_click_report", null)
+                showReportDialog()
+            }
             .bind(this)
 
         RxView.clicks(textRecords)
             .throttleClick()
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { showRecordsDialog() }
+            .subscribe {
+                analytics.logEvent("detail_click_records_info", null)
+                showRecordsDialog()
+            }
             .bind(this)
     }
 
     private fun showRecordsDialog() {
+        analytics.logEvent("detail_show_records_dialog", null)
         AlertDialog.Builder(this)
             .setTitle("庫存量說明")
             .setMessage("收錄早上七點至晚上十點的存量資料，用來推測約略的口罩販售時間；圖表支援水平及垂直的兩指縮放功能。")
-            .setPositiveButton(getString(R.string.dismiss)) { _, _ -> }
+            .setPositiveButton(getString(R.string.dismiss)) { _, _ ->
+                analytics.logEvent(
+                    "detail_dismiss_records_dialog",
+                    null
+                )
+            }
             .show()
     }
 
@@ -334,6 +357,7 @@ class DetailActivity : BaseActivity(),
     }
 
     private fun showReportDialog() {
+        analytics.logEvent("detail_show_report_dialog", null)
         val view = LayoutInflater.from(this).inflate(R.layout.dialog_report, null, false)
         val textSeller = view.findViewById<View>(R.id.textSeller)
         val textBuyer = view.findViewById<View>(R.id.textBuyer)
@@ -349,6 +373,7 @@ class DetailActivity : BaseActivity(),
             .throttleClick()
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
+                analytics.logEvent("detail_click_report_number_ticket", null)
                 dialog.dismiss()
                 showNumberDialog()
             }
@@ -358,6 +383,7 @@ class DetailActivity : BaseActivity(),
             .throttleClick()
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
+                analytics.logEvent("detail_click_report_drugstore", null)
                 dialog.dismiss()
                 openWeb(FORM_URL)
             }
@@ -367,6 +393,7 @@ class DetailActivity : BaseActivity(),
             .throttleClick()
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
+                analytics.logEvent("detail_click_report_mask_status", null)
                 dialog.dismiss()
                 showBuyerDialog()
             }
@@ -374,19 +401,22 @@ class DetailActivity : BaseActivity(),
     }
 
     private fun showNumberDialog() {
+        analytics.logEvent("detail_report_number_ticket_dialog", null)
         AlertDialog.Builder(this)
             .setTitle("採用號碼牌制度？")
             .setMessage("即將回報此藥局採用號碼牌制度")
-            .setNegativeButton(getString(R.string.cancel)) { _, _ -> }
+            .setNegativeButton(getString(R.string.cancel)) { _, _ ->
+                analytics.logEvent("detail_report_use_number_ticket_cancel", null)
+            }
             .setPositiveButton(getString(R.string.submit)) { _, _ ->
-                viewModel.reportNumberTicket(
-                    info.id
-                )
+                viewModel.reportNumberTicket(info.id)
+                analytics.logEvent("detail_report_use_number_ticket_success", null)
             }
             .show()
     }
 
     private fun showBuyerDialog() {
+        analytics.logEvent("detail_show_buyer_dialog", null)
         val view = LayoutInflater.from(this).inflate(R.layout.dialog_buyer, null, false)
         val radioSufficient = view.findViewById<RadioButton>(R.id.radioSufficient)
         val radioWarning = view.findViewById<RadioButton>(R.id.radioWarning)
@@ -395,7 +425,12 @@ class DetailActivity : BaseActivity(),
         val dialog = AlertDialog.Builder(this)
             .setTitle("還有成人口罩嗎？")
             .setView(view)
-            .setPositiveButton(getString(R.string.dismiss)) { _, _ -> }
+            .setPositiveButton(getString(R.string.dismiss)) { _, _ ->
+                analytics.logEvent(
+                    "detail_dismiss_buyer_dialog",
+                    null
+                )
+            }
             .show()
 
         RxView.clicks(radioSufficient)
@@ -424,6 +459,7 @@ class DetailActivity : BaseActivity(),
     }
 
     private fun showConfirmDialog(status: Status) {
+        analytics.logEvent("detail_show_mask_status_confirm_dialog", null)
         val option = when (status) {
             Status.Empty -> getString(R.string.option_empty)
             Status.Warning -> getString(R.string.option_warning)
@@ -432,8 +468,13 @@ class DetailActivity : BaseActivity(),
 
         AlertDialog.Builder(this)
             .setMessage("即將送出選項：$option")
-            .setPositiveButton("送出") { _, _ -> viewModel.reportMaskStatus(info.id, status) }
-            .setNegativeButton("取消") { _, _ -> }
+            .setPositiveButton("送出") { _, _ ->
+                viewModel.reportMaskStatus(info.id, status)
+                analytics.logEvent("detail_submit_report_mask_status", null)
+            }
+            .setNegativeButton("取消") { _, _ ->
+                analytics.logEvent("detail_cancel_report_mask_status", null)
+            }
             .show()
     }
 
@@ -456,23 +497,33 @@ class DetailActivity : BaseActivity(),
 
         map.addMarker(option)
 
-        map.setOnMapClickListener { openMap(info.lat, info.lng) }
+        map.setOnMapClickListener {
+            analytics.logEvent("detail_click_map", null)
+            openMap(info.lat, info.lng)
+        }
     }
 
     private fun showInfoDialog() {
+        analytics.logEvent("detail_show_info_dialog", null)
         AlertDialog.Builder(this)
             .setTitle(getString(R.string.id_note_title))
             .setMessage(getString(R.string.id_note_message))
-            .setPositiveButton(getString(R.string.dismiss)) { _, _ -> }
+            .setPositiveButton(getString(R.string.dismiss)) { _, _ ->
+                analytics.logEvent("detail_dismiss_info_dialog", null)
+            }
             .show()
     }
 
     private fun showPhoneDialog() {
+        analytics.logEvent("detail_show_dial_dialog", null)
         AlertDialog.Builder(this)
             .setTitle(getString(R.string.dial_title))
             .setMessage(getString(R.string.dial_message))
-            .setNegativeButton(getString(R.string.dismiss)) { _, _ -> }
+            .setNegativeButton(getString(R.string.dismiss)) { _, _ ->
+                analytics.logEvent("detail_cancel_dial", null)
+            }
             .setPositiveButton(getString(R.string.dial)) { _, _ ->
+                analytics.logEvent("detail_click_dial", null)
                 Intent(Intent.ACTION_DIAL).apply {
                     try {
                         data = Uri.parse("tel:${info.phone}")
