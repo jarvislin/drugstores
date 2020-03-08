@@ -4,7 +4,10 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.jarvislin.domain.entity.Proclamation
 import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.extension.toJson
@@ -35,6 +38,12 @@ class ProclamationActivity : AppCompatActivity() {
 
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerView.adapter = adapter
+
+        ContextCompat.getDrawable(this, R.drawable.divider)?.let {
+            val itemDecorator = DividerItemDecoration(this, RecyclerView.VERTICAL)
+            itemDecorator.setDrawable(it)
+            recyclerView.addItemDecoration(itemDecorator)
+        }
 
         adapter.update(proclamations)
 

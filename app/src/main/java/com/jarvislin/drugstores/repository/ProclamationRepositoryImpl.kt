@@ -4,6 +4,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.jarvislin.domain.entity.Proclamation
 import com.jarvislin.domain.repository.ProclamationRepository
+import com.jarvislin.drugstores.BuildConfig
 import com.jarvislin.drugstores.data.LocalData
 import com.jarvislin.drugstores.data.model.RemoteConfig
 import com.jarvislin.drugstores.extension.toObject
@@ -17,7 +18,7 @@ class ProclamationRepositoryImpl(
 
     override fun fetchProclamation(): Maybe<List<Proclamation>> {
         FirebaseRemoteConfigSettings.Builder()
-            .setMinimumFetchIntervalInSeconds(120)
+            .setMinimumFetchIntervalInSeconds(if (BuildConfig.DEBUG) 120 else 21600) // 6 hrs
             .build()
             .let { remoteConfig.setConfigSettingsAsync(it) }
 
@@ -27,7 +28,11 @@ class ProclamationRepositoryImpl(
                     try {
                         remoteConfig.getString("proclamations")
                             .toObject(RemoteConfig::class.java)
-                            .let { emitter.onSuccess(it.proclamations) }
+                            .proclamations
+                            .map { it.toProclamation() }
+                            .filter { it.isValid() }
+                            .sortedByDescending { it.createdAt }
+                            .let { emitter.onSuccess(it) }
                     } catch (ex: Exception) {
                         emitter.onError(ex)
                     }

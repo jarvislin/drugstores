@@ -1,13 +1,15 @@
 package com.jarvislin.domain.entity
 
-import com.google.gson.annotations.SerializedName
 import java.io.Serializable
+import java.util.*
 
 data class Proclamation(
-    @SerializedName("timestamp")
-    val timestamp: Long,
-    @SerializedName("image")
+    val createdAt: Date,
+    val expiredAt: Date,
     val image: String?,
-    @SerializedName("text")
     val text: String?
-) : Serializable
+) : Serializable {
+    fun isValid(): Boolean {
+        return System.currentTimeMillis() <= expiredAt.time
+    }
+}
