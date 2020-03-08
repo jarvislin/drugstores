@@ -11,6 +11,8 @@
     <color name="divider">#BDBDBD</color>
     <color name="white">@android:color/white</color>
     <color name="chart">#F5F5F5</color>
+    <color name="badge">#FF4081</color>
+    <color name="ripple">#16000000</color>
 
     <!--  mask  -->
     <color name="warning">#E67F22</color>

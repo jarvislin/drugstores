@@ -33,6 +33,7 @@ import com.jarvislin.domain.entity.DrugstoreInfo
 import com.jarvislin.domain.entity.MaskRecord
 import com.jarvislin.domain.entity.MaskStatus
 import com.jarvislin.domain.entity.Status
+import com.jarvislin.drugstores.BuildConfig
 import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.base.BaseActivity
 import com.jarvislin.drugstores.extension.*
@@ -123,14 +124,16 @@ class DetailActivity : BaseActivity(),
             cardOpenTime.show()
         }
 
-        viewModel.requestAd(getString(R.string.id_detail), location)
-        viewModel.ad.observe(this, Observer { populateAdView(it) })
+        if (BuildConfig.DEBUG.not()) {
+            viewModel.requestAd(getString(R.string.id_detail), location)
+            viewModel.ad.observe(this, Observer { populateAdView(it) })
 
-        viewModel.fetchRecords(info.id)
-        viewModel.records.observe(this, Observer {
-            populateChartView(it)
-            Timber.e(it.toJson())
-        })
+            viewModel.fetchRecords(info.id)
+            viewModel.records.observe(this, Observer {
+                populateChartView(it)
+                Timber.e(it.toJson())
+            })
+        }
 
         RxView.clicks(textInfo)
             .throttleClick()

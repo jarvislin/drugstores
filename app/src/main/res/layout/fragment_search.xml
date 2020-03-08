@@ -51,6 +51,7 @@
                 android:layout_height="wrap_content"
                 android:background="@null"
                 android:hint="輸入店名或地址查詢藥局"
+                android:paddingStart="24dp"
                 android:textColorHint="@color/divider"
                 android:textSize="18sp"
                 app:layout_constraintBottom_toBottomOf="parent"
