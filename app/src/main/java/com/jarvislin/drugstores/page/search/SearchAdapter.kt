@@ -11,6 +11,7 @@ import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.ads.formats.UnifiedNativeAd
 import com.google.android.gms.ads.formats.UnifiedNativeAdView
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.jakewharton.rxbinding2.view.RxView
 import com.jarvislin.domain.entity.DrugstoreInfo
 import com.jarvislin.domain.entity.Item
@@ -28,11 +29,17 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val info = ArrayList<Item>()
     private val compositeDisposable = CompositeDisposable()
     private val modelConverter by lazy { ModelConverter() }
+    private lateinit var analytics: FirebaseAnalytics
 
     companion object {
         private const val TYPE_SEARCH = 1
         private const val TYPE_AD = 2
         private const val POSITION_AD = 3
+    }
+
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        analytics = FirebaseAnalytics.getInstance(recyclerView.context)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -115,12 +122,15 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
             RxView.clicks(layoutCard)
                 .throttleClick()
-                .subscribe { DetailActivity.start(itemView.context, drugstoreInfo, location) }
+                .subscribe {
+                    analytics.logEvent("search_click_card_info", null)
+                    DetailActivity.start(itemView.context, drugstoreInfo, location) }
                 .addTo(compositeDisposable)
 
             RxView.clicks(textShare)
                 .throttleClick()
                 .subscribe {
+                    analytics.logEvent("search_click_share", null)
                     itemView.context.shareText(
                         "口罩資訊地圖",
                         modelConverter.from(drugstoreInfo).toShareContentText()
@@ -131,6 +141,7 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             RxView.clicks(textNavigate)
                 .throttleClick()
                 .subscribe {
+                    analytics.logEvent("search_click_navigate", null)
                     itemView.context.openMap(
                         drugstoreInfo.lat,
                         drugstoreInfo.lng

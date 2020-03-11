@@ -13,7 +13,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 29
         versionCode getTimestamp() as Integer ?: 0
-        versionName "1.5.3"
+        versionName "1.6.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         kapt {
             arguments {
@@ -69,6 +69,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-crashlytics:17.0.0-beta01'
     implementation 'com.google.firebase:firebase-firestore:21.4.1'
     implementation 'com.google.firebase:firebase-auth:19.2.0'
+    implementation 'com.google.firebase:firebase-config:19.1.2'
 
     // room
     def room_version = "2.2.3"
@@ -113,6 +114,12 @@ dependencies {
     // chart
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 
+    // glide
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+
+    // big image viewer
+    implementation 'com.github.piasy:BigImageViewer:1.6.2'
 
     androidTestImplementation "androidx.room:room-testing:$room_version"
     testImplementation 'junit:junit:4.12'

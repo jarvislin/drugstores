@@ -13,6 +13,8 @@ import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
 import okio.BufferedSink
 import okio.Okio
+import okio.buffer
+import okio.sink
 import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -46,16 +48,16 @@ class Downloader(
                 emitter.onError(HttpException())
             }
 
-            val originContentLength = response.networkResponse()?.header("Content-Length")?.toLong() // because okhttp remove content-length when server uses gzip
+            val originContentLength = response.networkResponse?.header("Content-Length")?.toLong() // because okhttp remove content-length when server uses gzip
 
             emitter.setCancellable { isCanceled.set(true) }
 
             val cacheFile = File(App.instance().cacheDir, "temp")
-            val sink = Okio.buffer(Okio.sink(cacheFile))
+            val sink = cacheFile.sink().buffer()
 
             handleWrites(
                 sink,
-                response.body()!!,
+                response.body!!,
                 emitter,
                 cacheFile,
                 isCanceled,
@@ -64,7 +66,7 @@ class Downloader(
 
             emitter.onNext(
                 Progress.Done(
-                    originContentLength ?: response.body()!!.contentLength(),
+                    originContentLength ?: response.body!!.contentLength(),
                     cacheFile
                 )
             )

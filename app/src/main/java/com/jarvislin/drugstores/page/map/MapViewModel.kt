@@ -9,13 +9,15 @@ import com.google.android.gms.ads.formats.NativeAdOptions
 import com.google.android.gms.ads.formats.UnifiedNativeAd
 import com.google.android.gms.maps.model.LatLng
 import com.jarvislin.domain.entity.DrugstoreInfo
+import com.jarvislin.domain.entity.Proclamation
 import com.jarvislin.domain.entity.Progress
 import com.jarvislin.domain.interactor.DrugstoreUseCase
+import com.jarvislin.domain.interactor.ProclamationUseCase
 import com.jarvislin.drugstores.base.App
 import com.jarvislin.drugstores.extension.bind
 import com.jarvislin.drugstores.base.BaseViewModel
-import com.jarvislin.drugstores.data.db.DrugstoreDao
 import com.jarvislin.drugstores.data.remote.HttpException
+import com.jarvislin.drugstores.extension.toJson
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -27,12 +29,14 @@ import java.util.concurrent.TimeUnit
 
 class MapViewModel : BaseViewModel() {
     private val useCase: DrugstoreUseCase by inject()
+    private val proclamationUseCase: ProclamationUseCase by inject()
     val dataPrepared = MutableLiveData<Boolean>(false)
     val drugstoreInfo = MutableLiveData<List<DrugstoreInfo>>(emptyList())
     val downloadProgress = MutableLiveData<Progress>()
     val autoUpdate = MutableLiveData<Boolean>()
     val searchedResult = MutableLiveData<List<DrugstoreInfo>>()
     val statusBarHeight = MutableLiveData<Int>()
+    val proclamations = MutableLiveData<Pair<List<Proclamation>, Boolean>>()
     val ad = MutableLiveData<UnifiedNativeAd>()
 
     fun fetchOpenData() {
@@ -119,5 +123,11 @@ class MapViewModel : BaseViewModel() {
             .withNativeAdOptions(adOptions)
             .build()
             .loadAd(adBuilder.build())
+    }
+
+    fun fetchProclamations() {
+        proclamationUseCase.fetchProclamations()
+            .subscribe({ proclamations.postValue(it) }, { Timber.e(it) })
+            .bind(this)
     }
 }

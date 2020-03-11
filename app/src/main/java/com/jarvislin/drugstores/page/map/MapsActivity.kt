@@ -11,10 +11,12 @@ import android.os.Bundle
 import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
 import androidx.lifecycle.Observer
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.location.*
@@ -26,14 +28,17 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.jakewharton.rxbinding2.view.RxView
 import com.jarvislin.domain.entity.DrugstoreInfo
 import com.jarvislin.domain.entity.Progress
+import com.jarvislin.drugstores.BuildConfig
 import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.base.BaseActivity
 import com.jarvislin.drugstores.extension.*
 import com.jarvislin.drugstores.page.detail.DetailActivity
 import com.jarvislin.drugstores.page.detail.DetailActivity.Companion.KEY_LOCATION
+import com.jarvislin.drugstores.page.proclamation.ProclamationActivity
 import com.jarvislin.drugstores.page.search.SearchDialogFragment
 import com.jarvislin.drugstores.page.search.SearchDialogFragment.Companion.KEY_INFO
 import com.jarvislin.drugstores.widget.ModelConverter
@@ -54,6 +59,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
     override val viewModel: MapViewModel by viewModel()
     private val cacheManager: MarkerCacheManager by inject()
+    private val analytics: FirebaseAnalytics by lazy { FirebaseAnalytics.getInstance(this) }
     private val infoWindowView by lazy {
         LayoutInflater.from(this).inflate(R.layout.window, null, false)
     }
@@ -106,6 +112,30 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
             )
         )
 
+        RxView.clicks(imageMenu)
+            .throttleClick()
+            .subscribe {
+                analytics.logEvent("map_click_menu", null)
+                drawerView.openDrawer(GravityCompat.START)
+            }
+            .bind(this)
+
+        navigationView.setNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.menuProclamation -> {
+                    analytics.logEvent("map_click_drawer_proclamations", null)
+                    viewModel.proclamations.value?.let {
+                        ProclamationActivity.start(this, it.first)
+                    }
+                }
+//                R.id.menuQuestion -> QuestionsActivity.start(this)
+            }
+            drawerView.closeDrawer(GravityCompat.START)
+            true
+        }
+
+        textVersion.text = getString(R.string.version).format(BuildConfig.VERSION_NAME)
+
         // map
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -119,6 +149,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
             .throttleClick()
             .subscribe {
                 viewModel.requestAd(getString(R.string.id_list), myLocation)
+                analytics.logEvent("map_click_search", null)
                 val dialogFragment = SearchDialogFragment()
                 dialogFragment.arguments = Bundle().apply {
                     putSerializable(KEY_INFO, viewModel.drugstoreInfo.value?.let { ArrayList(it) }
@@ -146,6 +177,21 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         startDownload()
         MobileAds.initialize(this)
         checkPermission()
+
+        viewModel.proclamations.observe(this, Observer { handleBadge(it.second) })
+    }
+
+    private fun handleBadge(hasUpdated: Boolean) {
+        val actionBadge =
+            navigationView.menu.findItem(R.id.menuProclamation).actionView as ImageView
+        if (hasUpdated) {
+            badge.show()
+            actionBadge.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.badge_dot))
+            actionBadge.show()
+        } else {
+            badge.hide()
+            actionBadge.hide()
+        }
     }
 
     private fun startDownload() {
@@ -199,7 +245,11 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         map.uiSettings.isMapToolbarEnabled = false
 
         map.setOnInfoWindowClickListener {
-            DetailActivity.start(this, cacheManager.getDrugstoreInfo(it), myLocation)
+            val info = cacheManager.getDrugstoreInfo(it)
+            analytics.logEvent("map_click_info_window", Bundle().apply {
+                putString("id", info.id)
+            })
+            DetailActivity.start(this, info, myLocation)
         }
 
         map.setOnCameraIdleListener {
@@ -222,11 +272,15 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         })
 
         map.setOnMarkerClickListener {
+            analytics.logEvent("map_click_marker", null)
             animateTo(it)
             true
         }
 
-        fab.setOnClickListener { checkPermission() }
+        fab.setOnClickListener {
+            analytics.logEvent("map_click_fab", null)
+            checkPermission()
+        }
     }
 
     private fun updateFabColor(colorId: Int) {
@@ -367,11 +421,16 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         map.isMyLocationEnabled = true
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.fetchProclamations()
+    }
+
     override fun onBackPressed() {
-        if (lastClickedMarker?.isInfoWindowShown == true) {
-            lastClickedMarker?.hideInfoWindow()
-        } else {
-            super.onBackPressed()
+        when {
+            drawerView.isDrawerOpen(GravityCompat.START) -> drawerView.closeDrawer(GravityCompat.START)
+            lastClickedMarker?.isInfoWindowShown == true -> lastClickedMarker?.hideInfoWindow()
+            else -> super.onBackPressed()
         }
     }
 

@@ -16,6 +16,7 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.jakewharton.rxbinding2.view.RxView
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.jarvislin.domain.entity.DrugstoreInfo
@@ -43,6 +44,7 @@ class SearchDialogFragment : DialogFragment() {
     private val adapter: SearchAdapter by inject()
     private val viewModel: MapViewModel by sharedViewModel()
     private val compositeDisposable = CompositeDisposable()
+    private lateinit var analytics: FirebaseAnalytics
     private var doNotUpdate = false
 
     companion object {
@@ -75,6 +77,8 @@ class SearchDialogFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        analytics = FirebaseAnalytics.getInstance(view.context)
+
         viewModel.statusBarHeight.value?.let { height ->
             (layoutSearch.layoutParams as LinearLayout.LayoutParams).let {
                 val param = it
@@ -104,7 +108,6 @@ class SearchDialogFragment : DialogFragment() {
             )
         )
 
-
         doNotUpdate = viewModel.searchedResult.value != null
 
         val location = arguments?.getParcelable<Location>(KEY_LOCATION)
@@ -117,7 +120,10 @@ class SearchDialogFragment : DialogFragment() {
                 val info = arguments?.getSerializable(KEY_INFO) as? ArrayList<DrugstoreInfo>
                 val keyword = it.view().text.toString()
                 if (keyword.isNotEmpty()) {
-                    viewModel.searchAddress(it.view().text.toString())
+                    viewModel.searchAddress(keyword)
+                    analytics.logEvent(
+                        "search_type_keyword",
+                        Bundle().apply { putString("keyword", keyword) })
                 } else if (info != null) {
                     adapter.update(info, location)
                     progressBar.hide()
@@ -142,16 +148,22 @@ class SearchDialogFragment : DialogFragment() {
         RxView.clicks(imageBack)
             .throttleClick()
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { dismissAllowingStateLoss() }
+            .subscribe {
+                analytics.logEvent("search_click_back", null)
+                dismissAllowingStateLoss()
+            }
             .addTo(compositeDisposable)
 
         RxView.clicks(textInfo)
             .throttleClick()
-            .subscribe { showInfoDialog() }
+            .subscribe {
+                analytics.logEvent("search_click_info", null)
+                showInfoDialog() }
             .addTo(compositeDisposable)
     }
 
     private fun showInfoDialog() {
+        analytics.logEvent("search_show_info_dialog", null)
         context?.let {
             AlertDialog.Builder(it)
                 .setTitle(getString(R.string.id_note_title))
