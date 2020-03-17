@@ -189,12 +189,13 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         checkPermission()
 
         viewModel.proclamations.observe(this, Observer { handleBadge(it.second) })
+        viewModel.updateBrowseCount()
     }
 
     private fun showFirstTimeDialog() {
         AlertDialog.Builder(this)
             .setTitle("歡迎使用本軟體")
-            .setMessage("若您為第一次使用，建議先瀏覽常見問題，以有效運用本程式。若您想下次再瀏覽，可點選地圖左上方選單圖示。")
+            .setMessage("若您為第一次使用，建議先瀏覽常見問題，以有效運用本程式。若您想下次再瀏覽，可點選地圖左上方選單圖示查看。")
             .setPositiveButton("常見問題") { _, _ ->
                 analytics.logEvent("map_click_dialog_questions", null)
                 QuestionsActivity.start(this)
