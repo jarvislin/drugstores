@@ -13,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -39,6 +40,7 @@ import com.jarvislin.drugstores.extension.*
 import com.jarvislin.drugstores.page.detail.DetailActivity
 import com.jarvislin.drugstores.page.detail.DetailActivity.Companion.KEY_LOCATION
 import com.jarvislin.drugstores.page.proclamation.ProclamationActivity
+import com.jarvislin.drugstores.page.questions.QuestionsActivity
 import com.jarvislin.drugstores.page.search.SearchDialogFragment
 import com.jarvislin.drugstores.page.search.SearchDialogFragment.Companion.KEY_INFO
 import com.jarvislin.drugstores.widget.ModelConverter
@@ -128,7 +130,10 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
                         ProclamationActivity.start(this, it.first)
                     }
                 }
-//                R.id.menuQuestion -> QuestionsActivity.start(this)
+                R.id.menuQuestion -> {
+                    analytics.logEvent("map_click_drawer_questions", null)
+                    QuestionsActivity.start(this)
+                }
             }
             drawerView.closeDrawer(GravityCompat.START)
             true
@@ -174,11 +179,28 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
             }
         })
 
+        if (viewModel.isFirstLaunch()) {
+            showFirstTimeDialog()
+            viewModel.updateFirstLaunch()
+        }
+
         startDownload()
         MobileAds.initialize(this)
         checkPermission()
 
         viewModel.proclamations.observe(this, Observer { handleBadge(it.second) })
+    }
+
+    private fun showFirstTimeDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("歡迎使用本軟體")
+            .setMessage("若您為第一次使用，建議先瀏覽常見問題，以有效運用本程式。若您想下次再瀏覽，可點選地圖左上方選單圖示。")
+            .setPositiveButton("常見問題") { _, _ ->
+                analytics.logEvent("map_click_dialog_questions", null)
+                QuestionsActivity.start(this)
+            }
+            .setNegativeButton("下次再看") { _, _ -> }
+            .show()
     }
 
     private fun handleBadge(hasUpdated: Boolean) {
@@ -209,7 +231,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
             fusedLocationClient.requestLocationUpdates(
                 LocationRequest().setInterval(30_000), object : LocationCallback() {
                     override fun onLocationResult(result: LocationResult?) {
-                        Timber.i("location update")
+                        Timber.i("location updated")
                         super.onLocationResult(result)
                         result?.let {
                             it.locations.firstOrNull()?.let {

@@ -244,4 +244,10 @@ class DrugstoreRepositoryImpl(
     override fun saveReportTime() {
         localData.lastReportTimestamp = System.currentTimeMillis()
     }
+
+    override fun isFirstLaunch() = localData.isFirstLaunch
+
+    override fun updateFirstLaunch() {
+        localData.isFirstLaunch = false
+    }
 }

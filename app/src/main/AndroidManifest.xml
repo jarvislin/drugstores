@@ -31,6 +31,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".page.detail.DetailActivity"
             android:screenOrientation="portrait" />
@@ -46,6 +47,10 @@
 
         <activity
             android:name=".page.preview.PreviewActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".page.questions.QuestionsActivity"
             android:screenOrientation="portrait" />
 
         <meta-data

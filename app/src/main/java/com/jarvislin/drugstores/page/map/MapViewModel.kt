@@ -130,4 +130,12 @@ class MapViewModel : BaseViewModel() {
             .subscribe({ proclamations.postValue(it) }, { Timber.e(it) })
             .bind(this)
     }
+
+    fun isFirstLaunch(): Boolean {
+        return useCase.isFirstLaunch()
+    }
+
+    fun updateFirstLaunch() {
+        useCase.updateFirstLaunch()
+    }
 }
