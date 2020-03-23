@@ -19,7 +19,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.Observer
-import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -153,7 +152,6 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         RxView.clicks(layoutSearch)
             .throttleClick()
             .subscribe {
-                viewModel.requestAd(getString(R.string.id_list), myLocation)
                 analytics.logEvent("map_click_search", null)
                 val dialogFragment = SearchDialogFragment()
                 dialogFragment.arguments = Bundle().apply {
@@ -185,7 +183,6 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         }
 
         startDownload()
-        MobileAds.initialize(this)
         checkPermission()
 
         viewModel.proclamations.observe(this, Observer { handleBadge(it.second) })
@@ -455,11 +452,6 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
             lastClickedMarker?.isInfoWindowShown == true -> lastClickedMarker?.hideInfoWindow()
             else -> super.onBackPressed()
         }
-    }
-
-    override fun onDestroy() {
-        viewModel.ad.value?.destroy()
-        super.onDestroy()
     }
 }
 

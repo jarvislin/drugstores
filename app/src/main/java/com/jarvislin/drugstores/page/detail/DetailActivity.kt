@@ -19,8 +19,6 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
-import com.google.android.gms.ads.formats.UnifiedNativeAd
-import com.google.android.gms.ads.formats.UnifiedNativeAdView
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -126,22 +124,18 @@ class DetailActivity : BaseActivity(),
             cardOpenTime.show()
         }
 
-        if (BuildConfig.DEBUG.not()) {
-            viewModel.requestAd(getString(R.string.id_detail), location)
-            viewModel.ad.observe(this, Observer { populateAdView(it) })
-
-            viewModel.fetchRecords(info.id)
-            viewModel.records.observe(this, Observer {
-                populateChartView(it)
-                Timber.e(it.toJson())
-            })
-        }
+        viewModel.fetchRecords(info.id)
+        viewModel.records.observe(this, Observer {
+            populateChartView(it)
+            Timber.e(it.toJson())
+        })
 
         RxView.clicks(textInfo)
             .throttleClick()
             .subscribe {
                 analytics.logEvent("detail_click_info", null)
-                showInfoDialog() }
+                showInfoDialog()
+            }
             .bind(this)
 
         RxView.clicks(imagePhone)
@@ -272,82 +266,6 @@ class DetailActivity : BaseActivity(),
         lineDataSet.axisDependency = YAxis.AxisDependency.LEFT
 
         return lineDataSet
-    }
-
-    private fun populateAdView(nativeAd: UnifiedNativeAd) {
-        val adView =
-            LayoutInflater.from(this).inflate(R.layout.view_ad_large, null) as UnifiedNativeAdView
-        adView.bodyView = adView.findViewById<TextView>(R.id.ad_body)
-        adView.starRatingView = adView.findViewById<RatingBar>(R.id.ad_stars)
-        adView.mediaView = adView.findViewById(R.id.ad_media)
-        adView.callToActionView = adView.findViewById<TextView>(R.id.ad_call_to_action)
-        adView.priceView = adView.findViewById<TextView>(R.id.ad_price)
-        adView.storeView = adView.findViewById<TextView>(R.id.ad_store)
-        adView.iconView = adView.findViewById<ImageView>(R.id.ad_app_icon)
-        adView.advertiserView = adView.findViewById(R.id.ad_advertiser)
-
-        if (nativeAd.body == null) {
-            adView.bodyView.hide()
-        } else {
-            adView.bodyView.show()
-            (adView.bodyView as TextView).text = nativeAd.body
-        }
-
-        if (nativeAd.callToAction == null) {
-            adView.callToActionView.hide()
-        } else {
-            adView.callToActionView.show()
-            (adView.callToActionView as TextView).text = nativeAd.callToAction
-        }
-
-        if (nativeAd.icon == null) {
-            adView.iconView.hide()
-        } else {
-            (adView.iconView as ImageView).setImageDrawable(
-                nativeAd.icon.drawable
-            )
-            adView.iconView.show()
-        }
-
-        if (nativeAd.price == null) {
-            adView.priceView.hide()
-        } else {
-            adView.priceView.show()
-            (adView.priceView as TextView).text = nativeAd.price
-        }
-
-        if (nativeAd.store == null) {
-            adView.storeView.hide()
-        } else {
-            adView.storeView.show()
-            (adView.storeView as TextView).text = nativeAd.store
-        }
-
-        if (nativeAd.starRating == null) {
-            adView.starRatingView.hide()
-        } else {
-            (adView.starRatingView as RatingBar).rating = nativeAd.starRating!!.toFloat()
-            adView.starRatingView.show()
-        }
-
-        if (nativeAd.advertiser == null) {
-            adView.advertiserView.hide()
-        } else {
-            (adView.advertiserView as TextView).text = nativeAd.advertiser
-            adView.advertiserView.show()
-        }
-
-        adView.setNativeAd(nativeAd)
-
-        cardAd.removeAllViews()
-        cardAd.addView(adView)
-        cardAd.show()
-
-        nativeAd.videoController.let {
-            if (it.hasVideoContent() && it.isCustomControlsEnabled) {
-                it.play()
-            }
-        }
     }
 
     private fun showMaskStatus(maskStatus: MaskStatus) {
@@ -534,11 +452,6 @@ class DetailActivity : BaseActivity(),
                 }
             }
             .show()
-    }
-
-    override fun onDestroy() {
-        viewModel.ad.value?.destroy()
-        super.onDestroy()
     }
 }
 
