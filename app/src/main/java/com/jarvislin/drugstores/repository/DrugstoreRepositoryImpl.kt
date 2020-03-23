@@ -250,4 +250,8 @@ class DrugstoreRepositoryImpl(
     override fun updateFirstLaunch() {
         localData.isFirstLaunch = false
     }
+
+    override fun updateRatingCount() {
+        localData.ratingCount = localData.ratingCount + 1
+    }
 }

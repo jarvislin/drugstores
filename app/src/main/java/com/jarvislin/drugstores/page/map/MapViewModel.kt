@@ -108,7 +108,7 @@ class MapViewModel : BaseViewModel() {
         useCase.updateFirstLaunch()
     }
 
-    fun updateBrowseCount() {
-        useCase
+    fun checkRatingCount() {
+        useCase.updateRatingCount()
     }
 }

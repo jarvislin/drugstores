@@ -186,7 +186,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         checkPermission()
 
         viewModel.proclamations.observe(this, Observer { handleBadge(it.second) })
-        viewModel.updateBrowseCount()
+        viewModel.checkRatingCount()
     }
 
     private fun showFirstTimeDialog() {

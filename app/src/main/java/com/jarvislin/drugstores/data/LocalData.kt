@@ -12,6 +12,7 @@ class LocalData(private val context: Context) {
         private const val KEY_LAST_REPORT_TIMESTAMP = "key_last_report_timestamp"
         private const val KEY_PROCLAMATIONS = "key_proclamations"
         private const val KEY_FIRST_LAUNCH = "key_first_launch"
+        private const val KEY_RATING_COUNT = "key_rating_count"
     }
 
     val proclamations: List<Proclamation>
@@ -21,6 +22,7 @@ class LocalData(private val context: Context) {
     var lastReportTimestamp: Long by preferences(KEY_LAST_REPORT_TIMESTAMP, 0L)
     var proclamationsText: String by preferences(KEY_PROCLAMATIONS, "[]")
     var isFirstLaunch: Boolean by preferences(KEY_FIRST_LAUNCH, true)
+    var ratingCount: Int by preferences(KEY_RATING_COUNT, 0)
 
 
     private fun <T : Any> preferences(name: String, defaultValue: T) =
