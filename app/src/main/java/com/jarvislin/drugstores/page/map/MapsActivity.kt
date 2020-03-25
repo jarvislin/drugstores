@@ -414,7 +414,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
     private fun moveToMyLocation() {
         disposableLocation = Flowable.interval(600, TimeUnit.MILLISECONDS)
-            .take(6)
+            .take(4)
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
