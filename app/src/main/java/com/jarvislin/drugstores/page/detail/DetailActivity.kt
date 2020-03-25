@@ -27,6 +27,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.jakewharton.rxbinding2.view.RxView
 import com.jarvislin.domain.entity.DrugstoreInfo
 import com.jarvislin.domain.entity.MaskRecord
@@ -461,7 +462,12 @@ class ChartDateFormatter(
 ) : ValueFormatter() {
     override fun getFormattedValue(value: Float): String {
         return value.toInt().let {
-            SimpleDateFormat(pattern, Locale.getDefault()).format(dates[it])
+            if (it >= 0 && it < dates.size)
+                SimpleDateFormat(pattern, Locale.getDefault()).format(dates[it])
+            else {
+                FirebaseCrashlytics.getInstance().log("array size: ${dates.size}, value: $it")
+                ""
+            }
         }
     }
 }
