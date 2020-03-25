@@ -106,7 +106,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         }
 
         // progress bar
-        progressBarTransform.indeterminateDrawable.tint(
+        progressBar.indeterminateDrawable.tint(
             ContextCompat.getColor(
                 this,
                 R.color.colorAccent
@@ -166,11 +166,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         // download open data
         viewModel.autoUpdate.observe(this, Observer { startDownload() })
         viewModel.downloadProgress.observe(this, Observer { progress ->
-            progressBarDownload.progress =
-                (100 * progress.bytesDownloaded / progress.contentLength).toInt()
             if (progress is Progress.Done) {
-                progressBarDownload.hide()
-                progressBarTransform.show()
                 Timber.i("open data downloaded")
                 textProgressHint.text = "資料轉換中"
                 viewModel.handleLatestOpenData(progress.file)
@@ -215,9 +211,6 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     }
 
     private fun startDownload() {
-        progressBarDownload.progress = 0
-        progressBarDownload.show()
-        progressBarTransform.hide()
         layoutDownloadHint.animate().alpha(1f).start()
         textProgressHint.text = "資料下載中"
 
