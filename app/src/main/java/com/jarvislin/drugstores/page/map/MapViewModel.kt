@@ -2,11 +2,6 @@ package com.jarvislin.drugstores.page.map
 
 import android.location.Location
 import androidx.lifecycle.MutableLiveData
-import com.google.android.gms.ads.AdLoader
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.VideoOptions
-import com.google.android.gms.ads.formats.NativeAdOptions
-import com.google.android.gms.ads.formats.UnifiedNativeAd
 import com.google.android.gms.maps.model.LatLng
 import com.jarvislin.domain.entity.DrugstoreInfo
 import com.jarvislin.domain.entity.Proclamation
@@ -17,7 +12,6 @@ import com.jarvislin.drugstores.base.App
 import com.jarvislin.drugstores.extension.bind
 import com.jarvislin.drugstores.base.BaseViewModel
 import com.jarvislin.drugstores.data.remote.HttpException
-import com.jarvislin.drugstores.extension.toJson
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -37,7 +31,6 @@ class MapViewModel : BaseViewModel() {
     val searchedResult = MutableLiveData<List<DrugstoreInfo>>()
     val statusBarHeight = MutableLiveData<Int>()
     val proclamations = MutableLiveData<Pair<List<Proclamation>, Boolean>>()
-    val ad = MutableLiveData<UnifiedNativeAd>()
 
     fun fetchOpenData() {
         useCase.fetchData()
@@ -101,33 +94,21 @@ class MapViewModel : BaseViewModel() {
         statusBarHeight.postValue(height)
     }
 
-    fun requestAd(adId: String, location: Location?) {
-        val videoOptions = VideoOptions.Builder()
-            .setClickToExpandRequested(true)
-            .setCustomControlsRequested(true)
-            .build()
-
-        val adOptions = NativeAdOptions.Builder()
-            .setVideoOptions(videoOptions)
-            .build()
-
-        val adBuilder = AdRequest.Builder()
-            .addTestDevice("94AAY0LJFG")
-
-        location?.let { adBuilder.setLocation(it) }
-        AdLoader.Builder(App.instance(), adId)
-            .forUnifiedNativeAd {
-                ad.value?.destroy()
-                ad.postValue(it)
-            }
-            .withNativeAdOptions(adOptions)
-            .build()
-            .loadAd(adBuilder.build())
-    }
-
     fun fetchProclamations() {
         proclamationUseCase.fetchProclamations()
             .subscribe({ proclamations.postValue(it) }, { Timber.e(it) })
             .bind(this)
+    }
+
+    fun isFirstLaunch(): Boolean {
+        return useCase.isFirstLaunch()
+    }
+
+    fun updateFirstLaunch() {
+        useCase.updateFirstLaunch()
+    }
+
+    fun checkRatingCount() {
+        useCase.updateRatingCount()
     }
 }

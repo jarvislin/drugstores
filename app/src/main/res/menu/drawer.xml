@@ -9,4 +9,9 @@
         android:icon="@drawable/ic_note"
         android:title="防疫公告"
         app:actionViewClass="android.widget.ImageView" />
+
+    <item
+        android:id="@+id/menuQuestion"
+        android:icon="@drawable/ic_help"
+        android:title="常見問題" />
 </menu>

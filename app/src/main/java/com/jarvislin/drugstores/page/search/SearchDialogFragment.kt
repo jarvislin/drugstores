@@ -140,9 +140,6 @@ class SearchDialogFragment : DialogFragment() {
                 adapter.update(it, location)
                 view.findViewById<ProgressBar>(R.id.progressBar)?.hide()
             })
-
-            viewModel.ad.observe(it, Observer { adapter.setAd(it) })
-            viewModel.ad.value?.let { adapter.setAd(it) }
         }
 
         RxView.clicks(imageBack)

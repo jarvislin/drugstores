@@ -30,8 +30,6 @@ data class DrugstoreInfo(
     val address: String,
     @ColumnInfo(name = "phone")
     val phone: String
-) : Serializable, Item {
+) : Serializable {
     fun isValidOpenTime() = Regex("[YN]{21}").matches(available)
 }
-
-interface Item

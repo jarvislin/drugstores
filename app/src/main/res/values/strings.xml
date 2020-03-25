@@ -7,11 +7,25 @@
     <string name="dial_error">無法開啟電話簿</string>
     <string name="id_note_title">購買規則</string>
     <string name="id_note_message">14 歲（含）以上健保卡，身分證字號末碼為雙號者（0、2、4、6、8）於每週二、四、六購買；末碼為單號者（1、3、5、7、9）可於每週一、三、五購買；週日則開放全民皆可購買。每人每次限購三片，七天內不能重複購買。13 歲（含）以下健保卡，不須符合單雙號規定，可購兒童口罩五片或成人口罩三片，七天內不能重複購買。</string>
-    <string name="hint_mask_amount">口罩以藥局實際存量為準，線上數量僅供參考；部分藥局採號碼牌制度，系統無法顯示已發送號碼牌數量。</string>
+    <string name="hint_mask_amount">口罩以藥局實際存量為準，線上數量僅供參考。</string>
     <string name="option_empty">沒有了</string>
     <string name="option_warning">剩下不多</string>
     <string name="option_sufficient">數量充足</string>
     <string name="submit">送出</string>
     <string name="cancel">取消</string>
     <string name="version">版本 - %s</string>
+    <string-array name="questions">
+        <item>口罩存量怎麼來的？夠即時嗎？</item>
+        <item>什麼情況下口罩存量會不準？</item>
+        <item>如何有效運用口罩地圖？</item>
+        <item>我是藥師，庫存數量錯誤如何校正？</item>
+        <item>我是藥師，如何更新藥局備註資訊？</item>
+    </string-array>
+    <string-array name="answers">
+        <item>目前販售口罩的藥局有跟健保署的主機連線，健保署主機每三分鐘會將藥局電腦的口罩存量更新到開放資料，提供給各界使用；本應用程式即是採用上述開放資料，每兩分鐘自動更新。</item>
+        <item>最常遇到的狀況是：藥局採用號碼牌制度。例如：每日發放兩百個，當兩百個號碼牌發放完畢時，存量依然是兩百，因為藥局需將健保卡過卡後數量才會減少；在過卡之前，會誤以為還有庫存。建議確認藥局備註後再前往購買，切勿為難防疫第一線的藥局工作人員。</item>
+        <item>看完藥局備註後，再決定要去哪間藥局。採用號碼牌制度的，可以於發放時間前往；未採用號碼牌的，則可以參考販售時間及即時數量。建議在地圖頁面點擊上方「查詢現在位置」，可以一口氣看完螢幕中所有藥局的資訊。</item>
+        <item>如庫存數量需校正（如：口罩破損導致無法販售），請參考「防疫口罩管控系統」VPN 登錄作業使用者手冊第五頁進行負數校正。</item>
+        <item>連線到 VPN 後進入「看診資料及掛號費」，「固定看診時段備註爛」可更新備註資料。</item>
+    </string-array>
 </resources>

@@ -60,4 +60,13 @@ class DrugstoreUseCase(private val drugstoreRepository: DrugstoreRepository) {
     fun fetchRecords(id: String): Maybe<List<MaskRecord>> {
         return drugstoreRepository.fetchRecords(id)
     }
+
+    fun isFirstLaunch() = drugstoreRepository.isFirstLaunch()
+    fun updateFirstLaunch() {
+        drugstoreRepository.updateFirstLaunch()
+    }
+
+    fun updateRatingCount() {
+        drugstoreRepository.updateRatingCount()
+    }
 }

@@ -13,6 +13,7 @@
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
@@ -31,6 +32,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".page.detail.DetailActivity"
             android:screenOrientation="portrait" />
@@ -48,9 +50,9 @@
             android:name=".page.preview.PreviewActivity"
             android:screenOrientation="portrait" />
 
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-7707196961258408~6869780399" />
+        <activity
+            android:name=".page.questions.QuestionsActivity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>
