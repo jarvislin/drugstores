@@ -65,4 +65,8 @@ class DrugstoreUseCase(private val drugstoreRepository: DrugstoreRepository) {
     fun updateFirstLaunch() {
         drugstoreRepository.updateFirstLaunch()
     }
+
+    fun updateRatingCount() {
+        drugstoreRepository.updateRatingCount()
+    }
 }

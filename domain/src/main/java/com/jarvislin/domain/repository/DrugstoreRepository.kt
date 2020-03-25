@@ -25,4 +25,5 @@ interface DrugstoreRepository {
     fun fetchRecords(id: String): Maybe<List<MaskRecord>>
     fun isFirstLaunch(): Boolean
     fun updateFirstLaunch()
+    fun updateRatingCount()
 }

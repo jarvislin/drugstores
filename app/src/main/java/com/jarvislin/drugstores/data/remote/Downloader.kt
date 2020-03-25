@@ -4,7 +4,6 @@ import com.jarvislin.domain.entity.Progress
 import com.jarvislin.drugstores.BuildConfig
 import com.jarvislin.drugstores.base.App
 import io.reactivex.Observable
-import io.reactivex.ObservableEmitter
 import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -12,14 +11,12 @@ import okhttp3.Response
 import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
 import okio.BufferedSink
-import okio.Okio
 import okio.buffer
 import okio.sink
 import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
 
 class Downloader(
-    private val progressPeriodBytes: Long = 5000,
     private val internalBufferBytes: Long = 2048,
     private val okHttpClient: OkHttpClient = OkHttpClient.Builder().addInterceptor(
         HttpLoggingInterceptor().setLevel(
@@ -48,7 +45,6 @@ class Downloader(
                 emitter.onError(HttpException())
             }
 
-            val originContentLength = response.networkResponse?.header("Content-Length")?.toLong() // because okhttp remove content-length when server uses gzip
 
             emitter.setCancellable { isCanceled.set(true) }
 
@@ -58,15 +54,12 @@ class Downloader(
             handleWrites(
                 sink,
                 response.body!!,
-                emitter,
-                cacheFile,
-                isCanceled,
-                originContentLength
+                isCanceled
             )
 
             emitter.onNext(
                 Progress.Done(
-                    originContentLength ?: response.body!!.contentLength(),
+                    response.body!!.contentLength(),
                     cacheFile
                 )
             )
@@ -78,15 +71,11 @@ class Downloader(
     private fun handleWrites(
         fileSink: BufferedSink,
         body: ResponseBody,
-        emitter: ObservableEmitter<Progress>,
-        file: File,
-        isCanceled: AtomicBoolean,
-        originContentLength: Long?
+        isCanceled: AtomicBoolean
     ) {
-        val contentLength = body.contentLength()
+        body.contentLength()
         var totalBytes = 0L
         var readBytes = 0L
-        var progressLimitBytes = 0L
 
         while (readBytes != -1L) {
             if (isCanceled.get()) {
@@ -95,18 +84,8 @@ class Downloader(
                 return
             }
 
-            readBytes = body.source().read(fileSink.buffer(), internalBufferBytes)
+            readBytes = body.source().read(fileSink.buffer, internalBufferBytes)
             totalBytes += readBytes
-            if (totalBytes > progressLimitBytes) {
-                progressLimitBytes += progressPeriodBytes
-                emitter.onNext(
-                    Progress.Downloading(
-                        totalBytes,
-                        originContentLength ?: contentLength,
-                        file
-                    )
-                )
-            }
         }
 
         body.close()
