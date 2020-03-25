@@ -53,10 +53,6 @@
         <activity
             android:name=".page.questions.QuestionsActivity"
             android:screenOrientation="portrait" />
-
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-7707196961258408~6869780399" />
     </application>
 
 </manifest>
