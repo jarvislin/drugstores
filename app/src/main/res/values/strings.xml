@@ -14,6 +14,7 @@
     <string name="submit">送出</string>
     <string name="cancel">取消</string>
     <string name="version">版本 - %s</string>
+    <string name="default_notification_channel_id">系統通知</string>
     <string-array name="questions">
         <item>口罩存量怎麼來的？夠即時嗎？</item>
         <item>什麼情況下口罩存量會不準？</item>
