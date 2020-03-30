@@ -1,6 +1,5 @@
 package com.jarvislin.drugstores.page.detail
 
-import android.location.Location
 import androidx.lifecycle.MutableLiveData
 import com.jarvislin.domain.entity.InvalidReportTimeException
 import com.jarvislin.domain.entity.MaskRecord
@@ -40,10 +39,10 @@ class DetailViewModel : BaseViewModel() {
             .bind(this)
     }
 
-    fun reportNumberTicket(id: String) {
-        useCase.reportNumberTicket(id)
+    fun reportNumberTicket(id: String, isNumberTicket: Boolean) {
+        useCase.reportNumberTicket(id, isNumberTicket)
             .subscribe({
-                usesNumberTicket.postValue(true)
+                usesNumberTicket.postValue(isNumberTicket)
                 longToastText.postValue("回報成功")
             }, { Timber.e(it) })
             .bind(this)

@@ -5,6 +5,10 @@ import android.content.Intent
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
@@ -33,7 +37,6 @@ import com.jarvislin.domain.entity.DrugstoreInfo
 import com.jarvislin.domain.entity.MaskRecord
 import com.jarvislin.domain.entity.MaskStatus
 import com.jarvislin.domain.entity.Status
-import com.jarvislin.drugstores.BuildConfig
 import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.base.BaseActivity
 import com.jarvislin.drugstores.extension.*
@@ -59,6 +62,7 @@ class DetailActivity : BaseActivity(),
             "https://docs.google.com/forms/d/e/1FAIpQLSf1lLV7nNoZMFdOER7jmh735zM8W_0G8TJJKDEC3E0ZBPgEMQ/viewform"
         private const val KEY_INFO = "key_info"
         const val KEY_LOCATION = "key_location"
+        const val TARGET_STRING = "更新資訊"
         fun start(
             context: Context,
             info: DrugstoreInfo,
@@ -89,7 +93,7 @@ class DetailActivity : BaseActivity(),
         mapFragment.getMapAsync(this)
 
         viewModel.latestMaskStatus.observe(this, Observer { showMaskStatus(it) })
-        viewModel.usesNumberTicket.observe(this, Observer { cardNumberTicket.show() })
+        viewModel.usesNumberTicket.observe(this, Observer { showNumberTicketCard(it) })
         viewModel.fetchMaskStatus(info.id)
         viewModel.fetchUsesNumberTicket(info.id)
 
@@ -185,16 +189,38 @@ class DetailActivity : BaseActivity(),
             .bind(this)
     }
 
+    private fun showNumberTicketCard(usesNumberTicket: Boolean) {
+        textNumberTicket.highlightColor = ContextCompat.getColor(this, android.R.color.transparent)
+        textNumberTicket.movementMethod = LinkMovementMethod.getInstance()
+
+        val text = if (usesNumberTicket) {
+            getString(R.string.is_number_ticket)
+        } else {
+            getString(R.string.is_not_number_ticket)
+        }
+        SpannableString(text).apply {
+            setSpan(
+                object : ClickableSpan() {
+                    override fun onClick(widget: View) {
+                        showNumberTicketDialog()
+                    }
+                },
+                text.indexOf(TARGET_STRING),
+                text.indexOf(TARGET_STRING) + TARGET_STRING.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }.let { textNumberTicket.text = it }
+
+        cardNumberTicket.show()
+    }
+
     private fun showRecordsDialog() {
         analytics.logEvent("detail_show_records_dialog", null)
         AlertDialog.Builder(this)
             .setTitle("庫存量說明")
             .setMessage("收錄早上七點至晚上十點的存量資料，用來推測約略的口罩販售時間；圖表支援水平及垂直的兩指縮放功能。")
             .setPositiveButton(getString(R.string.dismiss)) { _, _ ->
-                analytics.logEvent(
-                    "detail_dismiss_records_dialog",
-                    null
-                )
+                analytics.logEvent("detail_dismiss_records_dialog", null)
             }
             .show()
     }
@@ -294,7 +320,7 @@ class DetailActivity : BaseActivity(),
             .subscribe {
                 analytics.logEvent("detail_click_report_number_ticket", null)
                 dialog.dismiss()
-                showNumberDialog()
+                showNumberTicketDialog()
             }
             .bind(this)
 
@@ -319,17 +345,52 @@ class DetailActivity : BaseActivity(),
             .bind(this)
     }
 
-    private fun showNumberDialog() {
+    private fun showNumberTicketDialog() {
         analytics.logEvent("detail_report_number_ticket_dialog", null)
-        AlertDialog.Builder(this)
-            .setTitle("採用號碼牌制度？")
-            .setMessage("即將回報此藥局採用號碼牌制度")
-            .setNegativeButton(getString(R.string.cancel)) { _, _ ->
-                analytics.logEvent("detail_report_use_number_ticket_cancel", null)
+
+        val view = LayoutInflater.from(this).inflate(R.layout.dialog_number_ticket, null, false)
+        val radioYes = view.findViewById<RadioButton>(R.id.radioYes)
+        val radioNo = view.findViewById<RadioButton>(R.id.radioNo)
+
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("是否採用號碼牌制度？")
+            .setView(view)
+            .setPositiveButton(getString(R.string.dismiss)) { _, _ ->
+                analytics.logEvent("detail_dismiss_report_use_number_ticket", null)
             }
-            .setPositiveButton(getString(R.string.submit)) { _, _ ->
-                viewModel.reportNumberTicket(info.id)
-                analytics.logEvent("detail_report_use_number_ticket_success", null)
+            .show()
+
+        RxView.clicks(radioYes)
+            .throttleClick()
+            .subscribe {
+                dialog.dismiss()
+                showConfirmNumberTicketDialog(true)
+            }
+            .bind(this)
+
+        RxView.clicks(radioNo)
+            .throttleClick()
+            .subscribe {
+                dialog.dismiss()
+                showConfirmNumberTicketDialog(false)
+            }
+            .bind(this)
+    }
+
+
+    private fun showConfirmNumberTicketDialog(isNumberTicket: Boolean) {
+        analytics.logEvent("detail_show_number_ticket_confirm_dialog", null)
+        val option = if (isNumberTicket) getString(R.string.option_number_ticket)
+        else getString(R.string.option_not_number_ticket)
+
+        AlertDialog.Builder(this)
+            .setMessage("即將送出選項：$option")
+            .setPositiveButton("送出") { _, _ ->
+                viewModel.reportNumberTicket(info.id, isNumberTicket)
+                analytics.logEvent("detail_submit_report_use_number_ticket", null)
+            }
+            .setNegativeButton("取消") { _, _ ->
+                analytics.logEvent("detail_cancel_report_use_number_ticket", null)
             }
             .show()
     }
@@ -356,7 +417,7 @@ class DetailActivity : BaseActivity(),
             .throttleClick()
             .subscribe {
                 dialog.dismiss()
-                showConfirmDialog(Status.Sufficient)
+                showConfirmMaskDialog(Status.Sufficient)
             }
             .bind(this)
 
@@ -364,7 +425,7 @@ class DetailActivity : BaseActivity(),
             .throttleClick()
             .subscribe {
                 dialog.dismiss()
-                showConfirmDialog(Status.Warning)
+                showConfirmMaskDialog(Status.Warning)
             }
             .bind(this)
 
@@ -372,12 +433,12 @@ class DetailActivity : BaseActivity(),
             .throttleClick()
             .subscribe {
                 dialog.dismiss()
-                showConfirmDialog(Status.Empty)
+                showConfirmMaskDialog(Status.Empty)
             }
             .bind(this)
     }
 
-    private fun showConfirmDialog(status: Status) {
+    private fun showConfirmMaskDialog(status: Status) {
         analytics.logEvent("detail_show_mask_status_confirm_dialog", null)
         val option = when (status) {
             Status.Empty -> getString(R.string.option_empty)

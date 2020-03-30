@@ -4,28 +4,21 @@ import android.text.format.DateUtils
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.jarvislin.domain.entity.*
 import com.jarvislin.domain.repository.DrugstoreRepository
 import com.jarvislin.drugstores.data.LocalData
 import com.jarvislin.drugstores.data.db.DrugstoreDao
 import com.jarvislin.drugstores.data.model.ApiDrugstoreInfo
-import com.jarvislin.drugstores.data.model.RemoteConfig
 import com.jarvislin.drugstores.data.remote.Downloader
-import com.jarvislin.drugstores.extension.toJson
-import com.jarvislin.drugstores.extension.toList
 import com.jarvislin.drugstores.extension.toObject
 import com.jarvislin.drugstores.page.map.MarkerCacheManager.Companion.MAX_MARKER_AMOUNT
 import io.reactivex.*
 import io.reactivex.schedulers.Schedulers
-import timber.log.Timber
 import java.io.File
 import java.io.FileInputStream
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 import java.nio.charset.Charset
-import java.util.*
 
 
 class DrugstoreRepositoryImpl(
@@ -169,9 +162,9 @@ class DrugstoreRepositoryImpl(
         }.subscribeOn(Schedulers.io())
     }
 
-    override fun reportNumberTicket(id: String): Completable {
+    override fun reportNumberTicket(id: String, isNumberTicket: Boolean): Completable {
         val data = hashMapOf(
-            FILED_USES_NUMBER_TICKET to true
+            FILED_USES_NUMBER_TICKET to isNumberTicket
         )
 
         return Completable.create { emitter ->

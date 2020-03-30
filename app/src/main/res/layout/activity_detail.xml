@@ -111,7 +111,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="請注意，此藥局採用號碼牌制度，實際庫存可能與數字有所落差。"
+                    tools:text="@string/is_number_ticket"
                     android:textColor="@color/secondaryText"
                     android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="parent"

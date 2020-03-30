@@ -7,6 +7,7 @@
     <string name="dial_error">無法開啟電話簿</string>
     <string name="id_note_title">購買規則</string>
     <string name="id_note_message">14 歲（含）以上健保卡，身分證字號末碼為雙號者（0、2、4、6、8）於每週二、四、六購買；末碼為單號者（1、3、5、7、9）可於每週一、三、五購買；週日則開放全民皆可購買。每人每次限購三片，七天內不能重複購買。13 歲（含）以下健保卡，不須符合單雙號規定，可購兒童口罩五片或成人口罩三片，七天內不能重複購買。</string>
+    <string name="id_new_note_message">每 14 天可買成人口罩 9 片或兒童口罩 10 片，不限單雙號。（購買後，隔 14 日才能再次購買）</string>
     <string name="hint_mask_amount">口罩以藥局實際存量為準，線上數量僅供參考。</string>
     <string name="option_empty">沒有了</string>
     <string name="option_warning">剩下不多</string>
@@ -15,6 +16,10 @@
     <string name="cancel">取消</string>
     <string name="version">版本 - %s</string>
     <string name="default_notification_channel_id">系統通知</string>
+    <string name="option_number_ticket">使用號碼牌</string>
+    <string name="option_not_number_ticket">未使用號碼牌</string>
+    <string name="is_number_ticket">此藥局採用號碼牌制度，實際庫存可能與數字有所落差。更新資訊</string>
+    <string name="is_not_number_ticket">此藥局未採用號碼牌制度。更新資訊</string>
     <string-array name="questions">
         <item>口罩存量怎麼來的？夠即時嗎？</item>
         <item>什麼情況下口罩存量會不準？</item>
