@@ -45,6 +45,7 @@ class ProclamationAdapter : RecyclerView.Adapter<ProclamationAdapter.Proclamatio
         proclamations[position].image?.let { url ->
             Glide.with(holder.itemView.context)
                 .load(url)
+                .thumbnail(0.5f)
                 .addListener(object : RequestListener<Drawable> {
                     override fun onLoadFailed(
                         e: GlideException?,
