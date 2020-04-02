@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.github.piasy.biv.BigImageViewer
 import com.github.piasy.biv.loader.glide.GlideImageLoader
 import com.jarvislin.drugstores.R
@@ -34,5 +35,10 @@ class PreviewActivity : AppCompatActivity() {
         bigImageView.showImage(Uri.parse(url))
 
         toolbar.setNavigationOnClickListener { finish() }
+    }
+
+    override fun onDestroy() {
+        Glide.get(this).clearMemory()
+        super.onDestroy()
     }
 }

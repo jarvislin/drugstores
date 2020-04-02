@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.jarvislin.domain.entity.Proclamation
 import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.extension.toJson
@@ -48,5 +49,10 @@ class ProclamationActivity : AppCompatActivity() {
         adapter.update(proclamations)
 
         viewModel.saveProclamations(proclamations.toJson())
+    }
+
+    override fun onDestroy() {
+        Glide.get(this).clearMemory()
+        super.onDestroy()
     }
 }

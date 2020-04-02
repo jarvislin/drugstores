@@ -31,33 +31,38 @@
             app:layout_constraintTop_toTopOf="parent"
             app:navigationIcon="@drawable/ic_arrow_back" />
 
-        <TextView
-            android:id="@+id/textDateType"
+        <LinearLayout
+            android:id="@+id/layoutRule"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="12dp"
-            android:fontFamily="sans-serif-medium"
-            android:textColor="@color/primaryText"
-            android:textSize="50sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/map"
-            tools:text="奇數" />
+            app:layout_constraintTop_toBottomOf="@+id/map">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/textInfo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginBottom="6dp"
-            android:drawablePadding="6dp"
-            android:gravity="center_vertical"
-            android:text="購買日"
-            android:textColor="@color/secondaryText"
-            android:textSize="17sp"
-            app:drawableEndCompat="@drawable/ic_info"
-            app:layout_constraintBottom_toBottomOf="@+id/textDateType"
-            app:layout_constraintStart_toEndOf="@+id/textDateType" />
+            <TextView
+                android:id="@+id/textDateType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/primaryText"
+                android:textSize="50sp"
+                android:paddingEnd="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/map"
+                tools:text="奇數" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/textInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="6dp"
+                android:gravity="center_vertical"
+                android:text="購買日"
+                android:textColor="@color/secondaryText"
+                android:textSize="17sp"
+                app:drawableEndCompat="@drawable/ic_info" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/textNote"
@@ -71,7 +76,7 @@
             android:textSize="17sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textDateType" />
+            app:layout_constraintTop_toBottomOf="@+id/layoutRule" />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardNumberTicket"
@@ -111,13 +116,13 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="請注意，此藥局採用號碼牌制度，實際庫存可能與數字有所落差。"
                     android:textColor="@color/secondaryText"
                     android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/imageNumberTicketUser"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="@string/is_number_ticket" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

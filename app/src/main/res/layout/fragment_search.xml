@@ -73,53 +73,54 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="16dp"
             android:paddingBottom="16dp"
+            android:orientation="vertical"
             app:layout_scrollFlags="scroll">
 
-            <TextView
-                android:id="@+id/textDateType"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="12dp"
-                android:fontFamily="sans-serif-medium"
-                android:text="奇數"
-                android:textColor="@color/primaryText"
-                android:textSize="50sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/textInfo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginBottom="6dp"
-                android:drawablePadding="6dp"
-                android:gravity="center_vertical"
-                android:text="購買日"
-                android:textColor="@color/secondaryText"
-                android:textSize="17sp"
-                app:drawableEndCompat="@drawable/ic_info"
-                app:layout_constraintBottom_toBottomOf="@+id/textDateType"
-                app:layout_constraintStart_toEndOf="@+id/textDateType" />
+                <TextView
+                    android:id="@+id/textDateType"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="奇數"
+                    android:paddingEnd="8dp"
+                    android:textColor="@color/primaryText"
+                    android:textSize="50sp"/>
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/textInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="6dp"
+                    android:gravity="center_vertical"
+                    android:text="購買日"
+                    android:textColor="@color/secondaryText"
+                    android:textSize="17sp"
+                    app:drawableEndCompat="@drawable/ic_info"/>
+            </LinearLayout>
 
             <TextView
-                android:layout_width="0dp"
+                android:id="@+id/textHint"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
                 android:text="@string/hint_mask_amount"
                 android:textColor="@color/primaryText"
                 android:textSize="17sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textDateType" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
 
