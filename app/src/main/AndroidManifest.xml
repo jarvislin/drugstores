@@ -54,6 +54,10 @@
             android:name=".page.questions.QuestionsActivity"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".page.news.NewsActivity"
+            android:screenOrientation="portrait" />
+
         <service
             android:name=".service.CloudMessageService"
             android:exported="false">

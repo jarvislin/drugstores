@@ -6,9 +6,14 @@
 
     <item
         android:id="@+id/menuProclamation"
-        android:icon="@drawable/ic_note"
+        android:icon="@drawable/ic_announcement"
         android:title="防疫公告"
         app:actionViewClass="android.widget.ImageView" />
+
+    <item
+        android:id="@+id/menuNews"
+        android:icon="@drawable/ic_note"
+        android:title="新聞稿" />
 
     <item
         android:id="@+id/menuQuestion"
