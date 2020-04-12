@@ -38,6 +38,7 @@ import com.jarvislin.drugstores.base.BaseActivity
 import com.jarvislin.drugstores.extension.*
 import com.jarvislin.drugstores.page.detail.DetailActivity
 import com.jarvislin.drugstores.page.detail.DetailActivity.Companion.KEY_LOCATION
+import com.jarvislin.drugstores.page.news.NewsActivity
 import com.jarvislin.drugstores.page.proclamation.ProclamationActivity
 import com.jarvislin.drugstores.page.questions.QuestionsActivity
 import com.jarvislin.drugstores.page.search.SearchDialogFragment
@@ -128,6 +129,10 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
                     viewModel.proclamations.value?.let {
                         ProclamationActivity.start(this, it.first)
                     }
+                }
+                R.id.menuNews -> {
+                    analytics.logEvent("map_click_drawer_news", null)
+                    NewsActivity.start(this)
                 }
                 R.id.menuQuestion -> {
                     analytics.logEvent("map_click_drawer_questions", null)
