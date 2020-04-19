@@ -7,7 +7,7 @@ import com.jarvislin.domain.entity.DrugstoreInfo
 class MarkerCacheManager {
 
     companion object {
-        const val MAX_MARKER_AMOUNT = 200
+        const val MAX_MARKER_AMOUNT = 150
         private const val SIZE = 1
     }
 

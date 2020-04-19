@@ -88,16 +88,6 @@ class SearchDialogFragment : DialogFragment() {
             }
         }
 
-        textDateType.text = InfoConverter.toDateTypeText()
-
-        // handle new rule
-        if (useNewRule()) {
-            textDateType.hide()
-            textInfo.text = "點擊查看購買規則"
-            textInfo.setTextSize(COMPLEX_UNIT_SP, 32f)
-            textInfo.setTextColor(ContextCompat.getColor(view.context, R.color.primaryText))
-        }
-
         // init recycler view
         recyclerView.layoutManager =
             LinearLayoutManager(view.context, LinearLayoutManager.VERTICAL, false)
@@ -159,32 +149,8 @@ class SearchDialogFragment : DialogFragment() {
                 dismissAllowingStateLoss()
             }
             .addTo(compositeDisposable)
-
-        RxView.clicks(textInfo)
-            .throttleClick()
-            .subscribe {
-                analytics.logEvent("search_click_info", null)
-                showInfoDialog() }
-            .addTo(compositeDisposable)
     }
 
-    private fun showInfoDialog() {
-        analytics.logEvent("search_show_info_dialog", null)
-
-        val stringId = if (useNewRule()) {
-            R.string.id_new_note_message
-        } else {
-            R.string.id_note_message
-        }
-
-        context?.let {
-            AlertDialog.Builder(it)
-                .setTitle(getString(R.string.id_note_title))
-                .setMessage(getString(stringId))
-                .setPositiveButton(getString(R.string.dismiss)) { _, _ -> }
-                .show()
-        }
-    }
 
     private fun useNewRule(): Boolean {
         return Date() >= Calendar.getInstance(Locale.getDefault())

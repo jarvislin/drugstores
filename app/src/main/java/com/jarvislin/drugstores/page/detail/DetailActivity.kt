@@ -117,7 +117,6 @@ class DetailActivity : BaseActivity(),
             }
         }
 
-        textDateType.text = modelConverter.from(info).toDateType()
         textDistance.text = modelConverter.from(info).toDistance(location)
 
         if (info.isValidOpenTime()) {
@@ -136,15 +135,6 @@ class DetailActivity : BaseActivity(),
             Timber.e(it.toJson())
         })
 
-        handlePurchaseRule()
-
-        RxView.clicks(textInfo)
-            .throttleClick()
-            .subscribe {
-                analytics.logEvent("detail_click_info", null)
-                showInfoDialog()
-            }
-            .bind(this)
 
         RxView.clicks(imagePhone)
             .throttleClick()
@@ -190,20 +180,6 @@ class DetailActivity : BaseActivity(),
                 showRecordsDialog()
             }
             .bind(this)
-    }
-
-    private fun handlePurchaseRule() {
-        if (useNewRule()) {
-            textDateType.hide()
-            textInfo.text = "點擊查看購買規則"
-            textInfo.setTextSize(COMPLEX_UNIT_SP, 32f)
-            textInfo.setTextColor(ContextCompat.getColor(this, R.color.primaryText))
-        }
-    }
-
-    private fun useNewRule(): Boolean {
-        return Date() >= Calendar.getInstance(Locale.getDefault())
-            .apply { set(2020, Calendar.APRIL, 9, 0, 0, 0) }.time
     }
 
     private fun showNumberTicketCard(usesNumberTicket: Boolean) {
@@ -498,24 +474,6 @@ class DetailActivity : BaseActivity(),
             analytics.logEvent("detail_click_map", null)
             openMap(info.lat, info.lng)
         }
-    }
-
-    private fun showInfoDialog() {
-        analytics.logEvent("detail_show_info_dialog", null)
-
-        val stringId = if (useNewRule()) {
-            R.string.id_new_note_message
-        } else {
-            R.string.id_note_message
-        }
-
-        AlertDialog.Builder(this)
-            .setTitle(getString(R.string.id_note_title))
-            .setMessage(getString(stringId))
-            .setPositiveButton(getString(R.string.dismiss)) { _, _ ->
-                analytics.logEvent("detail_dismiss_info_dialog", null)
-            }
-            .show()
     }
 
     private fun showPhoneDialog() {

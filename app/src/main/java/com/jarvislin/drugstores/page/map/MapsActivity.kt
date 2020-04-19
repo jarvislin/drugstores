@@ -75,6 +75,18 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     private var disposableMarkers: Disposable? = null
     private var disposableLocation: Disposable? = null
     private val modelConverter by lazy { ModelConverter() }
+    private val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(result: LocationResult?) {
+            Timber.i("location updated")
+            super.onLocationResult(result)
+            result?.let {
+                it.locations.firstOrNull()?.let {
+                    myLocation = it
+                    viewModel.saveLastLocation(it)
+                }
+            }
+        }
+    }
 
     companion object {
         private const val DELAY_MILLISECONDS = 100L
@@ -150,7 +162,6 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         fusedLocationClient.lastLocation.addOnSuccessListener { viewModel.saveLastLocation(it) }
-        requestLocation()
         moveToMyLocation()
 
         // handle search
@@ -225,18 +236,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     private fun requestLocation() {
         if (::fusedLocationClient.isInitialized) {
             fusedLocationClient.requestLocationUpdates(
-                LocationRequest().setInterval(30_000), object : LocationCallback() {
-                    override fun onLocationResult(result: LocationResult?) {
-                        Timber.i("location updated")
-                        super.onLocationResult(result)
-                        result?.let {
-                            it.locations.firstOrNull()?.let {
-                                myLocation = it
-                                viewModel.saveLastLocation(it)
-                            }
-                        }
-                    }
-                },
+                LocationRequest().setInterval(30_000), locationCallback,
                 Looper.getMainLooper()
             )
         }
@@ -439,9 +439,21 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         map.isMyLocationEnabled = true
     }
 
+    private fun removeLocationCallback() {
+        if (::fusedLocationClient.isInitialized) {
+            fusedLocationClient.removeLocationUpdates(locationCallback)
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         viewModel.fetchProclamations()
+        requestLocation()
+    }
+
+    override fun onPause() {
+        removeLocationCallback()
+        super.onPause()
     }
 
     override fun onBackPressed() {
