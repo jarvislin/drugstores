@@ -12,15 +12,24 @@
 https://play.google.com/store/apps/details?id=com.jarvislin.drugstores
 
 ## Changelog
-* 1.3.0: feature of Report
-* 1.2.1: fix GPS issue
-* 1.2.0: feature of note, DB migration
-* 1.1.4: using defensive programming to handle remote data resource
-* 1.1.3: hotfix wrong proguard config
-* 1.1.2: handle root causes of CSV ParseError
-* 1.1.1: hotfix CSV ParseError
-* 1.1.0: feature of Search
-* 1.0.0: feature of Mask map
+* 1.7.0 feature: News published by Centers for Disease Control
+* 1.6.2 feature: integrate FCM, let users report number tickect multiple times
+* 1.6.1 feature: Q & A
+* 1.6.0 feature: Proclamations announced by government
+* 1.5.3 feature: showing distance bwtween user and pharmacies
+* 1.5.2 fix: GPS permission
+* 1.5.1 refactor: adjust UI / UX
+* 1.5.0 feature: Mask amoumt's records
+* 1.4.0 feature: Opening hours of drugstores
+* 1.3.0 feature: Report
+* 1.2.1 fix: GPS issue
+* 1.2.0 feature of note, DB migration
+* 1.1.4 fix: using defensive programming to handle remote data resource
+* 1.1.3 fix: wrong proguard config
+* 1.1.2 fix: handle root causes of CSV ParseError
+* 1.1.1 fix: CSV ParseError
+* 1.1.0 feature: Search
+* 1.0.0 feature: Mask map
 
 ## Install
 * `git clone git@github.com:jarvislin/drugstores.git`
