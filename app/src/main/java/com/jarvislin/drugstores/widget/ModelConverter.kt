@@ -87,7 +87,6 @@ class InfoConverter(private val info: DrugstoreInfo) {
                 "更多資訊請參考口罩資訊地圖：https://play.google.com/store/apps/details?id=com.jarvislin.drugstores"
     }
 
-    fun toDateType() = toDateTypeText()
     fun toDistance(location: Location?): String {
         location?.toLatLng()?.let {
             val result = FloatArray(1)
@@ -107,18 +106,6 @@ class InfoConverter(private val info: DrugstoreInfo) {
     }
 
     companion object {
-        fun toDateTypeText(): String {
-            val calendar = Calendar.getInstance(Locale.getDefault())
-            var day = calendar.get(Calendar.DAY_OF_WEEK)
-            if (calendar.firstDayOfWeek == Calendar.SUNDAY) {
-                day--
-            }
-            return when (day) {
-                1, 3, 5 -> "單號"
-                2, 4, 6 -> "雙號"
-                else -> "單雙號"
-            }
-        }
 
         fun toDayOfWeek(index: Int): String {
             return when (index) {
