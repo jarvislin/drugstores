@@ -38,6 +38,7 @@ import com.jarvislin.drugstores.base.BaseActivity
 import com.jarvislin.drugstores.extension.*
 import com.jarvislin.drugstores.page.detail.DetailActivity
 import com.jarvislin.drugstores.page.detail.DetailActivity.Companion.KEY_LOCATION
+import com.jarvislin.drugstores.page.news.NewsActivity
 import com.jarvislin.drugstores.page.proclamation.ProclamationActivity
 import com.jarvislin.drugstores.page.questions.QuestionsActivity
 import com.jarvislin.drugstores.page.search.SearchDialogFragment
@@ -74,6 +75,18 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     private var disposableMarkers: Disposable? = null
     private var disposableLocation: Disposable? = null
     private val modelConverter by lazy { ModelConverter() }
+    private val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(result: LocationResult?) {
+            Timber.i("location updated")
+            super.onLocationResult(result)
+            result?.let {
+                it.locations.firstOrNull()?.let {
+                    myLocation = it
+                    viewModel.saveLastLocation(it)
+                }
+            }
+        }
+    }
 
     companion object {
         private const val DELAY_MILLISECONDS = 100L
@@ -129,6 +142,10 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
                         ProclamationActivity.start(this, it.first)
                     }
                 }
+                R.id.menuNews -> {
+                    analytics.logEvent("map_click_drawer_news", null)
+                    NewsActivity.start(this)
+                }
                 R.id.menuQuestion -> {
                     analytics.logEvent("map_click_drawer_questions", null)
                     QuestionsActivity.start(this)
@@ -145,7 +162,6 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         fusedLocationClient.lastLocation.addOnSuccessListener { viewModel.saveLastLocation(it) }
-        requestLocation()
         moveToMyLocation()
 
         // handle search
@@ -220,18 +236,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     private fun requestLocation() {
         if (::fusedLocationClient.isInitialized) {
             fusedLocationClient.requestLocationUpdates(
-                LocationRequest().setInterval(30_000), object : LocationCallback() {
-                    override fun onLocationResult(result: LocationResult?) {
-                        Timber.i("location updated")
-                        super.onLocationResult(result)
-                        result?.let {
-                            it.locations.firstOrNull()?.let {
-                                myLocation = it
-                                viewModel.saveLastLocation(it)
-                            }
-                        }
-                    }
-                },
+                LocationRequest().setInterval(30_000), locationCallback,
                 Looper.getMainLooper()
             )
         }
@@ -434,9 +439,21 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
         map.isMyLocationEnabled = true
     }
 
+    private fun removeLocationCallback() {
+        if (::fusedLocationClient.isInitialized) {
+            fusedLocationClient.removeLocationUpdates(locationCallback)
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         viewModel.fetchProclamations()
+        requestLocation()
+    }
+
+    override fun onPause() {
+        removeLocationCallback()
+        super.onPause()
     }
 
     override fun onBackPressed() {
