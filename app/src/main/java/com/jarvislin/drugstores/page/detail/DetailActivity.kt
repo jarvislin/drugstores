@@ -129,12 +129,6 @@ class DetailActivity : BaseActivity(),
             cardOpenTime.show()
         }
 
-        viewModel.fetchRecords(info.id)
-        viewModel.records.observe(this, Observer {
-            populateChartView(it)
-            Timber.e(it.toJson())
-        })
-
 
         RxView.clicks(imagePhone)
             .throttleClick()
@@ -216,76 +210,6 @@ class DetailActivity : BaseActivity(),
                 analytics.logEvent("detail_dismiss_records_dialog", null)
             }
             .show()
-    }
-
-    private fun populateChartView(records: List<MaskRecord>) {
-
-        val rightAxis = chartView.axisRight
-        rightAxis.setDrawAxisLine(false)
-        rightAxis.setDrawGridLines(false)
-        rightAxis.setDrawLabels(false)
-
-        val leftAxis = chartView.axisLeft
-        leftAxis.setDrawGridLines(true)
-        leftAxis.axisMinimum = 0f
-        leftAxis.textSize = 14.5f
-        leftAxis.granularity = 1f
-        leftAxis.textColor = ContextCompat.getColor(this, R.color.primaryText)
-
-        val xAxis = chartView.xAxis
-        xAxis.setDrawGridLines(false)
-        xAxis.labelRotationAngle = -60f
-        xAxis.textSize = 13.5f
-        xAxis.textColor = ContextCompat.getColor(this, R.color.secondaryText)
-        xAxis.granularity = 1f
-        xAxis.position = XAxis.XAxisPosition.BOTTOM
-
-        val adults = ArrayList<Entry>()
-        val children = ArrayList<Entry>()
-        val dates = ArrayList<Date>()
-
-        records.forEachIndexed { index, maskRecord ->
-            adults.add(Entry(index.toFloat(), maskRecord.adultAmount.toFloat()))
-            children.add(Entry(index.toFloat(), maskRecord.childAmount.toFloat()))
-            dates.add(maskRecord.date)
-        }
-
-        val adultsDataSet =
-            initLineDataSetSettings(LineDataSet(adults, "成人"), ColorTemplate.JOYFUL_COLORS[0])
-        val childrenDataSet =
-            initLineDataSetSettings(LineDataSet(children, "兒童"), ColorTemplate.JOYFUL_COLORS[3])
-
-        chartView.data = LineData(adultsDataSet, childrenDataSet)
-        chartView.setExtraOffsets(12f, 0f, 24f, 16f)
-        chartView.xAxis.valueFormatter = ChartDateFormatter(dates, "HH:mm")
-        chartView.description.text = ""
-        chartView.legend.apply {
-            horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
-            verticalAlignment = Legend.LegendVerticalAlignment.TOP
-            yOffset = 12f
-            formSize = 14f
-            textSize = 14f
-            form = Legend.LegendForm.LINE
-        }
-
-        chartView.invalidate()
-        cardChart.show()
-    }
-
-    private fun initLineDataSetSettings(lineDataSet: LineDataSet, color: Int): LineDataSet {
-        lineDataSet.color = color
-        lineDataSet.lineWidth = 1f
-        lineDataSet.setCircleColor(color)
-        lineDataSet.circleRadius = 1.5f
-        lineDataSet.fillColor = color
-        lineDataSet.mode = LineDataSet.Mode.LINEAR
-        lineDataSet.setDrawValues(false)
-        lineDataSet.setDrawCircles(false)
-        lineDataSet.valueTextSize = 14f
-        lineDataSet.valueTextColor = color
-        lineDataSet.axisDependency = YAxis.AxisDependency.LEFT
-
-        return lineDataSet
     }
 
     private fun showMaskStatus(maskStatus: MaskStatus) {
@@ -499,18 +423,3 @@ class DetailActivity : BaseActivity(),
     }
 }
 
-class ChartDateFormatter(
-    private val dates: List<Date>,
-    private val pattern: String = "MM.dd HH:mm"
-) : ValueFormatter() {
-    override fun getFormattedValue(value: Float): String {
-        return value.toInt().let {
-            if (it >= 0 && it < dates.size)
-                SimpleDateFormat(pattern, Locale.getDefault()).format(dates[it])
-            else {
-                FirebaseCrashlytics.getInstance().log("array size: ${dates.size}, value: $it")
-                ""
-            }
-        }
-    }
-}
