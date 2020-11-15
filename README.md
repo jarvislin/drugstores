@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/jarvislin/drugstores.svg?branch=master)](https://travis-ci.org/jarvislin/drugstores)
+[![Coverage Status](https://coveralls.io/repos/github/jarvislin/drugstores/badge.svg?branch=master)](https://coveralls.io/github/jarvislin/drugstores?branch=master)
+
 # 口罩資訊地圖
 
 透過地圖呈現週遭的特約藥局，並顯示即時的口罩數量，也提供關鍵字搜尋。
