@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/jarvislin/drugstores.svg?branch=master)](https://travis-ci.org/jarvislin/drugstores)
 [![Coverage Status](https://coveralls.io/repos/github/jarvislin/drugstores/badge.svg?branch=master)](https://coveralls.io/github/jarvislin/drugstores?branch=master)
+![Made with love in Taiwan](https://madewithlove.now.sh/tw?heart=true&colorA=%234c4c4c&colorB=%232ea7bd)
 
 # 口罩資訊地圖
 
@@ -7,6 +8,10 @@
 
 採用健康保險開放資料服務：
 健保特約機構口罩剩餘數量明細清單之資料集。
+
+# MaskInfo Map
+
+Provides information about the quantity of masks of every pharmacy and proclamations announced by goverment in Taiwan.
 
 ![screenshot](https://github.com/jarvislin/drugstores/blob/master/art/2.png)
 
