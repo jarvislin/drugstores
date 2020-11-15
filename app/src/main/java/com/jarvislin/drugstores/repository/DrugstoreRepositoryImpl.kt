@@ -69,9 +69,8 @@ class DrugstoreRepositoryImpl(
         return Pair(location[0], location[1])
     }
 
-    override fun downloadData(): Flowable<Progress> {
+    override fun downloadData(): Single<DownloadResult> {
         return downloader.download(DATA_URL)
-            .toFlowable(BackpressureStrategy.LATEST)
             .subscribeOn(Schedulers.io())
     }
 

@@ -13,7 +13,7 @@ interface DrugstoreRepository {
     fun findNearDrugstoreInfo(latitude: Double, longitude: Double): Single<List<DrugstoreInfo>>
     fun saveLastLocation(latitude: Double, longitude: Double)
     fun getLastLocation(): Pair<Double, Double>
-    fun downloadData(): Flowable<Progress>
+    fun downloadData(): Single<DownloadResult>
     fun transformToDrugstoreInfo(file: File): Single<List<DrugstoreInfo>>
     fun searchAddress(keyword: String): Single<List<DrugstoreInfo>>
     fun reportMaskStatus(id: String, status: Status): Completable
