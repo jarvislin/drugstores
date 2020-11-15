@@ -5,6 +5,9 @@ buildscript {
     repositories {
         google()
         jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.0.2'
@@ -13,6 +16,8 @@ buildscript {
         // in the individual module build.gradle files
         classpath 'com.google.gms:google-services:4.3.4'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.4.1'
+        classpath "com.github.nbaztec:coveralls-jacoco-gradle-plugin:1.2.4"
+        classpath 'org.jacoco:org.jacoco.core:0.8.5'
     }
 }
 
@@ -27,6 +32,72 @@ allprojects {
     }
 }
 
+
+
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+def coveredProjects = subprojects
+
+configure(coveredProjects) { p ->
+    p.evaluate()
+
+    apply plugin: 'jacoco'
+    jacoco {
+        toolVersion = "0.8.5"
+    }
+
+    task jacocoReport(type: JacocoReport, dependsOn: 'test') {
+
+        reports {
+            xml.enabled = true
+            html.enabled = true
+        }
+
+        final fileFilter = ['**/R.class', '**/R$*.class', '**/BuildConfig.*', '**/Manifest*.*', 'android/**/*.*']
+
+        sourceDirectories.setFrom files(["${p.projectDir}/src/main/java"])
+        classDirectories.setFrom files([fileTree(dir: "${p.buildDir}/classes", excludes: fileFilter)])
+        executionData.setFrom fileTree(dir: p.buildDir, includes: [
+                'jacoco/*.exec', 'outputs/code-coverage/connected/*coverage.ec'
+        ])
+    }
+}
+
+apply plugin: 'jacoco'
+apply plugin: 'com.github.nbaztec.coveralls-jacoco'
+
+task jacocoFullReport(type: JacocoReport, group: 'Coverage reports') {
+    def projects = coveredProjects
+
+    dependsOn(projects.jacocoReport)
+
+    final source = files(projects.jacocoReport.sourceDirectories)
+
+    additionalSourceDirs.setFrom source
+    sourceDirectories.setFrom source
+
+    classDirectories.setFrom files(projects.jacocoReport.classDirectories)
+    executionData.setFrom files(projects.jacocoReport.executionData)
+
+    reports {
+        html {
+            enabled true
+            destination file("$buildDir/reports/jacoco/html")
+        }
+        xml {
+            enabled true
+            destination file("$buildDir/reports/jacoco/jacocoFullReport.xml")
+        }
+    }
+
+    doFirst {
+        executionData.setFrom files(executionData.findAll { it.exists() })
+    }
+
+    coverallsJacoco {
+        reportPath = "$buildDir/reports/jacoco/jacocoFullReport.xml"
+        reportSourceSets =  projects.jacocoReport.sourceDirectories.collect{ it.getFiles() }.flatten()
+    }
 }
