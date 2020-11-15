@@ -30,8 +30,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.jakewharton.rxbinding2.view.RxView
-import com.jarvislin.domain.entity.DrugstoreInfo
-import com.jarvislin.domain.entity.Progress
+import com.jarvislin.domain.entity.*
 import com.jarvislin.drugstores.BuildConfig
 import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.base.BaseActivity
@@ -47,6 +46,7 @@ import com.jarvislin.drugstores.widget.ModelConverter
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_maps.*
@@ -89,7 +89,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     }
 
     companion object {
-        private const val DELAY_MILLISECONDS = 100L
+        private const val DELAY_MILLISECONDS = 20L
         private const val REQUEST_LOCATION = 5566
         private const val DEFAULT_ZOOM_LEVEL = 15f
         fun start(context: Context) {
@@ -181,11 +181,18 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
         // download open data
         viewModel.autoUpdate.observe(this, Observer { startDownload() })
-        viewModel.downloadProgress.observe(this, Observer { progress ->
-            if (progress is Progress.Done) {
-                Timber.i("open data downloaded")
-                textProgressHint.text = "資料轉換中"
-                viewModel.handleLatestOpenData(progress.file)
+        viewModel.progress.observe(this, Observer { progress ->
+            when (progress) {
+                StartDownloading -> {
+                    layoutDownloadHint.animate().alpha(1f).start()
+                    textProgressHint.text = "資料下載中"
+                }
+                LatestDataSaved -> {
+                    textProgressHint.text = "資料更新完畢"
+                    layoutDownloadHint.animate().setStartDelay(1_000).alpha(0f).start()
+                }
+                UpdateFailed -> layoutDownloadHint.animate().setStartDelay(1_000).alpha(0f).start()
+                else -> textProgressHint.text = "資料更新中"
             }
         })
 
@@ -227,8 +234,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     }
 
     private fun startDownload() {
-        layoutDownloadHint.animate().alpha(1f).start()
-        textProgressHint.text = "資料下載中"
+
 
         viewModel.fetchOpenData()
     }
@@ -257,7 +263,6 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
                 viewModel.fetchNearDrugstoreInfo(positionLatitude, positionLongitude)
                 viewModel.countDown()
             }
-            layoutDownloadHint.animate().setStartDelay(1_000).alpha(0f).start()
         })
 
         map.uiSettings.isMapToolbarEnabled = false
@@ -325,8 +330,12 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
 
     private fun addMarkers(drugstores: List<DrugstoreInfo>) {
         disposableMarkers = Flowable.fromIterable(drugstores)
-            .subscribeOn(Schedulers.computation())
             .filter { cacheManager.isCached(it).not() }
+            .zipWith(
+                Flowable.interval(DELAY_MILLISECONDS, TimeUnit.MILLISECONDS)
+                    .take(drugstores.size.toLong()),
+                BiFunction<DrugstoreInfo, Long, DrugstoreInfo> { info, _ -> info }
+            )
             .map { info ->
                 MarkerInfoManager.getMarkerInfo(info.adultMaskAmount).let {
                     val options = MarkerOptions()
@@ -340,11 +349,10 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
                     Pair(info, it)
                 }
             }
-            .delay(DELAY_MILLISECONDS, TimeUnit.MILLISECONDS)
+            .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ pair ->
-                pair.let { map.addMarker(it.second) }
-                    .also { cacheManager.add(pair.first, it) }
+            .subscribe({ (info, options) ->
+                map.addMarker(options).also { cacheManager.add(info, it) }
             }, { Timber.e(it) })
             .addTo(compositeDisposable)
     }

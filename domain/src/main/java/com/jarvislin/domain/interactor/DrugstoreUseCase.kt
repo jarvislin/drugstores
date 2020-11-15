@@ -3,16 +3,12 @@ package com.jarvislin.domain.interactor
 import com.jarvislin.domain.entity.*
 import com.jarvislin.domain.repository.DrugstoreRepository
 import io.reactivex.Completable
-import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
+import io.reactivex.subjects.PublishSubject
 import java.io.File
 
 class DrugstoreUseCase(private val drugstoreRepository: DrugstoreRepository) {
-
-    fun fetchData(): Flowable<Progress> {
-        return drugstoreRepository.downloadData()
-    }
 
     fun findNearDrugstoreInfo(latitude: Double, longitude: Double): Single<List<DrugstoreInfo>> {
         return drugstoreRepository.findNearDrugstoreInfo(latitude, longitude)
@@ -26,10 +22,21 @@ class DrugstoreUseCase(private val drugstoreRepository: DrugstoreRepository) {
         return drugstoreRepository.getLastLocation()
     }
 
-    fun handleLatestData(file: File): Completable {
-        return drugstoreRepository.deleteDrugstoreInfo()
-            .flatMap { drugstoreRepository.transformToDrugstoreInfo(file) }
+    fun fetchData(subject: PublishSubject<UpdateProgress>): Completable {
+        var file: File? = null
+        return drugstoreRepository.downloadData()
+            .doOnSubscribe { subject.onNext(StartDownloading) }
+            .doOnSuccess {
+                subject.onNext(LatestDataDownloaded)
+                file = it.file
+            }
+            .flatMap { drugstoreRepository.deleteDrugstoreInfo() }
+            .doOnSuccess { subject.onNext(OldDataDeleted) }
+            .flatMap { drugstoreRepository.transformToDrugstoreInfo(file!!) }
+            .doOnSuccess { subject.onNext(LatestDataTransformed) }
             .flatMapCompletable { drugstoreRepository.saveDrugstoreInfo(it) }
+            .doOnComplete { subject.onNext(LatestDataSaved) }
+            .doOnError { subject.onNext(UpdateFailed) }
     }
 
     fun searchAddress(keyword: String): Single<List<DrugstoreInfo>> {

@@ -1,9 +1,10 @@
 package com.jarvislin.drugstores.data.remote
 
-import com.jarvislin.domain.entity.Progress
+import com.jarvislin.domain.entity.DownloadResult
 import com.jarvislin.drugstores.BuildConfig
 import com.jarvislin.drugstores.base.App
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -26,8 +27,8 @@ class Downloader(
     ).build()
 ) {
 
-    fun download(url: String): Observable<Progress> {
-        return Observable.create<Progress> { emitter ->
+    fun download(url: String): Single<DownloadResult> {
+        return Single.create<DownloadResult> { emitter ->
             val isCanceled = AtomicBoolean(false)
 
             val request: Request = Request.Builder().url(url).get().build()
@@ -51,20 +52,9 @@ class Downloader(
             val cacheFile = File(App.instance().cacheDir, "temp")
             val sink = cacheFile.sink().buffer()
 
-            handleWrites(
-                sink,
-                response.body!!,
-                isCanceled
-            )
+            handleWrites(sink, response.body!!, isCanceled)
 
-            emitter.onNext(
-                Progress.Done(
-                    response.body!!.contentLength(),
-                    cacheFile
-                )
-            )
-            emitter.onComplete()
-
+            emitter.onSuccess(DownloadResult(cacheFile))
         }.subscribeOn(Schedulers.io())
     }
 
