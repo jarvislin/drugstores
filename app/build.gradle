@@ -140,3 +140,8 @@ static def getTimestamp() {
     def date = new Date()
     return Integer.parseInt(date.format('yyMMddHHmm'))
 }
+
+android.applicationVariants.all { variant ->
+    def googleTask = tasks.findByName("process${variant.name.capitalize()}GoogleServices")
+    googleTask.enabled = false
+}
