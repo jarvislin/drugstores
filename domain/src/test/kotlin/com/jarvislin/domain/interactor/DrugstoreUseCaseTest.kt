@@ -65,5 +65,6 @@ class DrugstoreUseCaseTest {
 
         testObserver
             .assertValueAt(0, StartDownloading)
+            .assertValueAt(1, UpdateFailed)
     }
 }
