@@ -22,12 +22,6 @@ class DrugstoreUseCase(private val drugstoreRepository: DrugstoreRepository) {
         return drugstoreRepository.getLastLocation()
     }
 
-    fun handleLatestData(file: File): Completable {
-        return drugstoreRepository.deleteDrugstoreInfo()
-            .flatMap { drugstoreRepository.transformToDrugstoreInfo(file) }
-            .flatMapCompletable { drugstoreRepository.saveDrugstoreInfo(it) }
-    }
-
     fun fetchData(subject: PublishSubject<UpdateProgress>): Completable {
         var file: File? = null
         return drugstoreRepository.downloadData()

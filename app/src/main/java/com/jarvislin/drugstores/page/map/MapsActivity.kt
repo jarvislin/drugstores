@@ -91,7 +91,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     companion object {
         private const val DELAY_MILLISECONDS = 20L
         private const val REQUEST_LOCATION = 5566
-        private const val DEFAULT_ZOOM_LEVEL = 11f
+        private const val DEFAULT_ZOOM_LEVEL = 15f
         fun start(context: Context) {
             Intent(context, MapsActivity::class.java).apply {
                 context.startActivity(this)
