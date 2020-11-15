@@ -12,6 +12,8 @@
 https://play.google.com/store/apps/details?id=com.jarvislin.drugstores
 
 ## Changelog
+* 1.7.2 refactor: adjust UX of showing progress / markers
+* 1.7.1 refactor: remove chart of mask ammount history
 * 1.7.0 feature: News published by Centers for Disease Control
 * 1.6.2 feature: integrate FCM, let users report number tickect multiple times
 * 1.6.1 feature: Q & A
