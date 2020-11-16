@@ -11,7 +11,7 @@
 
 # MaskInfo Map
 
-Provides information about the quantity of masks of every pharmacy and proclamations announced by goverment in Taiwan.
+Provides information about the quantity of masks of every pharmacy and proclamations announced by government in Taiwan.
 
 ![screenshot](https://github.com/jarvislin/drugstores/blob/master/art/2.png)
 
