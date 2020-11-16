@@ -1,9 +1,17 @@
+[![Build Status](https://travis-ci.org/jarvislin/drugstores.svg?branch=develop)](https://travis-ci.org/jarvislin/drugstores)
+[![Coverage Status](https://coveralls.io/repos/github/jarvislin/drugstores/badge.svg?branch=develop)](https://coveralls.io/github/jarvislin/drugstores?branch=develop)
+![Made with love in Taiwan](https://madewithlove.now.sh/tw?heart=true&colorA=%234c4c4c&colorB=%232ea7bd)
+
 # 口罩資訊地圖
 
 透過地圖呈現週遭的特約藥局，並顯示即時的口罩數量，也提供關鍵字搜尋。
 
 採用健康保險開放資料服務：
 健保特約機構口罩剩餘數量明細清單之資料集。
+
+# MaskInfo Map
+
+Provides information about the quantity of masks of every pharmacy and proclamations announced by goverment in Taiwan.
 
 ![screenshot](https://github.com/jarvislin/drugstores/blob/master/art/2.png)
 
@@ -12,6 +20,8 @@
 https://play.google.com/store/apps/details?id=com.jarvislin.drugstores
 
 ## Changelog
+* 1.7.2 refactor: adjust UX of showing progress / markers
+* 1.7.1 refactor: remove chart of mask ammount history
 * 1.7.0 feature: News published by Centers for Disease Control
 * 1.6.2 feature: integrate FCM, let users report number tickect multiple times
 * 1.6.1 feature: Q & A
