@@ -17,7 +17,6 @@ buildscript {
         classpath 'com.google.gms:google-services:4.3.4'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.4.1'
         classpath "com.github.nbaztec:coveralls-jacoco-gradle-plugin:1.2.4"
-        classpath 'org.jacoco:org.jacoco.core:0.8.5'
     }
 }
 
@@ -58,7 +57,11 @@ configure(coveredProjects) { p ->
         final fileFilter = ['**/R.class', '**/R$*.class', '**/BuildConfig.*', '**/Manifest*.*', 'android/**/*.*']
 
         sourceDirectories.setFrom files(["${p.projectDir}/src/main/java"])
-        classDirectories.setFrom files([fileTree(dir: "${p.buildDir}/classes", excludes: fileFilter)])
+        classDirectories.setFrom files([
+                fileTree(dir: "${p.buildDir}/classes", excludes: fileFilter),
+                fileTree(dir: "${p.buildDir}/intermediates/javac/debug", excludes: fileFilter),
+                fileTree(dir: "${p.buildDir}/tmp/kotlin-classes/debug", excludes: fileFilter),
+        ])
         executionData.setFrom fileTree(dir: p.buildDir, includes: [
                 'jacoco/*.exec', 'outputs/code-coverage/connected/*coverage.ec'
         ])
@@ -100,4 +103,6 @@ task jacocoFullReport(type: JacocoReport, group: 'Coverage reports') {
         reportPath = "$buildDir/reports/jacoco/jacocoFullReport.xml"
         reportSourceSets =  projects.jacocoReport.sourceDirectories.collect{ it.getFiles() }.flatten()
     }
+
+    tasks.coverallsJacoco.dependsOn(it)
 }
