@@ -4,7 +4,6 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
-apply plugin: 'jacoco'
 
 android {
     compileSdkVersion 29
@@ -130,8 +129,10 @@ dependencies {
     // big image viewer
     implementation 'com.github.piasy:BigImageViewer:1.6.2'
 
-    androidTestImplementation "androidx.room:room-testing:$room_version"
     testImplementation 'junit:junit:4.13'
+    testImplementation "io.mockk:mockk:1.9.3"
+    testImplementation "org.koin:koin-test:$koin_version"
+    androidTestImplementation "androidx.room:room-testing:$room_version"
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 }

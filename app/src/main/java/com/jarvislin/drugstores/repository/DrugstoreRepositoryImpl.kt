@@ -30,7 +30,7 @@ class DrugstoreRepositoryImpl(
 
 
     companion object {
-        private const val DATA_URL =
+        const val DATA_URL =
             "https://raw.githubusercontent.com/kiang/pharmacies/master/json/points.json"
         private const val COLLECTION_ROOT = "drugstores"
         private const val COLLECTION_REPORTS = "reports"
