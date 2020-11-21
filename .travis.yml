@@ -32,4 +32,4 @@ script:
   - ./gradlew clean test jacocoFullReport coverallsJacoco
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash) -t CODECOV_TOKEN -f "./build/reports/jacoco/jacocoFullReport.xml"
+  - bash <(curl -s https://codecov.io/bash) -t $CODECOV_TOKEN -f "./build/reports/jacoco/jacocoFullReport.xml"
