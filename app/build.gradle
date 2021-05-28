@@ -129,6 +129,9 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     kapt 'com.github.bumptech.glide:compiler:4.11.0'
 
+    // csv
+    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:0.7.3")
+
     // big image viewer
     implementation 'com.github.piasy:BigImageViewer:1.6.2'
 

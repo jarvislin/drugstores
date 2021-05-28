@@ -14,9 +14,24 @@
         app:layout_constraintHeight_percent="0.4"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/textCount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="bottom"
+        android:paddingHorizontal="28dp"
+        tools:text="累積病例：1234"
+        android:textColor="@color/secondaryText"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/scrollView"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:fadingEdgeLength="20dp"
+        android:requiresFadingEdge="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHeight_percent="0.74">
 
@@ -38,7 +53,7 @@
 
                 <TextView
                     style="@style/MenuCardTitle"
-                    android:text="實聯掃描" />
+                    android:text="@string/menu_scan" />
 
             </androidx.cardview.widget.CardView>
 
@@ -56,7 +71,7 @@
 
                 <TextView
                     style="@style/MenuCardTitle"
-                    android:text="快篩站" />
+                    android:text="@string/menu_rapid_test" />
 
             </androidx.cardview.widget.CardView>
 
@@ -73,14 +88,13 @@
 
                 <TextView
                     style="@style/MenuCardTitle"
-                    android:text="新聞稿" />
+                    android:text="@string/menu_news" />
 
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardMap"
                 style="@style/MenuCard"
-                android:foreground="?attr/selectableItemBackground"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/cardScan"
                 app:layout_constraintTop_toBottomOf="@+id/cardRapidTest">
@@ -91,7 +105,7 @@
 
                 <TextView
                     style="@style/MenuCardTitle"
-                    android:text="口罩地圖" />
+                    android:text="@string/menu_mask_map" />
 
             </androidx.cardview.widget.CardView>
 
