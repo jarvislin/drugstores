@@ -18,6 +18,13 @@
     <string name="option_not_number_ticket">未使用號碼牌</string>
     <string name="is_number_ticket">此藥局採用號碼牌制度，實際庫存可能與數字有所落差。更新資訊</string>
     <string name="is_not_number_ticket">此藥局未採用號碼牌制度。更新資訊</string>
+    <string name="scan_dialog_title">未取得相機權限</string>
+    <string name="scan_dialog_content">需要您的相機權限才有辦法進行掃描，請給予相機權限。</string>
+    <string name="scan_dialog_leave">離開</string>
+    <string name="scan_dialog_go_to_settings">前往設定</string>
+    <string name="scan_no_permission">未取得權限，無法掃描</string>
+    <string name="scan_unsupported_format">未支援此格式</string>
+    <string name="scan_error">掃描錯誤</string>
     <string-array name="questions">
         <item>口罩存量怎麼來的？夠即時嗎？</item>
         <item>什麼情況下口罩存量會不準？</item>
