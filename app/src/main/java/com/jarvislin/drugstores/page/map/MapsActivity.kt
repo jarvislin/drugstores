@@ -473,13 +473,4 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
     }
 }
 
-fun Context.hasPermission(vararg permission: String): Boolean {
-    return permission.all {
-        ActivityCompat.checkSelfPermission(
-            this,
-            it
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-}
-
 fun Location.toLatLng(): LatLng = LatLng(latitude, longitude)

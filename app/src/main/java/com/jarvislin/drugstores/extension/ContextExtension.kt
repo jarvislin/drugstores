@@ -2,7 +2,11 @@ package com.jarvislin.drugstores.extension
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import org.jetbrains.anko.toast
 
 
@@ -35,4 +39,26 @@ fun Context.openWeb(url: String) {
             toast("無法開啟網頁")
         }
     }
+}
+
+fun Context.sendSMS(phone: String, body: String) {
+    Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:$phone"))
+        .apply { putExtra("sms_body", body) }
+        .let { startActivity(it) }
+}
+
+fun Context.hasPermission(vararg permission: String): Boolean {
+    return permission.all {
+        ActivityCompat.checkSelfPermission(
+            this,
+            it
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+}
+
+fun Context.openSettings() {
+    val intent = Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
+    val uri = Uri.fromParts("package", packageName, null)
+    intent.data = uri
+    startActivity(intent)
 }
