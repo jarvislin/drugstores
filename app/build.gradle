@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'com.google.gms.google-services'
+
 apply plugin: 'com.google.firebase.crashlytics'
 
 android {
@@ -122,6 +122,9 @@ dependencies {
     // chart
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 
+    // qr code
+    implementation 'com.budiyev.android:code-scanner:2.1.0'
+
     // glide
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     kapt 'com.github.bumptech.glide:compiler:4.11.0'
@@ -142,7 +145,5 @@ static def getTimestamp() {
     return Integer.parseInt(date.format('yyMMddHHmm'))
 }
 
-android.applicationVariants.all { variant ->
-    def googleTask = tasks.findByName("process${variant.name.capitalize()}GoogleServices")
-    googleTask.enabled = false
-}
+
+apply plugin: 'com.google.gms.google-services'
