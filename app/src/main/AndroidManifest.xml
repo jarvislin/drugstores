@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:name=".base.App"
@@ -66,6 +66,10 @@
 
         <activity
             android:name=".page.scan.ScanActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".page.testing.RapidTestActivity"
             android:screenOrientation="portrait" />
 
         <service

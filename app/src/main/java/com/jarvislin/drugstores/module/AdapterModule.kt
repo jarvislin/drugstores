@@ -4,6 +4,7 @@ import com.jarvislin.drugstores.page.news.NewsAdapter
 import com.jarvislin.drugstores.page.proclamation.ProclamationAdapter
 import com.jarvislin.drugstores.page.questions.QuestionsAdapter
 import com.jarvislin.drugstores.page.search.SearchAdapter
+import com.jarvislin.drugstores.page.testing.LocationAdapter
 import org.koin.dsl.module
 
 val adapterModule = module {
@@ -11,4 +12,5 @@ val adapterModule = module {
     factory { ProclamationAdapter() }
     factory { QuestionsAdapter() }
     factory { NewsAdapter() }
+    factory { LocationAdapter() }
 }
