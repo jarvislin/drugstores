@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="window_width">240dp</dimen>
-    <dimen name="dashboard_horizontal_margin">24dp</dimen>
+    <dimen name="dashboard_horizontal_margin">16dp</dimen>
     <dimen name="dashboard_vertical_margin">8dp</dimen>
 </resources>
