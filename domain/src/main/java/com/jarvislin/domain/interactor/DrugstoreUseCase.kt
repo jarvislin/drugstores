@@ -43,31 +43,6 @@ class DrugstoreUseCase(private val drugstoreRepository: DrugstoreRepository) {
         return drugstoreRepository.searchAddress(keyword)
     }
 
-    fun reportMaskStatus(id: String, status: Status): Completable {
-        return if (drugstoreRepository.isValidReportTime()) {
-            drugstoreRepository.reportMaskStatus(id, status)
-                .doOnComplete { drugstoreRepository.saveReportTime() }
-        } else {
-            Completable.error(InvalidReportTimeException())
-        }
-    }
-
-    fun fetchMaskStatus(id: String): Maybe<MaskStatus> {
-        return drugstoreRepository.fetchMaskStatus(id)
-    }
-
-    fun reportNumberTicket(id: String, isNumberTicket: Boolean): Completable {
-        return drugstoreRepository.reportNumberTicket(id, isNumberTicket)
-    }
-
-    fun fetchUsesNumberTicket(id: String): Maybe<Boolean> {
-        return drugstoreRepository.fetchUsesNumberTicket(id)
-    }
-
-    fun fetchRecords(id: String): Maybe<List<MaskRecord>> {
-        return drugstoreRepository.fetchRecords(id)
-    }
-
     fun isFirstLaunch() = drugstoreRepository.isFirstLaunch()
     fun updateFirstLaunch() {
         drugstoreRepository.updateFirstLaunch()

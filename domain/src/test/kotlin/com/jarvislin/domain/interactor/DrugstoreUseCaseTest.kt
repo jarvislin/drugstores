@@ -104,60 +104,6 @@ class DrugstoreUseCaseTest {
     }
 
     @Test
-    fun reportMaskStatusSuccessfully() {
-        every { drugstoreRepository.isValidReportTime() } returns true
-        every { drugstoreRepository.reportMaskStatus(id, maskStatus) } returns
-                Completable.complete()
-
-        useCase.reportMaskStatus(id, maskStatus)
-            .test()
-            .assertComplete()
-
-        verify {
-            drugstoreRepository.reportMaskStatus(id, maskStatus)
-            drugstoreRepository.saveReportTime()
-        }
-    }
-
-    @Test
-    fun reportMaskStatusFailed() {
-        every { drugstoreRepository.isValidReportTime() } returns false
-
-        useCase.reportMaskStatus(id, maskStatus)
-            .test()
-            .assertError(InvalidReportTimeException::class.java)
-
-        verify(exactly = 0, verifyBlock = {
-            drugstoreRepository.reportMaskStatus(id, maskStatus)
-            drugstoreRepository.saveReportTime()
-        })
-    }
-
-    @Test
-    fun fetchMaskStatus() {
-        useCase.fetchMaskStatus(id).test()
-        verify { drugstoreRepository.fetchMaskStatus(id) }
-    }
-
-    @Test
-    fun reportNumberTicket() {
-        useCase.reportNumberTicket(id, true)
-        verify { drugstoreRepository.reportNumberTicket(id, true) }
-    }
-
-    @Test
-    fun fetchUsesNumberTicket() {
-        useCase.fetchUsesNumberTicket(id)
-        verify { drugstoreRepository.fetchUsesNumberTicket(id) }
-    }
-
-    @Test
-    fun fetchRecords() {
-        useCase.fetchRecords(id)
-        verify { drugstoreRepository.fetchRecords(id) }
-    }
-
-    @Test
     fun isFirstLaunch() {
         every { drugstoreRepository.isFirstLaunch() } returns true
         Assert.assertTrue(useCase.isFirstLaunch())
