@@ -6,7 +6,6 @@
     <string name="dial_message">為避免增加藥局作業量，建議必要時再撥打；撥打前也請確認現在為營業時間。</string>
     <string name="dial_error">無法開啟電話簿</string>
     <string name="id_note_title">購買規則</string>
-    <string name="id_note_message">每 14 天可買成人口罩 9 片或兒童口罩 10 片，不限單雙號。口罩以藥局實際存量為準，線上數量僅供參考。</string>
     <string name="option_empty">沒有了</string>
     <string name="option_warning">剩下不多</string>
     <string name="option_sufficient">數量充足</string>

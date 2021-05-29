@@ -142,10 +142,6 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
                         ProclamationActivity.start(this, it.first)
                     }
                 }
-                R.id.menuNews -> {
-                    analytics.logEvent("map_click_drawer_news", null)
-                    NewsActivity.start(this)
-                }
                 R.id.menuQuestion -> {
                     analytics.logEvent("map_click_drawer_questions", null)
                     QuestionsActivity.start(this)
