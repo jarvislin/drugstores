@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
     android:background="@color/white">
 
     <ImageView
@@ -11,14 +12,189 @@
         android:layout_height="0dp"
         android:scaleType="centerCrop"
         android:src="@drawable/menu"
-        app:layout_constraintHeight_percent="0.4"
+        app:layout_constraintHeight_percent="0.5"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardDashboard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="56dp"
+        android:visibility="invisible"
+        app:cardCornerRadius="12dp"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="12dp">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imageInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_info" />
+
+            <TextView
+                android:id="@+id/textRecoveredTitle"
+                style="@style/MenuDashboardTitle"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="12dp"
+                android:text="解除隔離"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textRecoveredCount"
+                style="@style/MenuDashboardValue"
+                android:text="12345"
+                app:layout_constraintStart_toStartOf="@+id/textRecoveredTitle"
+                app:layout_constraintTop_toBottomOf="@+id/textRecoveredTitle" />
+
+            <TextView
+                android:id="@+id/textDeathTitle"
+                style="@style/MenuDashboardTitle"
+                android:layout_marginStart="@dimen/dashboard_horizontal_margin"
+                android:layout_marginTop="12dp"
+                android:text="死亡"
+                app:layout_constraintStart_toEndOf="@+id/barrier1"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textDeathCount"
+                style="@style/MenuDashboardValue"
+                android:text="12345"
+                app:layout_constraintStart_toStartOf="@+id/textDeathTitle"
+                app:layout_constraintTop_toBottomOf="@+id/textDeathTitle" />
+
+            <TextView
+                android:id="@+id/textConfirmedTitle"
+                style="@style/MenuDashboardTitle"
+                android:layout_marginTop="@dimen/dashboard_vertical_margin"
+                android:text="確診數"
+                app:layout_constraintStart_toStartOf="@+id/textRecoveredTitle"
+                app:layout_constraintTop_toBottomOf="@+id/textRecoveredCount" />
+
+            <TextView
+                android:id="@+id/textConfirmedCount"
+                style="@style/MenuDashboardValue"
+                app:layout_constraintStart_toStartOf="@+id/textRecoveredTitle"
+                app:layout_constraintTop_toBottomOf="@+id/textConfirmedTitle"
+                tools:text="123" />
+
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/barrier1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="end"
+                app:constraint_referenced_ids="textRecoveredTitle,textRecoveredCount,textConfirmedTitle,textConfirmedCount,textYesterdayConfirmedCount,textYesterdayConfirmedTitle" />
+
+            <TextView
+                android:id="@+id/textTestingTitle"
+                style="@style/MenuDashboardTitle"
+                android:layout_marginStart="@dimen/dashboard_horizontal_margin"
+                android:layout_marginTop="@dimen/dashboard_vertical_margin"
+                android:text="通報數"
+                app:layout_constraintStart_toEndOf="@+id/barrier1"
+                app:layout_constraintTop_toBottomOf="@+id/textRecoveredCount" />
+
+            <TextView
+                android:id="@+id/textTestingCount"
+                style="@style/MenuDashboardValue"
+                app:layout_constraintStart_toStartOf="@+id/textTestingTitle"
+                app:layout_constraintTop_toBottomOf="@+id/textTestingTitle"
+                tools:text="12345" />
+
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/barrier2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="end"
+                app:constraint_referenced_ids="textTestingTitle,textTestingCount" />
+
+            <TextView
+                android:id="@+id/textExcludedTitle"
+                style="@style/MenuDashboardTitle"
+                android:layout_marginStart="@dimen/dashboard_horizontal_margin"
+                android:layout_marginTop="@dimen/dashboard_vertical_margin"
+                android:text="排除數"
+                app:layout_constraintStart_toEndOf="@+id/barrier2"
+                app:layout_constraintTop_toBottomOf="@+id/textRecoveredCount" />
+
+            <TextView
+                android:id="@+id/textExcludedCount"
+                style="@style/MenuDashboardValue"
+                app:layout_constraintStart_toStartOf="@+id/textExcludedTitle"
+                app:layout_constraintTop_toBottomOf="@+id/textTestingTitle"
+                tools:text="12345" />
+
+            <TextView
+                android:id="@+id/textYesterdayConfirmedTitle"
+                style="@style/MenuDashboardTitle"
+                android:layout_marginTop="@dimen/dashboard_vertical_margin"
+                android:text="昨日確診"
+                app:layout_constraintStart_toStartOf="@+id/textRecoveredTitle"
+                app:layout_constraintTop_toBottomOf="@+id/textConfirmedCount" />
+
+            <TextView
+                android:id="@+id/textYesterdayConfirmedCount"
+                style="@style/MenuDashboardValue"
+                android:text="123"
+                app:layout_constraintStart_toStartOf="@+id/textRecoveredTitle"
+                app:layout_constraintTop_toBottomOf="@+id/textYesterdayConfirmedTitle" />
+
+
+            <TextView
+                android:id="@+id/textYesterdayTestingTitle"
+                style="@style/MenuDashboardTitle"
+                android:layout_marginStart="@dimen/dashboard_horizontal_margin"
+                android:layout_marginTop="@dimen/dashboard_vertical_margin"
+                android:text="昨日通報"
+                app:layout_constraintStart_toEndOf="@+id/barrier1"
+                app:layout_constraintTop_toBottomOf="@+id/textConfirmedCount" />
+
+            <TextView
+                android:id="@+id/textYesterdayTestingCount"
+                style="@style/MenuDashboardValue"
+                android:text="12345"
+                app:layout_constraintStart_toStartOf="@+id/textYesterdayTestingTitle"
+                app:layout_constraintTop_toBottomOf="@+id/textYesterdayTestingTitle" />
+
+            <TextView
+                android:id="@+id/textYesterdayExcludedTitle"
+                style="@style/MenuDashboardTitle"
+                android:layout_marginStart="@dimen/dashboard_horizontal_margin"
+                android:layout_marginTop="@dimen/dashboard_vertical_margin"
+                android:text="昨日排除"
+                app:layout_constraintStart_toEndOf="@+id/barrier2"
+                app:layout_constraintTop_toBottomOf="@+id/textConfirmedCount" />
+
+            <TextView
+                android:id="@+id/textYesterdayExcludedCount"
+                style="@style/MenuDashboardValue"
+                android:text="12345"
+                app:layout_constraintStart_toStartOf="@+id/textYesterdayExcludedTitle"
+                app:layout_constraintTop_toBottomOf="@+id/textYesterdayTestingTitle" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
     <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="24dp"
+        android:fadingEdgeLength="20dp"
+        android:requiresFadingEdge="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHeight_percent="0.74">
+        app:layout_constraintTop_toBottomOf="@+id/cardDashboard">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -34,29 +210,30 @@
 
                 <ImageView
                     style="@style/MenuCardImage"
-                    tools:src="@drawable/ic_cdc_logo" />
+                    android:src="@drawable/ic_qr_code_scan"
+                    app:tint="@color/menu" />
 
                 <TextView
                     style="@style/MenuCardTitle"
-                    android:text="實聯掃描" />
+                    android:text="@string/menu_scan" />
 
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardRapidTest"
                 style="@style/MenuCard"
-                android:layout_marginTop="40dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/cardScan"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
                     style="@style/MenuCardImage"
-                    tools:src="@drawable/ic_cdc_logo" />
+                    android:src="@drawable/ic_pharmacy"
+                    app:tint="@color/menu" />
 
                 <TextView
                     style="@style/MenuCardTitle"
-                    android:text="快篩站" />
+                    android:text="@string/menu_rapid_test" />
 
             </androidx.cardview.widget.CardView>
 
@@ -69,29 +246,30 @@
 
                 <ImageView
                     style="@style/MenuCardImage"
-                    tools:src="@drawable/ic_cdc_logo" />
+                    android:src="@drawable/ic_newspaper"
+                    app:tint="@color/menu" />
 
                 <TextView
                     style="@style/MenuCardTitle"
-                    android:text="新聞稿" />
+                    android:text="@string/menu_news" />
 
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardMap"
                 style="@style/MenuCard"
-                android:foreground="?attr/selectableItemBackground"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/cardScan"
                 app:layout_constraintTop_toBottomOf="@+id/cardRapidTest">
 
                 <ImageView
                     style="@style/MenuCardImage"
-                    tools:src="@drawable/ic_cdc_logo" />
+                    android:src="@drawable/ic_map"
+                    app:tint="@color/menu" />
 
                 <TextView
                     style="@style/MenuCardTitle"
-                    android:text="口罩地圖" />
+                    android:text="@string/menu_mask_map" />
 
             </androidx.cardview.widget.CardView>
 

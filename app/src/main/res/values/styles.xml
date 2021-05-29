@@ -24,9 +24,10 @@
     <style name="MenuCard">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">200dp</item>
+        <item name="android:foreground">?attr/selectableItemBackground</item>
         <item name="cardUseCompatPadding">true</item>
         <item name="cardCornerRadius">12dp</item>
-        <item name="cardBackgroundColor">#EDEDED</item>
+        <item name="cardBackgroundColor">#E5E7EA</item>
     </style>
 
     <style name="MenuCardTitle">
@@ -34,7 +35,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">16sp</item>
         <item name="android:layout_marginBottom">20dp</item>
-        <item name="android:textColor">@color/secondaryText</item>
+        <item name="android:textColor">@color/primaryText</item>
         <item name="android:layout_gravity">center_horizontal|bottom</item>
     </style>
 
@@ -44,5 +45,18 @@
         <item name="android:padding">32dp</item>
     </style>
 
+    <style name="MenuDashboardTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/secondaryText</item>
+    </style>
+
+    <style name="MenuDashboardValue">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/primaryText</item>
+    </style>
 
 </resources>
