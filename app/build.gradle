@@ -12,7 +12,8 @@ android {
         applicationId "com.jarvislin.drugstores"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode getTimestamp() as Integer ?: 0
+        //noinspection HighAppVersionCode
+        versionCode  2011151842
         versionName "2.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         kapt {
@@ -138,11 +139,5 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 }
-
-static def getTimestamp() {
-    def date = new Date()
-    return Integer.parseInt(date.format('yyMMddHHmm'))
-}
-
 
 apply plugin: 'com.google.gms.google-services'
