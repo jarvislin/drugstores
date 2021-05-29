@@ -45,7 +45,10 @@ class ScanActivity : BaseActivity() {
                             "SMSTO:1922:",
                             ""
                         ).let { content -> sendSMS("1922", content) }
-                        else -> toast(getString(R.string.scan_unsupported_format))
+                        else -> {
+                            toast(getString(R.string.scan_unsupported_format))
+                            codeScanner.startPreview()
+                        }
                     }
                 }
             }

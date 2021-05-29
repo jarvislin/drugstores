@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">口罩資訊</string>
+    <string name="app_name">防疫資訊</string>
     <string name="dismiss">關閉</string>
     <string name="dial">撥打</string>
     <string name="dial_title">請詳讀以下資訊</string>
@@ -28,7 +28,6 @@
     <string name="menu_rapid_test">全國快篩站</string>
     <string name="menu_news">新聞稿</string>
     <string name="menu_mask_map">口罩地圖</string>
-    <string name="menu_case">確診數  %1$s \n送驗數  %2$s \n排除數  %3$s</string>
     <string name="dashboard_dialog_title">資料來源</string>
     <string name="dashboard_dialog_content">數據取自疾病管制署之開放資料，每日更新一次。</string>
     <string-array name="questions">
