@@ -210,8 +210,8 @@
 
                 <ImageView
                     style="@style/MenuCardImage"
-                    app:tint="@color/menu"
-                    tools:src="@drawable/ic_qr_code_scan" />
+                    android:src="@drawable/ic_qr_code_scan"
+                    app:tint="@color/menu" />
 
                 <TextView
                     style="@style/MenuCardTitle"
@@ -222,15 +222,14 @@
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardRapidTest"
                 style="@style/MenuCard"
-                android:layout_marginTop="40dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/cardScan"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
                     style="@style/MenuCardImage"
-                    app:tint="@color/menu"
-                    tools:src="@drawable/ic_pharmacy" />
+                    android:src="@drawable/ic_pharmacy"
+                    app:tint="@color/menu" />
 
                 <TextView
                     style="@style/MenuCardTitle"
@@ -247,7 +246,8 @@
 
                 <ImageView
                     style="@style/MenuCardImage"
-                    tools:src="@drawable/ic_cdc_logo" />
+                    android:src="@drawable/ic_newspaper"
+                    app:tint="@color/menu" />
 
                 <TextView
                     style="@style/MenuCardTitle"
@@ -264,7 +264,8 @@
 
                 <ImageView
                     style="@style/MenuCardImage"
-                    tools:src="@drawable/ic_cdc_logo" />
+                    android:src="@drawable/ic_map"
+                    app:tint="@color/menu" />
 
                 <TextView
                     style="@style/MenuCardTitle"

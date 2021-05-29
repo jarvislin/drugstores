@@ -26,7 +26,7 @@
     <string name="scan_unsupported_format">未支援此格式</string>
     <string name="scan_error">掃描錯誤</string>
     <string name="menu_scan">實聯掃描</string>
-    <string name="menu_rapid_test">快篩站</string>
+    <string name="menu_rapid_test">全國快篩站</string>
     <string name="menu_news">新聞稿</string>
     <string name="menu_mask_map">口罩地圖</string>
     <string name="menu_case">確診數  %1$s \n送驗數  %2$s \n排除數  %3$s</string>
