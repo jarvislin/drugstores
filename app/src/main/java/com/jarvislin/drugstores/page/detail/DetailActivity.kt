@@ -151,7 +151,7 @@ class DetailActivity : BaseActivity(),
             .subscribe {
                 analytics.logEvent("detail_click_share", null)
                 shareText(
-                    "口罩資訊地圖",
+                    "防疫資訊",
                     modelConverter.from(info).toShareContentText()
                 )
             }
@@ -410,14 +410,7 @@ class DetailActivity : BaseActivity(),
             }
             .setPositiveButton(getString(R.string.dial)) { _, _ ->
                 analytics.logEvent("detail_click_dial", null)
-                Intent(Intent.ACTION_DIAL).apply {
-                    try {
-                        data = Uri.parse("tel:${info.phone}")
-                        startActivity(this)
-                    } catch (ex: Exception) {
-                        toast(getString(R.string.dial_error))
-                    }
-                }
+                call(info.phone)
             }
             .show()
     }

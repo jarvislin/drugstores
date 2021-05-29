@@ -13,6 +13,7 @@ import com.jarvislin.drugstores.extension.show
 import com.jarvislin.drugstores.page.map.MapsActivity
 import com.jarvislin.drugstores.page.news.NewsActivity
 import com.jarvislin.drugstores.page.scan.ScanActivity
+import com.jarvislin.drugstores.page.testing.RapidTestActivity
 import kotlinx.android.synthetic.main.activity_menu.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -26,6 +27,7 @@ class MenuActivity : BaseActivity() {
         cardMap.click { MapsActivity.start(this) }.bind(this)
         cardScan.click { ScanActivity.start(this) }.bind(this)
         cardNews.click { NewsActivity.start(this) }.bind(this)
+        cardRapidTest.click { RapidTestActivity.start(this) }.bind(this)
         imageInfo.click { showInfoDialog() }
 
         viewModel.confirmedCase.observe(this, { data ->

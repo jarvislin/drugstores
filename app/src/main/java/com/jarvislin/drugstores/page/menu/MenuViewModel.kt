@@ -16,7 +16,7 @@ class MenuViewModel : BaseViewModel() {
 
     fun fetchCaseData() {
         useCase.fetchConfirmedCase()
-            .delay(1200L, TimeUnit.MILLISECONDS)
+            .delay(600L, TimeUnit.MILLISECONDS)
             .subscribeBy(onSuccess = { confirmedCase.postValue(it) }, onError = { Timber.e(it) })
             .bind(this)
     }

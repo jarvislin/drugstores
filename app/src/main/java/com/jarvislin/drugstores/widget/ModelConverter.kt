@@ -84,7 +84,7 @@ class InfoConverter(private val info: DrugstoreInfo) {
                 "成人口罩數量為：${info.adultMaskAmount}個，" +
                 "兒童口罩數量為：${info.childMaskAmount}個，" +
                 "口罩數量更新時間為：${info.updateAt}，" +
-                "更多資訊請參考口罩資訊地圖：https://play.google.com/store/apps/details?id=com.jarvislin.drugstores"
+                "更多資訊請參考防疫資訊 App：https://play.google.com/store/apps/details?id=com.jarvislin.drugstores"
     }
 
     fun toDistance(location: Location?): String {

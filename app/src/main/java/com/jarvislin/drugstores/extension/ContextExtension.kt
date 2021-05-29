@@ -1,12 +1,15 @@
 package com.jarvislin.drugstores.extension
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
+import com.jarvislin.drugstores.R
 import org.jetbrains.anko.toast
 
 
@@ -54,6 +57,22 @@ fun Context.hasPermission(vararg permission: String): Boolean {
             it
         ) == PackageManager.PERMISSION_GRANTED
     }
+}
+
+fun Context.call(phone: String) {
+    Intent(Intent.ACTION_DIAL).apply {
+        try {
+            data = Uri.parse("tel:$phone")
+            startActivity(this)
+        } catch (ex: Exception) {
+            toast(getString(R.string.dial_error))
+        }
+    }
+}
+
+fun Context.copyToClipboard(text: String) {
+    val clipboard = getSystemService(this, ClipboardManager::class.java)
+    clipboard?.setPrimaryClip(ClipData.newPlainText("label", text))
 }
 
 fun Context.openSettings() {
