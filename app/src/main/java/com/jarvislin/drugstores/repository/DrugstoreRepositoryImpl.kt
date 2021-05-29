@@ -1,9 +1,5 @@
 package com.jarvislin.drugstores.repository
 
-import android.text.format.DateUtils
-import com.google.firebase.Timestamp
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import com.jarvislin.domain.entity.*
 import com.jarvislin.domain.repository.DrugstoreRepository
 import com.jarvislin.drugstores.data.LocalData
@@ -24,22 +20,13 @@ import java.nio.charset.Charset
 class DrugstoreRepositoryImpl(
     private val drugstoreDao: DrugstoreDao,
     private val localData: LocalData,
-    private val downloader: Downloader,
-    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val downloader: Downloader
 ) : DrugstoreRepository {
 
 
     companion object {
         const val DATA_URL =
             "https://raw.githubusercontent.com/kiang/pharmacies/master/json/points.json"
-        private const val COLLECTION_ROOT = "drugstores"
-        private const val COLLECTION_REPORTS = "reports"
-        private const val COLLECTION_HISTORIES = "histories"
-        private const val FILED_STATUS = "status"
-        private const val FILED_TIMESTAMP = "timestamp"
-        private const val FILED_USES_NUMBER_TICKET = "uses_number_ticket"
-        private const val FILED_MASK_ADULT = "mask_adult"
-        private const val FILED_MASK_CHILD = "mask_child"
     }
 
     override fun saveDrugstoreInfo(data: List<DrugstoreInfo>): Completable {
@@ -109,123 +96,6 @@ class DrugstoreRepositoryImpl(
             } finally {
                 stream.close()
             }
-        }.subscribeOn(Schedulers.io())
-    }
-
-    override fun reportMaskStatus(id: String, status: Status): Completable {
-        val data = hashMapOf(
-            FILED_STATUS to status.value,
-            FILED_TIMESTAMP to Timestamp.now()
-        )
-
-        return Completable.create { emitter ->
-            db.collection(COLLECTION_ROOT)
-                .document(id)
-                .collection(COLLECTION_REPORTS)
-                .add(data)
-                .addOnSuccessListener { emitter.onComplete() }
-                .addOnFailureListener { emitter.onError(it) }
-        }.subscribeOn(Schedulers.io())
-    }
-
-    override fun fetchMaskStatus(id: String): Maybe<MaskStatus> {
-        return Maybe.create<MaskStatus> { emitter ->
-            db.collection(COLLECTION_ROOT)
-                .document(id)
-                .collection(COLLECTION_REPORTS)
-                .orderBy(FILED_TIMESTAMP, Query.Direction.DESCENDING)
-                .limit(1)
-                .get()
-                .addOnSuccessListener {
-                    if (it.documents.isEmpty()) {
-                        emitter.onComplete()
-                        return@addOnSuccessListener
-                    }
-
-                    it.documents.first().apply {
-                        val status = getLong(FILED_STATUS).let { Status.from(it) }
-                        val timestamp = getDate(FILED_TIMESTAMP)
-                        if (status == null || timestamp == null) {
-                            emitter.onComplete()
-                        } else {
-                            if (DateUtils.isToday(timestamp.time)) {
-                                emitter.onSuccess(MaskStatus(status, timestamp))
-                            } else {
-                                emitter.onComplete()
-                            }
-                        }
-                    }
-
-                }
-                .addOnFailureListener { emitter.onError(it) }
-        }.subscribeOn(Schedulers.io())
-    }
-
-    override fun reportNumberTicket(id: String, isNumberTicket: Boolean): Completable {
-        val data = hashMapOf(
-            FILED_USES_NUMBER_TICKET to isNumberTicket
-        )
-
-        return Completable.create { emitter ->
-            db.collection(COLLECTION_ROOT)
-                .document(id)
-                .set(data)
-                .addOnSuccessListener { emitter.onComplete() }
-                .addOnFailureListener { emitter.onError(it) }
-        }
-            .subscribeOn(Schedulers.io())
-    }
-
-    override fun fetchUsesNumberTicket(id: String): Maybe<Boolean> {
-        return Maybe.create<Boolean> { emitter ->
-            db.collection(COLLECTION_ROOT)
-                .document(id)
-                .get()
-                .addOnSuccessListener {
-                    val usesNumberTicket = it.getBoolean(FILED_USES_NUMBER_TICKET)
-                    if (usesNumberTicket == null) {
-                        emitter.onComplete()
-                    } else {
-                        emitter.onSuccess(usesNumberTicket)
-                    }
-                }
-                .addOnFailureListener { emitter.onError(it) }
-        }
-            .subscribeOn(Schedulers.io())
-    }
-
-    override fun fetchRecords(id: String): Maybe<List<MaskRecord>> {
-        return Maybe.create<List<MaskRecord>> { emitter ->
-            db.collection(COLLECTION_ROOT)
-                .document(id)
-                .collection(COLLECTION_HISTORIES)
-                .orderBy(FILED_TIMESTAMP, Query.Direction.DESCENDING)
-                .limit(31)
-                .get()
-                .addOnSuccessListener {
-                    if (it.isEmpty) {
-                        emitter.onComplete()
-                    } else {
-                        it.documents.filter {
-                            it.getLong(FILED_MASK_ADULT) != null &&
-                                    it.getLong(FILED_MASK_CHILD) != null &&
-                                    it.getDate(FILED_TIMESTAMP) != null
-                        }.map {
-                            MaskRecord(
-                                it.getLong(FILED_MASK_ADULT)!!.toInt(),
-                                it.getLong(FILED_MASK_CHILD)!!.toInt(),
-                                it.getDate(FILED_TIMESTAMP)!!
-                            )
-                        }.let {
-                            if (it.isEmpty()) {
-                                emitter.onComplete()
-                            } else {
-                                emitter.onSuccess(it.sortedBy { it.date })
-                            }
-                        }
-                    }
-                }
-                .addOnFailureListener { emitter.onError(it) }
         }.subscribeOn(Schedulers.io())
     }
 

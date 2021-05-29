@@ -16,13 +16,8 @@ interface DrugstoreRepository {
     fun downloadData(): Single<DownloadResult>
     fun transformToDrugstoreInfo(file: File): Single<List<DrugstoreInfo>>
     fun searchAddress(keyword: String): Single<List<DrugstoreInfo>>
-    fun reportMaskStatus(id: String, status: Status): Completable
-    fun fetchMaskStatus(id: String): Maybe<MaskStatus>
     fun isValidReportTime(): Boolean
     fun saveReportTime()
-    fun reportNumberTicket(id: String, isNumberTicket: Boolean): Completable
-    fun fetchUsesNumberTicket(id: String): Maybe<Boolean>
-    fun fetchRecords(id: String): Maybe<List<MaskRecord>>
     fun isFirstLaunch(): Boolean
     fun updateFirstLaunch()
     fun updateRatingCount()

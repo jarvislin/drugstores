@@ -25,7 +25,7 @@
 
     <style name="MenuCard">
         <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">200dp</item>
+        <item name="android:layout_height">188dp</item>
         <item name="android:foreground">?attr/selectableItemBackground</item>
         <item name="cardUseCompatPadding">true</item>
         <item name="cardCornerRadius">12dp</item>
@@ -43,7 +43,7 @@
 
     <style name="MenuCardImage">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">160dp</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:padding">32dp</item>
     </style>
 
@@ -57,7 +57,7 @@
     <style name="MenuDashboardValue">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textSize">20sp</item>
+        <item name="android:textSize">18sp</item>
         <item name="android:textColor">@color/primaryText</item>
     </style>
 
