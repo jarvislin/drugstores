@@ -10,13 +10,13 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.jarvislin.domain.entity.*
 import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.base.BaseActivity
 import com.jarvislin.drugstores.extension.hide
 import com.jarvislin.drugstores.extension.show
 import kotlinx.android.synthetic.main.activity_rapid_test.*
 import kotlinx.android.synthetic.main.activity_rapid_test.recyclerView
-import kotlinx.android.synthetic.main.fragment_search.*
 import org.jetbrains.anko.toast
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -31,6 +31,13 @@ class RapidTestActivity : BaseActivity() {
 
         // init views
         toolbar.setNavigationOnClickListener { finish() }
+        toolbar.inflateMenu(R.menu.rapid_test)
+        toolbar.setOnMenuItemClickListener {
+            if (it.itemId == R.id.refresh) {
+                viewModel.fetchRapidTestLocations()
+                true
+            } else false
+        }
 
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerView.adapter = locationAdapter
@@ -56,21 +63,39 @@ class RapidTestActivity : BaseActivity() {
             }
         }
 
+        // handle observe
+
         viewModel.cityNames.observe(this, {
             spinnerCity.adapter = ArrayAdapter(
                 this,
                 android.R.layout.simple_list_item_1, it.toList()
             )
 
-            cardCity.show()
-
             if (it.isEmpty()) {
                 cardCity.hide()
                 toast("未取得資料，請稍後再試")
+            } else {
+                cardCity.show()
             }
         })
 
         viewModel.selectedLocations.observe(this) { locationAdapter.update(it) }
+        viewModel.progress.observe(this) {
+            when (it) {
+                StartDownloading -> {
+                    cardCity.hide()
+                    progressBar.show()
+                    recyclerView.hide()
+                }
+                LatestDataDownloaded -> {
+                    progressBar.hide()
+                    recyclerView.show()
+                }
+                UpdateFailed -> {
+                    progressBar.hide()
+                }
+            }
+        }
 
         viewModel.fetchRapidTestLocations()
     }

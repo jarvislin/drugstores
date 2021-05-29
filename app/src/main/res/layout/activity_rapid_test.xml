@@ -13,7 +13,7 @@
         android:elevation="8dp"
         app:layout_constraintTop_toTopOf="parent"
         app:navigationIcon="@drawable/ic_arrow_back"
-        app:title="全國快篩站點"
+        app:title="全國快篩站"
         app:titleTextColor="@color/white" />
 
     <LinearLayout
@@ -69,4 +69,13 @@
         app:layout_constraintTop_toBottomOf="@+id/layoutSpinner"
         tools:listitem="@layout/item_location" />
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        app:layout_constraintBottom_toBottomOf="@+id/recyclerView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/recyclerView" />
 </androidx.constraintlayout.widget.ConstraintLayout>
