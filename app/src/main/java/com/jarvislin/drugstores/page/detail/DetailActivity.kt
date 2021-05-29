@@ -3,27 +3,9 @@ package com.jarvislin.drugstores.page.detail
 import android.content.Context
 import android.content.Intent
 import android.location.Location
-import android.net.Uri
 import android.os.Bundle
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.method.LinkMovementMethod
-import android.text.style.ClickableSpan
-import android.util.TypedValue.COMPLEX_UNIT_SP
-import android.view.LayoutInflater
-import android.view.View
-import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Observer
-import com.github.mikephil.charting.components.Legend
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.components.YAxis
-import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.formatter.ValueFormatter
-import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -32,12 +14,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.jakewharton.rxbinding2.view.RxView
 import com.jarvislin.domain.entity.DrugstoreInfo
-import com.jarvislin.domain.entity.MaskRecord
-import com.jarvislin.domain.entity.MaskStatus
-import com.jarvislin.domain.entity.Status
 import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.base.BaseActivity
 import com.jarvislin.drugstores.base.BaseViewModel
@@ -48,12 +26,6 @@ import com.jarvislin.drugstores.widget.ModelConverter
 import com.jarvislin.drugstores.widget.OpenTimeView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_detail.*
-import org.jetbrains.anko.toast
-import org.koin.android.ext.android.inject
-import timber.log.Timber
-import java.text.SimpleDateFormat
-import java.util.*
-import kotlin.collections.ArrayList
 
 
 class DetailActivity : BaseActivity(),
