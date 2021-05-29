@@ -53,9 +53,9 @@
             <TextView
                 android:id="@+id/textRecoveredCount"
                 style="@style/MenuDashboardValue"
-                android:text="12345"
                 app:layout_constraintStart_toStartOf="@+id/textRecoveredTitle"
-                app:layout_constraintTop_toBottomOf="@+id/textRecoveredTitle" />
+                app:layout_constraintTop_toBottomOf="@+id/textRecoveredTitle"
+                tools:text="12345" />
 
             <TextView
                 android:id="@+id/textDeathTitle"
@@ -69,9 +69,9 @@
             <TextView
                 android:id="@+id/textDeathCount"
                 style="@style/MenuDashboardValue"
-                android:text="12345"
                 app:layout_constraintStart_toStartOf="@+id/textDeathTitle"
-                app:layout_constraintTop_toBottomOf="@+id/textDeathTitle" />
+                app:layout_constraintTop_toBottomOf="@+id/textDeathTitle"
+                tools:text="12345" />
 
             <TextView
                 android:id="@+id/textConfirmedTitle"
@@ -162,9 +162,9 @@
             <TextView
                 android:id="@+id/textYesterdayTestingCount"
                 style="@style/MenuDashboardValue"
-                android:text="12345"
                 app:layout_constraintStart_toStartOf="@+id/textYesterdayTestingTitle"
-                app:layout_constraintTop_toBottomOf="@+id/textYesterdayTestingTitle" />
+                app:layout_constraintTop_toBottomOf="@+id/textYesterdayTestingTitle"
+                tools:text="12345" />
 
             <TextView
                 android:id="@+id/textYesterdayExcludedTitle"
@@ -178,9 +178,9 @@
             <TextView
                 android:id="@+id/textYesterdayExcludedCount"
                 style="@style/MenuDashboardValue"
-                android:text="12345"
                 app:layout_constraintStart_toStartOf="@+id/textYesterdayExcludedTitle"
-                app:layout_constraintTop_toBottomOf="@+id/textYesterdayTestingTitle" />
+                app:layout_constraintTop_toBottomOf="@+id/textYesterdayTestingTitle"
+                tools:text="12345" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -199,7 +199,8 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="20dp">
+            android:paddingHorizontal="20dp"
+            android:paddingBottom="24dp">
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardScan"

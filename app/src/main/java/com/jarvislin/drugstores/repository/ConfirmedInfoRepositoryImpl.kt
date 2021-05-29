@@ -10,6 +10,7 @@ import com.jarvislin.drugstores.data.remote.Downloader
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import java.io.File
+import java.text.NumberFormat
 
 class ConfirmedInfoRepositoryImpl(private val downloader: Downloader) : ConfirmedInfoRepository {
     override fun downloadConfirmedCase(): Single<DownloadResult> {
@@ -27,18 +28,30 @@ class ConfirmedInfoRepositoryImpl(private val downloader: Downloader) : Confirme
                     it.containsKey("解除隔離") && it.containsKey("死亡") && it.containsKey("昨日確診")
                 )
                     Dashboard(
-                        confirmedCount = it["確診"]!!,
-                        testingCount = it["送驗"]!!,
-                        excludedCount = it["排除"]!!,
-                        yesterdayConfirmedCount = it["昨日確診"]!!,
-                        yesterdayTestingCount = it["昨日送驗"]!!,
-                        yesterdayExcludedCount = it["昨日排除"]!!,
-                        deathCount = it["死亡"]!!,
-                        recoveredCount = it["解除隔離"]!!
+                        confirmedCount = getFormattedNumber(it["確診"]!!),
+                        testingCount = getFormattedNumber(it["送驗"]!!),
+                        excludedCount = getFormattedNumber(it["排除"]!!),
+                        yesterdayConfirmedCount = getFormattedNumber(it["昨日確診"]!!),
+                        yesterdayTestingCount = getFormattedNumber(it["昨日送驗"]!!),
+                        yesterdayExcludedCount = getFormattedNumber(it["昨日排除"]!!),
+                        deathCount = getFormattedNumber(it["死亡"]!!),
+                        recoveredCount = getFormattedNumber(it["解除隔離"]!!)
                     )
                 else throw HeaderNotFoundException()
             }
             .subscribeOn(Schedulers.io())
+    }
+
+    private fun getFormattedNumber(text: String): String {
+        return if (text.isNumber()) {
+            NumberFormat.getInstance().format(text.toInt())
+        } else {
+            text
+        }
+    }
+
+    fun String.isNumber(): Boolean {
+        return this.toCharArray().all { it.isDigit() }
     }
 
     companion object {
