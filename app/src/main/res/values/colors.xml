@@ -13,7 +13,7 @@
     <color name="chart">#F5F5F5</color>
     <color name="badge">#FF4081</color>
     <color name="ripple">#16000000</color>
-
+    <color name="menu">#0085C1</color>
     <!--  mask  -->
     <color name="warning">#E67F22</color>
     <color name="sufficient">#107879</color>
