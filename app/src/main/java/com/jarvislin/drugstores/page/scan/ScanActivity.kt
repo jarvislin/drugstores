@@ -17,6 +17,7 @@ import com.jarvislin.drugstores.extension.openSettings
 import com.jarvislin.drugstores.extension.openWeb
 import com.jarvislin.drugstores.extension.sendSMS
 import kotlinx.android.synthetic.main.activity_scan.*
+import org.jetbrains.anko.longToast
 import org.jetbrains.anko.toast
 
 class ScanActivity : BaseActivity() {
@@ -56,12 +57,17 @@ class ScanActivity : BaseActivity() {
                                 "SMSTO:1922:",
                                 ""
                             ).let { content ->
-                                sendSMS(phone = "1922", body = content, onError = { ex ->
-                                    codeScanner.startPreview()
-                                    analytics.logEvent(
-                                        "Scan_OpenSmsFailed",
-                                        Bundle().apply { putString("error", ex.localizedMessage) })
-                                })
+                                sendSMS(
+                                    phone = "1922",
+                                    body = content,
+                                    onSuccess = { longToast("請按下送出鍵即可完成") },
+                                    onError = { ex ->
+                                        codeScanner.startPreview()
+                                        analytics.logEvent("Scan_OpenSmsFailed",
+                                            Bundle().apply {
+                                                putString("error", ex.localizedMessage)
+                                            })
+                                    })
                             }
                             analytics.logEvent("Scan_1922", null)
                         }
