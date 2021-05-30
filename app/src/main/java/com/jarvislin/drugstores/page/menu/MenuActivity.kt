@@ -69,6 +69,7 @@ class MenuActivity : BaseActivity() {
             .setTitle(R.string.dashboard_dialog_title)
             .setMessage(R.string.dashboard_dialog_content)
             .setPositiveButton(R.string.dashboard_dialog_share_button) { _, _ ->
+                analytics.logEvent("Menu_ShareDashboard")
                 shareText(
                     "防疫資訊站",
                     getWording()
