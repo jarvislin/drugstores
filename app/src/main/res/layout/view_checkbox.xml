@@ -9,7 +9,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
-        android:text="不要再顯示此訊息"
+        android:text="@string/scan_dialog_dont_show"
         android:textColor="@color/secondaryText"
         android:textSize="16sp" />
 </FrameLayout>
