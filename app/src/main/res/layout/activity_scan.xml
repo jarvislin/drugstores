@@ -34,6 +34,6 @@
         android:layout_marginTop="120dp"
         android:gravity="center"
         android:textSize="16sp"
-        android:text="請將方框對準 QR Code 條碼以掃描"
+        android:text="@string/scan_hint"
         android:textColor="@color/white" />
 </FrameLayout>
