@@ -203,7 +203,7 @@
             android:paddingBottom="24dp">
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/cardScan"
+                android:id="@+id/cardNews"
                 style="@style/MenuCard"
                 app:layout_constraintEnd_toStartOf="@+id/cardRapidTest"
                 app:layout_constraintStart_toStartOf="parent"
@@ -211,12 +211,12 @@
 
                 <ImageView
                     style="@style/MenuCardImage"
-                    android:src="@drawable/ic_qr_code_scan"
+                    android:src="@drawable/ic_newspaper"
                     app:tint="@color/menu" />
 
                 <TextView
                     style="@style/MenuCardTitle"
-                    android:text="@string/menu_scan" />
+                    android:text="@string/menu_news" />
 
             </androidx.cardview.widget.CardView>
 
@@ -224,7 +224,7 @@
                 android:id="@+id/cardRapidTest"
                 style="@style/MenuCard"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/cardScan"
+                app:layout_constraintStart_toEndOf="@+id/cardNews"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
@@ -239,28 +239,10 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/cardNews"
-                style="@style/MenuCard"
-                app:layout_constraintEnd_toStartOf="@+id/cardRapidTest"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/cardScan">
-
-                <ImageView
-                    style="@style/MenuCardImage"
-                    android:src="@drawable/ic_newspaper"
-                    app:tint="@color/menu" />
-
-                <TextView
-                    style="@style/MenuCardTitle"
-                    android:text="@string/menu_news" />
-
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
                 android:id="@+id/cardMap"
                 style="@style/MenuCard"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/cardScan"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/cardScan"
                 app:layout_constraintTop_toBottomOf="@+id/cardRapidTest">
 
                 <ImageView
@@ -271,6 +253,24 @@
                 <TextView
                     style="@style/MenuCardTitle"
                     android:text="@string/menu_mask_map" />
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardScan"
+                style="@style/MenuCard"
+                app:layout_constraintStart_toEndOf="@+id/cardMap"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cardRapidTest">
+
+                <ImageView
+                    style="@style/MenuCardImage"
+                    android:src="@drawable/ic_qr_code_scan"
+                    app:tint="@color/menu" />
+
+                <TextView
+                    style="@style/MenuCardTitle"
+                    android:text="@string/menu_scan" />
 
             </androidx.cardview.widget.CardView>
 
