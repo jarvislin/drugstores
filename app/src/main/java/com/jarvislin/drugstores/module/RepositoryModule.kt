@@ -10,4 +10,5 @@ val repositoryModule = module {
     factory<NewsRepository> { NewsRepositoryImpl() }
     factory<ConfirmedInfoRepository> { ConfirmedInfoRepositoryImpl(get()) }
     factory<RapidTestRepository> { RapidTestRepositoryImpl(get()) }
+    factory<ScanRepository> { ScanRepositoryImpl(get()) }
 }

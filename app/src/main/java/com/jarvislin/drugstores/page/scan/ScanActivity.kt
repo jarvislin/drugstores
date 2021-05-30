@@ -4,25 +4,23 @@ import android.Manifest.permission.CAMERA
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.webkit.URLUtil
+import android.widget.CheckBox
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import com.budiyev.android.codescanner.*
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.base.BaseActivity
-import com.jarvislin.drugstores.base.BaseViewModel
-import com.jarvislin.drugstores.extension.hasPermission
-import com.jarvislin.drugstores.extension.openSettings
-import com.jarvislin.drugstores.extension.openWeb
-import com.jarvislin.drugstores.extension.sendSMS
+import com.jarvislin.drugstores.extension.*
 import kotlinx.android.synthetic.main.activity_scan.*
-import org.jetbrains.anko.longToast
 import org.jetbrains.anko.toast
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ScanActivity : BaseActivity() {
 
-    override val viewModel: BaseViewModel? = null
+    override val viewModel: ScanViewModel by viewModel()
     private lateinit var codeScanner: CodeScanner
     private val analytics: FirebaseAnalytics by lazy { FirebaseAnalytics.getInstance(this) }
 
@@ -41,41 +39,30 @@ class ScanActivity : BaseActivity() {
         // Callbacks
         codeScanner.decodeCallback = DecodeCallback {
             runOnUiThread {
+                vibrateOneShot()
                 it.text.let { result ->
                     when {
                         URLUtil.isValidUrl(result) -> {
-                            openWeb(url = result, onError = { ex ->
-                                codeScanner.startPreview()
-                                analytics.logEvent(
-                                    "Scan_OpenWebFailed",
-                                    Bundle().apply { putString("error", ex.localizedMessage) })
-                            })
+                            if (viewModel.isEnabledWebDialog()) {
+                                showWebDialog(result)
+                            } else {
+                                openWeb(result)
+                            }
                             analytics.logEvent("Scan_Web", null)
                         }
                         result.startsWith("SMSTO:1922:場所代碼：") -> {
-                            result.replace(
-                                "SMSTO:1922:",
-                                ""
-                            ).let { content ->
-                                sendSMS(
-                                    phone = "1922",
-                                    body = content,
-                                    onSuccess = { longToast("請按下送出鍵即可完成") },
-                                    onError = { ex ->
-                                        codeScanner.startPreview()
-                                        analytics.logEvent("Scan_OpenSmsFailed",
-                                            Bundle().apply {
-                                                putString("error", ex.localizedMessage)
-                                            })
-                                    })
+                            val content = result.replace("SMSTO:1922:", "")
+                            if (viewModel.isEnabledSmsDialog()) {
+                                showSmsDialog(content)
+                            } else {
+                                sendSms1922(content)
                             }
                             analytics.logEvent("Scan_1922", null)
                         }
                         else -> {
                             toast(getString(R.string.scan_unsupported_format))
                             codeScanner.startPreview()
-                            analytics.logEvent(
-                                "Scan_UnsupportedFormat",
+                            analytics.logEvent("Scan_UnsupportedFormat",
                                 Bundle().apply { putString("content", result) })
                         }
                     }
@@ -83,15 +70,69 @@ class ScanActivity : BaseActivity() {
             }
         }
         codeScanner.errorCallback = ErrorCallback {
-            runOnUiThread { toast(R.string.scan_error) }
+            runOnUiThread {
+                toast(R.string.scan_error)
+                codeScanner.startPreview()
+            }
             analytics.logEvent(
-                "Scan_failed",
+                "Scan_ScanFailed",
                 Bundle().apply { putString("error", it.localizedMessage) })
         }
 
         if (hasPermission(CAMERA).not()) {
             ActivityCompat.requestPermissions(this, arrayOf(CAMERA), PERMISSION_CAMERA)
         }
+    }
+
+    private fun showWebDialog(result: String) {
+        val view = LayoutInflater.from(this).inflate(R.layout.view_checkbox, null)
+        val checkBox = view.findViewById<CheckBox>(R.id.checkbox)
+
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.scan_web_dialog_title))
+            .setMessage(getString(R.string.scan_web_dialog_content))
+            .setView(view)
+            .setNegativeButton(R.string.dismiss) { _, _ -> }
+            .setPositiveButton(R.string.scan_web_browse_button) { _, _ -> openWeb(result) }
+            .setOnDismissListener {
+                viewModel.saveWebDialogSetting(checkBox.isChecked)
+                codeScanner.startPreview()
+            }
+            .show()
+    }
+
+    private fun openWeb(url: String) {
+        openWeb(url = url, onError = {
+            analytics.logEvent("Scan_OpenWebFailed",
+                Bundle().apply { putString("error", it.localizedMessage) })
+        })
+    }
+
+    private fun showSmsDialog(content: String) {
+        val view = LayoutInflater.from(this).inflate(R.layout.view_checkbox, null)
+        val checkBox = view.findViewById<CheckBox>(R.id.checkbox)
+
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.scan_sms_dialog_title))
+            .setMessage(getString(R.string.scan_sms_dialog_content))
+            .setView(view)
+            .setNegativeButton(R.string.cancel) { _, _ -> }
+            .setPositiveButton(R.string.scan_sms_dialog_next_button) { _, _ -> sendSms1922(content) }
+            .setOnDismissListener {
+                viewModel.saveSmsDialogSetting(checkBox.isChecked)
+                codeScanner.startPreview()
+            }
+            .show()
+    }
+
+    private fun sendSms1922(content: String) {
+        sendSMS(
+            phone = "1922",
+            body = content,
+            onError = {
+                analytics.logEvent("Scan_OpenSmsFailed",
+                    Bundle().apply { putString("error", it.localizedMessage) })
+            })
     }
 
     override fun onResume() {
@@ -121,13 +162,13 @@ class ScanActivity : BaseActivity() {
 
     private fun showPermissionDialog() {
         AlertDialog.Builder(this)
-            .setTitle(getString(R.string.scan_dialog_title))
-            .setMessage(getString(R.string.scan_dialog_content))
-            .setNegativeButton(R.string.scan_dialog_leave) { _, _ ->
+            .setTitle(getString(R.string.scan_permission_dialog_title))
+            .setMessage(getString(R.string.scan_permission_dialog_content))
+            .setNegativeButton(R.string.scan_permission_dialog_leave) { _, _ ->
                 toast(R.string.scan_no_permission)
                 finish()
             }
-            .setPositiveButton(R.string.scan_dialog_go_to_settings) { _, _ -> openSettings() }
+            .setPositiveButton(R.string.scan_permission_dialog_go_to_settings) { _, _ -> openSettings() }
             .show()
     }
 
