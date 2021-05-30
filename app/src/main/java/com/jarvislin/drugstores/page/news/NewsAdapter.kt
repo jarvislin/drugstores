@@ -1,6 +1,6 @@
 package com.jarvislin.drugstores.page.news
 
-import android.text.Html
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -57,8 +57,12 @@ class NewsAdapter : RecyclerView.Adapter<NewsAdapter.NewsHolder>() {
                 itemView.setOnClickListener(null)
             } else {
                 itemView.setOnClickListener {
-                    analytics.logEvent("news_click_item", null)
-                    itemView.context.openWeb(news.link!!)
+                    analytics.logEvent("News_clickPostItem", null)
+                    itemView.context.openWeb(url = news.link!!, onError = { ex ->
+                        analytics.logEvent(
+                            "News_OpenPostUrlFailed",
+                            Bundle().apply { putString("error", ex.localizedMessage) })
+                    })
                 }
             }
         }

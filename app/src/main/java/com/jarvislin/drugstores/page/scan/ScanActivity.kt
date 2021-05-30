@@ -8,6 +8,7 @@ import android.webkit.URLUtil
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import com.budiyev.android.codescanner.*
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.jarvislin.drugstores.R
 import com.jarvislin.drugstores.base.BaseActivity
 import com.jarvislin.drugstores.base.BaseViewModel
@@ -22,6 +23,7 @@ class ScanActivity : BaseActivity() {
 
     override val viewModel: BaseViewModel? = null
     private lateinit var codeScanner: CodeScanner
+    private val analytics: FirebaseAnalytics by lazy { FirebaseAnalytics.getInstance(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,14 +42,35 @@ class ScanActivity : BaseActivity() {
             runOnUiThread {
                 it.text.let { result ->
                     when {
-                        URLUtil.isValidUrl(result) -> openWeb(result)
-                        result.startsWith("SMSTO:1922:場所代碼：") -> result.replace(
-                            "SMSTO:1922:",
-                            ""
-                        ).let { content -> sendSMS("1922", content) }
+                        URLUtil.isValidUrl(result) -> {
+                            openWeb(url = result, onError = { ex ->
+                                codeScanner.startPreview()
+                                analytics.logEvent(
+                                    "Scan_OpenWebFailed",
+                                    Bundle().apply { putString("error", ex.localizedMessage) })
+                            })
+                            analytics.logEvent("Scan_Web", null)
+                        }
+                        result.startsWith("SMSTO:1922:場所代碼：") -> {
+                            result.replace(
+                                "SMSTO:1922:",
+                                ""
+                            ).let { content ->
+                                sendSMS(phone = "1922", body = content, onError = { ex ->
+                                    codeScanner.startPreview()
+                                    analytics.logEvent(
+                                        "Scan_OpenSmsFailed",
+                                        Bundle().apply { putString("error", ex.localizedMessage) })
+                                })
+                            }
+                            analytics.logEvent("Scan_1922", null)
+                        }
                         else -> {
                             toast(getString(R.string.scan_unsupported_format))
                             codeScanner.startPreview()
+                            analytics.logEvent(
+                                "Scan_UnsupportedFormat",
+                                Bundle().apply { putString("content", result) })
                         }
                     }
                 }
@@ -55,6 +78,9 @@ class ScanActivity : BaseActivity() {
         }
         codeScanner.errorCallback = ErrorCallback {
             runOnUiThread { toast(R.string.scan_error) }
+            analytics.logEvent(
+                "Scan_failed",
+                Bundle().apply { putString("error", it.localizedMessage) })
         }
 
         if (hasPermission(CAMERA).not()) {
@@ -80,7 +106,9 @@ class ScanActivity : BaseActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (hasPermission(CAMERA)) {
             codeScanner.startPreview()
+            analytics.logEvent("Scan_GrantCameraPermission", null)
         } else {
+            analytics.logEvent("Scan_RejectCameraPermission", null)
             showPermissionDialog()
         }
     }

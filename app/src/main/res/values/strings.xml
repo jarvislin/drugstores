@@ -30,6 +30,7 @@
     <string name="menu_mask_map">口罩地圖</string>
     <string name="dashboard_dialog_title">資料來源</string>
     <string name="dashboard_dialog_content">數據取自疾病管制署之開放資料，每日更新一次。</string>
+    <string name="dashboard_dialog_share_button">分享資訊</string>
     <string-array name="questions">
         <item>口罩存量怎麼來的？夠即時嗎？</item>
         <item>什麼情況下口罩存量會不準？</item>
