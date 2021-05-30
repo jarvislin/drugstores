@@ -50,6 +50,8 @@ https://play.google.com/store/apps/details?id=com.jarvislin.drugstores
 Apache License 2.0 - UI design and icons are not included.
 
 ## Attribute
+The rapid tests information is collected by the g0v community (CC BY 4.0 g0v contributors at http://bit.ly/TaiwanRapidTests) 
+
 UI from [Penny Yang](https://challenge.thef2e.com/user/3405?schedule=4432#works-4432).
 
 Some icons made by [Freepik](https://www.flaticon.com/authors/freepik) from https://www.flaticon.com/
