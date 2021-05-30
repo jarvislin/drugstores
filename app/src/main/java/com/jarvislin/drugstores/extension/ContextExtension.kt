@@ -6,6 +6,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat.getSystemService
@@ -131,4 +134,15 @@ fun Context.openSettings() {
     val uri = Uri.fromParts("package", packageName, null)
     intent.data = uri
     startActivity(intent)
+}
+
+fun Context.vibrateOneShot() {
+    val vibrator = getSystemService(this, Vibrator::class.java)
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        vibrator?.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE))
+    } else {
+        //deprecated in API 26
+        vibrator?.vibrate(100)
+    }
 }

@@ -9,4 +9,5 @@ val useCaseModule = module {
     factory { NewsUseCase(get()) }
     factory { ConfirmedInfoUseCase(get()) }
     factory { RapidTestUseCase(get()) }
+    factory { ScanUseCase(get()) }
 }
