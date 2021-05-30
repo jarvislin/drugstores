@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.org/jarvislin/drugstores.svg?branch=develop)](https://travis-ci.org/jarvislin/drugstores)
-[![Coverage Status](https://coveralls.io/repos/github/jarvislin/drugstores/badge.svg?branch=develop)](https://coveralls.io/github/jarvislin/drugstores?branch=develop)
+[![Build Status](https://travis-ci.org/jarvislin/drugstores.svg?branch=master)](https://travis-ci.org/jarvislin/drugstores)
+[![Coverage Status](https://coveralls.io/repos/github/jarvislin/drugstores/badge.svg?branch=master)](https://coveralls.io/github/jarvislin/drugstores?branch=master)
 ![Made with love in Taiwan](https://madewithlove.now.sh/tw?heart=true&colorA=%234c4c4c&colorB=%232ea7bd)
 
 # 口罩資訊地圖
@@ -11,7 +11,7 @@
 
 # MaskInfo Map
 
-Provides information about the quantity of masks of every pharmacy and proclamations announced by goverment in Taiwan.
+Provides information about the quantity of masks of every pharmacy and proclamations announced by government in Taiwan.
 
 ![screenshot](https://github.com/jarvislin/drugstores/blob/master/art/2.png)
 
