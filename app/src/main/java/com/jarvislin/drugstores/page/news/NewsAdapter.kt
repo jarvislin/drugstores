@@ -1,9 +1,11 @@
 package com.jarvislin.drugstores.page.news
 
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.text.HtmlCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.jarvislin.domain.entity.News
@@ -47,13 +49,20 @@ class NewsAdapter : RecyclerView.Adapter<NewsAdapter.NewsHolder>() {
 
         fun bind(news: News) {
             textTitle.text = news.title ?: "無標題"
-            textDescription.text = news.description ?: "無內文"
+
+            textDescription.text = if (news.description.isNullOrEmpty()) "無內文"
+            else HtmlCompat.fromHtml(news.description!!, HtmlCompat.FROM_HTML_MODE_LEGACY)
+
             if (news.link == null) {
                 itemView.setOnClickListener(null)
             } else {
                 itemView.setOnClickListener {
-                    analytics.logEvent("news_click_item", null)
-                    itemView.context.openWeb(news.link!!)
+                    analytics.logEvent("News_clickPostItem", null)
+                    itemView.context.openWeb(url = news.link!!, onError = { ex ->
+                        analytics.logEvent(
+                            "News_OpenPostUrlFailed",
+                            Bundle().apply { putString("error", ex.localizedMessage) })
+                    })
                 }
             }
         }

@@ -31,145 +31,6 @@
             app:layout_constraintTop_toTopOf="parent"
             app:navigationIcon="@drawable/ic_arrow_back" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/textInfo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginTop="12dp"
-            android:gravity="center_vertical"
-            android:text="@string/id_note_message"
-            android:textColor="@color/primaryText"
-            android:textSize="17sp"
-            app:layout_constraintTop_toBottomOf="@+id/map" />
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardNumberTicket"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="16dp"
-            android:background="@color/white"
-            android:visibility="gone"
-            app:cardCornerRadius="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/textInfo"
-            tools:visibility="visible">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                app:layout_constraintTop_toBottomOf="@+id/textNote">
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/imageNumberTicketUser"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="@color/white"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_user" />
-
-
-                <TextView
-                    android:id="@+id/textNumberTicket"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:textColor="@color/secondaryText"
-                    android:textSize="14sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/imageNumberTicketUser"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="@string/is_number_ticket" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardMaskStatus"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="16dp"
-            android:background="@color/white"
-            android:visibility="gone"
-            app:cardCornerRadius="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/cardNumberTicket"
-            app:layout_goneMarginTop="12dp"
-            tools:visibility="visible">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                app:layout_constraintTop_toBottomOf="@+id/textNote">
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/imageUser"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="@color/white"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_user" />
-
-                <TextView
-                    android:id="@+id/textUserName"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="熱心人士"
-                    android:textColor="@color/primaryText"
-                    android:textSize="13sp"
-                    app:layout_constraintBottom_toTopOf="@+id/textMaskStatus"
-                    app:layout_constraintStart_toEndOf="@+id/imageUser"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_chainStyle="packed" />
-
-                <TextView
-                    android:id="@+id/textMaskStatus"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:textColor="@color/secondaryText"
-                    android:textSize="14sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/imageUser"
-                    app:layout_constraintTop_toBottomOf="@+id/textUserName"
-                    tools:text="目前口罩數量充足" />
-
-                <TextView
-                    android:id="@+id/textMaskStatusTime"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-light"
-                    android:gravity="end"
-                    android:textColor="@color/divider"
-                    android:textSize="12sp"
-                    app:layout_constraintBottom_toTopOf="@+id/textMaskStatus"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/textUserName"
-                    tools:text="5分鐘前" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </androidx.cardview.widget.CardView>
-
-
         <androidx.cardview.widget.CardView
             android:id="@+id/cardInfo"
             android:layout_width="match_parent"
@@ -179,7 +40,7 @@
             android:layout_marginEnd="16dp"
             android:background="@color/white"
             app:cardCornerRadius="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/cardMaskStatus"
+            app:layout_constraintTop_toBottomOf="@+id/map"
             app:layout_goneMarginTop="12dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -431,46 +292,6 @@
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/cardChart"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="16dp"
-            android:background="@color/white"
-            android:visibility="gone"
-            app:cardCornerRadius="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/cardInfo"
-            app:layout_goneMarginTop="12dp"
-            tools:visibility="visible">
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <com.github.mikephil.charting.charts.LineChart
-                    android:id="@+id/chartView"
-                    android:layout_width="match_parent"
-                    android:layout_height="240dp"
-                    android:layout_marginTop="24dp" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/textRecords"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginEnd="16dp"
-                    android:drawablePadding="6dp"
-                    android:gravity="center"
-                    android:text="存量紀錄"
-                    android:textColor="@color/primaryText"
-                    android:textSize="21sp"
-                    app:drawableEndCompat="@drawable/ic_info" />
-            </FrameLayout>
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
             android:id="@+id/cardOpenTime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -480,7 +301,7 @@
             android:background="@color/white"
             android:visibility="gone"
             app:cardCornerRadius="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/cardChart"
+            app:layout_constraintTop_toBottomOf="@+id/cardInfo"
             app:layout_goneMarginTop="12dp"
             tools:visibility="visible">
 

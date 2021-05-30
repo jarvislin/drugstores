@@ -2,19 +2,19 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'jacoco'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     buildToolsVersion "29.0.2"
     defaultConfig {
         applicationId "com.jarvislin.drugstores"
         minSdkVersion 21
-        targetSdkVersion 29
-        versionCode getTimestamp() as Integer ?: 0
-        versionName "1.7.2"
+        targetSdkVersion 30
+        //noinspection HighAppVersionCode
+        versionCode  2011151842
+        versionName "2.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         kapt {
             arguments {
@@ -47,16 +47,16 @@ dependencies {
     implementation project(':domain')
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.core:core-ktx:1.3.2'
-    implementation 'com.google.android.gms:play-services-maps:17.0.0'
-    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.3.0'
+    implementation 'androidx.core:core-ktx:1.5.0'
+    implementation 'com.google.android.gms:play-services-maps:17.0.1'
+    implementation 'androidx.recyclerview:recyclerview:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'com.google.android.material:material:1.2.1'
-    implementation 'com.google.android.gms:play-services-location:17.1.0'
-    implementation 'com.google.android.play:core:1.8.3'
+    implementation 'com.google.android.material:material:1.3.0'
+    implementation 'com.google.android.gms:play-services-location:18.0.0'
+    implementation 'com.google.android.play:core:1.10.0'
 
     // AAC
     def lifecycle_version = "2.2.0"
@@ -66,12 +66,11 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-livedata-core:$lifecycle_version"
 
     // Firebase
-    implementation 'com.google.firebase:firebase-analytics:18.0.0'
-    implementation 'com.google.firebase:firebase-crashlytics:17.3.0'
-    implementation 'com.google.firebase:firebase-firestore:22.0.0'
-    implementation 'com.google.firebase:firebase-auth:20.0.1'
-    implementation 'com.google.firebase:firebase-config:20.0.1'
-    implementation 'com.google.firebase:firebase-messaging:21.0.0'
+    implementation 'com.google.firebase:firebase-analytics:19.0.0'
+    implementation 'com.google.firebase:firebase-crashlytics:18.0.0'
+    implementation 'com.google.firebase:firebase-auth:21.0.1'
+    implementation 'com.google.firebase:firebase-config:21.0.0'
+    implementation 'com.google.firebase:firebase-messaging:22.0.0'
 
     // room
     def room_version = "2.2.5"
@@ -120,28 +119,26 @@ dependencies {
     // gson
     implementation 'com.google.code.gson:gson:2.8.6'
 
-    // chart
-    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+    // qr code
+    implementation 'com.budiyev.android:code-scanner:2.1.0'
 
     // glide
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     kapt 'com.github.bumptech.glide:compiler:4.11.0'
 
+    // csv
+    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:0.7.3")
+
     // big image viewer
     implementation 'com.github.piasy:BigImageViewer:1.6.2'
 
-    androidTestImplementation "androidx.room:room-testing:$room_version"
     testImplementation 'junit:junit:4.13'
+    testImplementation "io.mockk:mockk:1.9.3"
+    testImplementation "org.koin:koin-test:$koin_version"
+    androidTestImplementation "androidx.room:room-testing:$room_version"
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 }
 
-static def getTimestamp() {
-    def date = new Date()
-    return Integer.parseInt(date.format('yyMMddHHmm'))
-}
 
-android.applicationVariants.all { variant ->
-    def googleTask = tasks.findByName("process${variant.name.capitalize()}GoogleServices")
-    googleTask.enabled = false
-}
+apply plugin: 'com.google.gms.google-services'

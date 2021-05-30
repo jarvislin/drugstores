@@ -142,10 +142,6 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
                         ProclamationActivity.start(this, it.first)
                     }
                 }
-                R.id.menuNews -> {
-                    analytics.logEvent("map_click_drawer_news", null)
-                    NewsActivity.start(this)
-                }
                 R.id.menuQuestion -> {
                     analytics.logEvent("map_click_drawer_questions", null)
                     QuestionsActivity.start(this)
@@ -470,15 +466,6 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback {
             lastClickedMarker?.isInfoWindowShown == true -> lastClickedMarker?.hideInfoWindow()
             else -> super.onBackPressed()
         }
-    }
-}
-
-fun Context.hasPermission(vararg permission: String): Boolean {
-    return permission.all {
-        ActivityCompat.checkSelfPermission(
-            this,
-            it
-        ) == PackageManager.PERMISSION_GRANTED
     }
 }
 

@@ -1,5 +1,7 @@
 package com.jarvislin.drugstores.extension
 
+import android.view.View
+import com.jakewharton.rxbinding2.view.RxView
 import com.jarvislin.drugstores.base.App
 import com.jarvislin.drugstores.base.BaseActivity
 import com.jarvislin.drugstores.base.BaseFragment
@@ -26,4 +28,10 @@ fun Disposable.bind(app: App) {
 
 fun Observable<Any>.throttleClick(): Observable<Any> {
     return this.throttleFirst(1_000, TimeUnit.MILLISECONDS)
+}
+
+fun View.click(trigger: () -> Unit): Disposable {
+    return RxView.clicks(this)
+        .throttleClick()
+        .subscribe { trigger.invoke() }
 }

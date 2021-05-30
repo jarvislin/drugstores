@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
+    app:cardCornerRadius="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:orientation="vertical"
+        android:paddingVertical="12dp">
+
+        <TextView
+            android:id="@+id/textName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="12dp"
+            android:textColor="@color/primaryText"
+            android:textSize="22sp"
+            tools:text="和平醫院" />
+
+        <com.jarvislin.drugstores.widget.TitleTextView
+            android:id="@+id/titleQuota"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:title="每日人數"
+            tools:text="每日人數 12 人" />
+
+        <com.jarvislin.drugstores.widget.TitleTextView
+            android:id="@+id/titleOpening"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:title="開放時間"
+            tools:text="每日 12:00 ~ 13:00" />
+
+        <com.jarvislin.drugstores.widget.TitleTextView
+            android:id="@+id/titleMethod"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:title="排隊或預約方法"
+            tools:text="打電話預約" />
+
+        <com.jarvislin.drugstores.widget.TitleTextView
+            android:id="@+id/titlePhone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:title="電話"
+            tools:text="02-2991234567" />
+
+        <com.jarvislin.drugstores.widget.TitleTextView
+            android:id="@+id/titleAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:title="地址"
+            tools:text="台北市萬華區貴陽街123段456號" />
+
+        <com.jarvislin.drugstores.widget.TitleTextView
+            android:id="@+id/titleLocationDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:title="地點描述"
+            tools:text="學校側門" />
+
+        <com.jarvislin.drugstores.widget.TitleTextView
+            android:id="@+id/titleLimit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:title="服務對象或區域"
+            tools:text="只開放給基隆市民，只開放給基隆市民，只開放給基隆市民，只開放給基隆市民" />
+
+        <com.jarvislin.drugstores.widget.TitleTextView
+            android:id="@+id/titleNote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:title="備註"
+            tools:text="假日不開放" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:orientation="horizontal"
+            android:paddingHorizontal="4dp">
+
+            <TextView
+                android:id="@+id/textReserve"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:padding="8dp"
+                android:text="線上預約"
+                android:textColor="@color/colorAccent"
+                android:textSize="16sp"
+                app:layout_constraintStart_toEndOf="@+id/textShare"
+                app:layout_constraintTop_toBottomOf="@+id/textNote" />
+
+            <TextView
+                android:id="@+id/textNavigate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:padding="8dp"
+                android:text="導航"
+                android:textColor="@color/colorAccent"
+                android:textSize="16sp"
+                app:layout_constraintStart_toEndOf="@+id/textShare"
+                app:layout_constraintTop_toBottomOf="@+id/textNote" />
+
+            <TextView
+                android:id="@+id/textSource"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:padding="8dp"
+                android:text="資料來源"
+                android:textColor="@color/colorAccent"
+                android:textSize="16sp"
+                app:layout_constraintStart_toEndOf="@+id/textShare"
+                app:layout_constraintTop_toBottomOf="@+id/textNote" />
+
+            <TextView
+                android:id="@+id/textShare"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:padding="8dp"
+                android:text="分享資訊"
+                android:textColor="@color/colorAccent"
+                android:textSize="16sp"
+                app:layout_constraintStart_toEndOf="@+id/textShare"
+                app:layout_constraintTop_toBottomOf="@+id/textNote" />
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+</androidx.cardview.widget.CardView>
