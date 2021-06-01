@@ -29,7 +29,7 @@
     <string name="menu_news">新聞稿</string>
     <string name="menu_mask_map">口罩地圖</string>
     <string name="dashboard_dialog_title">資料來源</string>
-    <string name="dashboard_dialog_content">數據取自疾病管制署之開放資料，每日更新一次。</string>
+    <string name="dashboard_dialog_content">數據取自衛生福利部疾病管制署「COVID-19台灣最新病例、檢驗統計」之開放資料，每日更新一次。</string>
     <string name="dashboard_dialog_share_button">分享資訊</string>
     <string name="scan_sms_dialog_title">偵測到政府實聯制條碼</string>
     <string name="scan_sms_dialog_content">接下來將進行頁面跳轉，請開啟「簡訊」App 後，點擊傳送按鈕將簡訊送出即可。</string>
@@ -39,6 +39,16 @@
     <string name="scan_web_browse_button">開啟</string>
     <string name="scan_dialog_dont_show">不要再顯示此訊息</string>
     <string name="scan_hint">請將方框對準 QR Code 條碼以掃描</string>
+    <string name="dashboard_recovered">解除隔離</string>
+    <string name="dashboard_death">死亡</string>
+    <string name="dashboard_confirmed">確診數</string>
+    <string name="dashboard_testings">通報數</string>
+    <string name="dashboard_excluded">排除數</string>
+    <string name="dashboard_new_confirmed">昨日確診</string>
+    <string name="dashboard_new_testings">昨日通報</string>
+    <string name="dashboard_new_excluded">昨日排除</string>
+    <string name="dashboard_share_wording_yesterday" />
+    <string name="dashboard_promotion">更多內容請參考防疫資訊 App：https://play.google.com/store/apps/details?id=com.jarvislin.drugstores</string>
     <string-array name="questions">
         <item>口罩存量怎麼來的？夠即時嗎？</item>
         <item>什麼情況下口罩存量會不準？</item>

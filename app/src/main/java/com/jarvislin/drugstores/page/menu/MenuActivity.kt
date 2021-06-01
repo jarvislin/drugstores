@@ -13,6 +13,7 @@ import com.jarvislin.drugstores.page.news.NewsActivity
 import com.jarvislin.drugstores.page.scan.ScanActivity
 import com.jarvislin.drugstores.page.testing.RapidTestActivity
 import kotlinx.android.synthetic.main.activity_menu.*
+import kotlinx.android.synthetic.main.view_dashboard.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MenuActivity : BaseActivity() {
@@ -85,17 +86,17 @@ class MenuActivity : BaseActivity() {
         } else {
             val data = viewModel.confirmedCase.value!!
             """
-                截至目前為止，
-                總確診數：${data.confirmedCount} 人
-                總通報數：${data.testingCount} 人
-                總排除數：${data.excludedCount} 人
-                解除隔離：${data.recoveredCount} 人
-                死亡：${data.deathCount} 人
-                昨日確診：${data.yesterdayConfirmedCount} 人
-                昨日通報：${data.yesterdayTestingCount} 人
-                昨日排除：${data.yesterdayExcludedCount} 人
+                ${getString(R.string.dashboard_confirmed)}: ${data.confirmedCount}
+                ${getString(R.string.dashboard_testings)}: ${data.testingCount}
+                ${getString(R.string.dashboard_excluded)}: ${data.excludedCount}
+                ${getString(R.string.dashboard_recovered)}: ${data.recoveredCount}
+                ${getString(R.string.dashboard_death)}: ${data.deathCount}
+                ${getString(R.string.dashboard_share_wording_yesterday)}
+                ${getString(R.string.dashboard_new_confirmed)}: ${data.yesterdayConfirmedCount}
+                ${getString(R.string.dashboard_new_testings)}: ${data.yesterdayTestingCount}
+                ${getString(R.string.dashboard_new_excluded)}: ${data.yesterdayExcludedCount}
                 
-                更多內容請參考防疫資訊 App：https://play.google.com/store/apps/details?id=com.jarvislin.drugstores
+                ${getString(R.string.dashboard_promotion)}
             """.trimIndent()
         }
     }
