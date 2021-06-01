@@ -17,6 +17,8 @@ import com.jarvislin.drugstores.extension.*
 import kotlinx.android.synthetic.main.activity_scan.*
 import org.jetbrains.anko.toast
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import timber.log.Timber
+import java.util.*
 
 class ScanActivity : BaseActivity() {
 
@@ -50,7 +52,8 @@ class ScanActivity : BaseActivity() {
                             }
                             analytics.logEvent("Scan_Web", null)
                         }
-                        result.startsWith("SMSTO:1922:場所代碼：") -> {
+                        result.toUpperCase(Locale.getDefault()).startsWith("SMSTO:1922:場所代碼：") -> {
+                            val result = result.toUpperCase(Locale.getDefault())
                             val content = result.replace("SMSTO:1922:", "")
                             if (viewModel.isEnabledSmsDialog()) {
                                 showSmsDialog(content)
@@ -62,6 +65,7 @@ class ScanActivity : BaseActivity() {
                         else -> {
                             toast(getString(R.string.scan_unsupported_format))
                             codeScanner.startPreview()
+                            Timber.e(result)
                             analytics.logEvent("Scan_UnsupportedFormat",
                                 Bundle().apply { putString("content", result) })
                         }
