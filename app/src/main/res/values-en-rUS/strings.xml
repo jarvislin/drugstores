@@ -7,11 +7,11 @@
     <string name="scan_web_dialog_title">Website detected</string>
     <string name="scan_web_dialog_content">It\'s not an official QR code, this may be made by other companies. Do you want to browse it?</string>
     <string name="scan_web_browse_button">Browse</string>
-    <string name="scan_permission_dialog_title">Need camera permission</string>
+    <string name="scan_permission_dialog_title">Need camera access</string>
     <string name="scan_permission_dialog_leave">Leave</string>
     <string name="scan_permission_dialog_go_to_settings">Settings</string>
     <string name="scan_no_permission">There\'s no permission to scan.</string>
-    <string name="scan_permission_dialog_content">Please grant the camera permission for scanning the QR code.</string>
+    <string name="scan_permission_dialog_content">Please grant the camera access for scanning the QR code.</string>
     <string name="scan_unsupported_format">Unsupported format</string>
     <string name="scan_error">Error occurred</string>
     <string name="menu_scan">Scan</string>
@@ -19,4 +19,21 @@
     <string name="cancel">Cancel</string>
     <string name="dismiss">Dismiss</string>
     <string name="scan_hint">Place QR code within the frame</string>
+    <string name="dashboard_recovered">Recovered</string>
+    <string name="dashboard_death">Deaths</string>
+    <string name="dashboard_confirmed">Confirmed</string>
+    <string name="dashboard_testings">Testings</string>
+    <string name="dashboard_excluded">Excluded</string>
+    <string name="dashboard_new_confirmed">Confirmed</string>
+    <string name="dashboard_new_testings">Testings</string>
+    <string name="dashboard_new_excluded">Excluded</string>
+    <string name="menu_news">News Releases</string>
+    <string name="menu_rapid_test">Rapid Test</string>
+    <string name="menu_mask_map">Mask Map</string>
+    <string name="dashboard_dialog_title">Data source</string>
+    <string name="dashboard_dialog_content">It uses the open data from Taiwan Centers for Disease Control. The data updates once a day.</string>
+    <string name="dashboard_dialog_share_button">Share</string>
+    <string name="default_notification_channel_id">System Notification</string>
+    <string name="dashboard_share_wording_yesterday">The following data is published yesterday.</string>
+    <string name="dashboard_promotion">Download this app for the further information: https://play.google.com/store/apps/details?id=com.jarvislin.drugstores</string>
 </resources>
