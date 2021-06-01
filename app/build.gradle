@@ -13,8 +13,8 @@ android {
         minSdkVersion 21
         targetSdkVersion 30
         //noinspection HighAppVersionCode
-        versionCode  2011151844
-        versionName "2.0.2"
+        versionCode  2011151845
+        versionName "2.1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         kapt {
             arguments {
