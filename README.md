@@ -24,6 +24,11 @@ Provides information and tools about the COVID-19 in Taiwan.
 https://play.google.com/store/apps/details?id=com.jarvislin.drugstores
 
 ## Changelog
+* 2.1.1 fix: fix the bug of scanning official QR Code
+* 2.1.0 feature: translate the page of Menu into English
+* 2.0.2 feature: translate the feature of Scanning QR code into English
+* 2.0.1 refacotr: adjust UX of the scanner
+* 2.0.0 feature: Confirmed case info, QR code scanner, rapid test loactions
 * 1.7.2 refactor: adjust UX of showing progress / markers
 * 1.7.1 refactor: remove chart of mask ammount history
 * 1.7.0 feature: News published by Centers for Disease Control
