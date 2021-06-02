@@ -2,18 +2,22 @@
 [![Coverage Status](https://coveralls.io/repos/github/jarvislin/drugstores/badge.svg?branch=master)](https://coveralls.io/github/jarvislin/drugstores?branch=master)
 ![Made with love in Taiwan](https://madewithlove.now.sh/tw?heart=true&colorA=%234c4c4c&colorB=%232ea7bd)
 
-# 口罩資訊地圖
+# 防疫資訊站
 
-透過地圖呈現週遭的特約藥局，並顯示即時的口罩數量，也提供關鍵字搜尋。
+提供疫情期間的相關資訊及工具
+1. 確診訊息：透過疾病管制署的開放資料每日更新。
+2. 實聯制掃描：提供掃碼工具，快速完成實聯登記。
+3. 官方新聞稿：提供疾病管制署的新聞稿內容，了解近期疫情資訊。
+4. 口罩地圖：利用地圖瀏覽附近的藥局。
 
-採用健康保險開放資料服務：
-健保特約機構口罩剩餘數量明細清單之資料集。
+- 採用健康保險開放資料：健保特約機構口罩剩餘數量明細清單
+- 採用衛生福利部疾病管制署開放資料：COVID-19台灣最新病例、檢驗統計
 
-# MaskInfo Map
+# COVID-19 INFO APP
 
-Provides information about the quantity of masks of every pharmacy and proclamations announced by government in Taiwan.
+Provides information and tools about the COVID-19 in Taiwan.
 
-![screenshot](https://github.com/jarvislin/drugstores/blob/master/art/2.png)
+<img src="https://github.com/jarvislin/drugstores/blob/master/art/Screenshot_20210530-150515.jpeg" width="25%" />
 
 
 ## Download
