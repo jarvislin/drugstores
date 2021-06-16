@@ -30,7 +30,7 @@ class ScanActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scan)
 
-        toolbar.setNavigationOnClickListener { finish() }
+        imageBack.setOnClickListener { finish() }
 
         codeScanner = CodeScanner(this, viewScanner)
         codeScanner.autoFocusMode = AutoFocusMode.SAFE

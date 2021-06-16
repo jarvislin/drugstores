@@ -20,12 +20,13 @@
         app:frameThickness="4dp"
         app:maskColor="#77000000" />
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        app:layout_constraintTop_toTopOf="parent"
-        app:navigationIcon="@drawable/ic_arrow_back" />
+    <ImageView
+        android:id="@+id/imageBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:padding="16dp"
+        android:src="@drawable/ic_arrow_back" />
 
     <TextView
         android:layout_width="match_parent"
@@ -33,7 +34,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="120dp"
         android:gravity="center"
-        android:textSize="16sp"
         android:text="@string/scan_hint"
-        android:textColor="@color/white" />
+        android:textColor="@color/white"
+        android:textSize="16sp" />
 </FrameLayout>

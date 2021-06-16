@@ -24,8 +24,8 @@ class ConfirmedInfoRepositoryImpl(private val downloader: Downloader) : Confirme
             .map { if (it.isEmpty()) throw ContentNotFoundException() else it.first() }
             .map {
                 if (it.containsKey("確診") && it.containsKey("送驗") && it.containsKey("排除") &&
-                    it.containsKey("昨日排除") && it.containsKey("昨日送驗") &&
-                    it.containsKey("解除隔離") && it.containsKey("死亡") && it.containsKey("昨日確診")
+                    it.containsKey("昨日排除") && it.containsKey("昨日送驗")
+                    && it.containsKey("死亡") && it.containsKey("昨日確診")
                 )
                     Dashboard(
                         confirmedCount = getFormattedNumber(it["確診"]!!),
@@ -35,18 +35,18 @@ class ConfirmedInfoRepositoryImpl(private val downloader: Downloader) : Confirme
                         yesterdayTestingCount = getFormattedNumber(it["昨日送驗"]!!),
                         yesterdayExcludedCount = getFormattedNumber(it["昨日排除"]!!),
                         deathCount = getFormattedNumber(it["死亡"]!!),
-                        recoveredCount = getFormattedNumber(it["解除隔離"]!!)
+                        recoveredCount = getFormattedNumber(it["解除隔離"])
                     )
                 else throw HeaderNotFoundException()
             }
             .subscribeOn(Schedulers.io())
     }
 
-    private fun getFormattedNumber(text: String): String {
-        return if (text.isNumber()) {
-            NumberFormat.getInstance().format(text.toInt())
-        } else {
-            text
+    private fun getFormattedNumber(text: String?): String {
+        return when {
+            text == null -> ""
+            text.isNumber() -> NumberFormat.getInstance().format(text.toInt())
+            else -> text
         }
     }
 
